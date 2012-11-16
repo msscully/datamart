@@ -2,3 +2,4 @@ flask
 Flask-WTF
 flask-bootstrap
 sqlalchemy
+readline

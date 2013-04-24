@@ -14,3 +14,4 @@ SQLAlchemy==0.8.0
 verlib==0.1
 Werkzeug==0.8.3
 WTForms==1.0.3
+flask-debugtoolbar==0.8.0

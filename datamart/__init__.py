@@ -8,3 +8,5 @@ app.config.from_envvar('DATAMART_APP_SETTINGS')
 Bootstrap(app)
 
 db = SQLAlchemy(app)
+
+import datamart.views

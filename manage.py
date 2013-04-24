@@ -1,7 +1,7 @@
 from flask.ext.script import Manager, Server, Shell, prompt_pass
 from datamart import app
 #from datamart import models
-#from datamart.models import db
+#from datamart import db
 import datamart
 
 manager = Manager(app)

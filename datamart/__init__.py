@@ -12,4 +12,6 @@ toolbar = DebugToolbarExtension(app)
 
 db = SQLAlchemy(app)
 
+import datamart.models
 import datamart.views
+import datamart.api

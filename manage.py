@@ -1,7 +1,7 @@
 from flask.ext.script import Manager, Server, Shell, prompt_pass
 from datamart import app
 #from datamart import models
-#from datamart import db
+from datamart import db
 import datamart
 
 manager = Manager(app)
@@ -17,7 +17,7 @@ class DevServer(Server):
             **self.server_options)
 
 def _shell_context():
-    return dict(app=app, db=db, auth=auth)        
+    return dict(app=app, db=db)        
 
 #@manager.option('--user', '-u', dest='user')
 #@manager.option('--email', '-e', dest='email')
@@ -30,13 +30,11 @@ def _shell_context():
 #    new_user.set_password(password)
 #    new_user.save()
 
-#@manager.command
-#def create_tables():
-#    '''Create database tables.  Fails silently.'''
-#    auth.User.create_table(fail_silently=True)
-#    #models.User.create_table(fail_silently=True)
-#    models.Note.create_table(fail_silently=True)
-#    print('Tables Created.')
+@manager.command
+def create_tables():
+    '''Create database tables.'''
+    db.create_all()
+    print('Database Created.')
 
 if __name__ == "__main__":
     manager.add_command('shell', Shell(make_context=_shell_context, use_ipython=False))

@@ -23,7 +23,8 @@ class Variable(db.Model):
     mean = db.Column(db.Float)
     # dimension is lowercase here as it's the table name, not the class name
     dimension_id = db.Column(db.Integer, db.ForeignKey('dimension.id'))
-    dimension = db.relationship('dimension', backref=db.backref('variables', lazy='dynamic'))
+    # Here Dimension is upper case because it expects the class
+    dimension = db.relationship('Dimension', backref=db.backref('variables', lazy='dynamic'))
 
     def __init__(self, display_name, dimension, description=None, min=None, max=None,
                  std=None, mean=None):

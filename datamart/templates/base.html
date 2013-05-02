@@ -1,35 +1,84 @@
-{% extends "bootstrap_responsive.html" %}
-{% import "bootstrap_wtf.html" as wtf %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block head %}
+    <title>Datamart{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta charset="utf-8">
 
-{% block body_content %}
+    <style> body { padding-top: 60px; } </style>
+    <link type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.css" rel="stylesheet">
+    <link type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap-responsive.css" rel="stylesheet">
+    <link type="text/css" href="{{url_for('static', filename='css/slick.grid.css')}}" rel="stylesheet" >
+
+    <!-- SUPPORT FOR IE6-8 OF HTML5 ELEMENTS -->
+    <!--[if lt IE 9]>
+          <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+
+    <link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
+
+    <script type="text/javascript">
+      var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    {% endblock head %}
+  </head>
+
+  <body>
+
+    {% block navbar %}
     <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">Project name</a>
-          <div class="nav-collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
+        <div class="navbar-inner">
+            <div class="container">
+              <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </a>
+              <a class="brand" href="#">Datamart</a>
+              <div class="nav-collapse">
+                <ul class="nav">
+                  <li class="active"><a href="#">Home</a></li>
+                  <li><a href="#about">About</a></li>
+                  <li><a href="#contact">Contact</a></li>
+                </ul>
+                {% block navbar_right %}
+                <ul class="nav pull-right">
+                  {% if not session.logged_in %}
+                    <li><a href="/login">Login or Signup</a></li>
+                  {% else %}
+                    <li><a href="/logout">Logout</a></li>
+                  {% endif %}
+                </ul>
+                {% endblock navbar_right %}
+              </div><!--/.nav-collapse -->
+            </div>
+          </div>
     </div>
+    {% endblock navbar %}
 
+  {% block body_content %}
     <div class="container">
       {% block container_content %}
-      {% endblock %}
+      {% endblock container_content %}
 
-      <hr>
-      <footer>
-      <p>&copy; Company 2012 - and <i class="icon-camera-retro"></i> FontAwesome is supported as well!</p>
-      </footer>
+      {% block footer %}
+        <hr>
+        <footer>
+        <p>&copy; Company 2012 </p>
+        </footer>
+      {% endblock footer %}
 
     </div> <!-- /container -->
-{% endblock %}
+  {% endblock body_content %}
+
+  {% block datamart_js_footer %}
+    <script type = "text/javascript" charset="utf8" src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/js/bootstrap.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/datamart_tables.js') }}"></script>
+  {% endblock datamart_js_footer %}
+  </body>
+</html>

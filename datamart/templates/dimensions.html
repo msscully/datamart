@@ -2,4 +2,81 @@
 
 {% block title %} Dimensions {% endblock %}
 {% block container_content %}
+  <!-- DATAGRID MARKUP -->
+  <table id="MyGrid" class="table table-bordered datagrid">
+    <thead>
+    <tr>
+      <th>
+        <span class="datagrid-header-title">Flickr Search</span>
+        <div class="datagrid-header-left"></div>
+        <div class="datagrid-header-right">
+          <div class="input-append search">
+            <input type="text" class="input-medium" placeholder="Search"><button class="btn"><i class="icon-search"></i></button>
+          </div>
+        </div>
+      </th>
+    </tr>
+    </thead>
+
+    <tfoot>
+    <tr>
+      <th>
+        <div class="datagrid-footer-left" style="display:none;">
+          <div class="grid-controls">
+            <span><span class="grid-start"></span> - <span class="grid-end"></span> of <span class="grid-count"></span></span>
+            <select class="grid-pagesize"><option>5</option><option>10</option></select>
+            <span>Per Page</span>
+          </div>
+        </div>
+        <div class="datagrid-footer-right" style="display:none;">
+          <div class="grid-pager">
+            <button class="btn grid-prevpage"><i class="icon-chevron-left"></i></button>
+            <span>Page</span>
+            <div class="input-append dropdown combobox">
+              <input class="span1" type="text">
+            </div>
+            <span>of <span class="grid-pages"></span></span>
+            <button class="btn grid-nextpage"><i class="icon-chevron-right"></i></button>
+          </div>
+        </div>
+      </th>
+    </tr>
+    </tfoot>
+  </table>
+  <!-- END DATAGRID MARKUP -->
+  <script>
+(function($){
+
+  $(function() {
+    $('#MyGrid').datagrid({ dataSource: new FlickrDataSource({
+
+      // Column definitions for Datagrid
+      columns: [{
+        property: 'image',
+        label: 'Image',
+        sortable: false
+      },{
+        property: 'title',
+        label: 'Title',
+        sortable: false
+      }],
+
+      // Create IMG tag for each returned image
+      formatter: function (items) {
+        $.each(items, function (index, item) {
+          item.image = '<img src="' + flickrUrl(item) + '"></a>';
+        });
+      }
+    })
+    });
+
+    // Returns image URL for an image returned from Flickr API
+    function flickrUrl(image) {
+      return 'http://farm' + image.farm + '.staticflickr.com/' +
+      image.server +  '/' + image.id + '_' + image.secret + '_t.jpg';
+    }
+  });
+})(jQuery)
+  </script>
+
 {% endblock container_content %}

@@ -7,11 +7,11 @@
       columns: [{
         property: 'unit_name',
         label: 'Unit Name',
-        sortable: false
+        sortable: true
       },{
         property: 'description',
         label: 'Description',
-        sortable: false
+        sortable: true
       }],
 
     })

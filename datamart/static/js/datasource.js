@@ -31,29 +31,34 @@ DimensionsDataSource.prototype = {
         //var url = 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d6d798f51bbd5ec0a1f9e9f1e62c43ab&format=json';
         var url = 'http://127.0.0.1:5000/api/dimension';
         var self = this;
+        var q = {};
         
-        var filters = [];
-
         if (options.search) {
 
             var searchTerm = '%' + options.search + '%';
             // Search active.  Add URL parameters for Flickr API.
-            filters = [{"name": "unit_name", "op": "like", "val": searchTerm},
+            var filters = [{"name": "unit_name", "op": "like", "val": searchTerm},
                 {"name": "description", "op": "like", "val": searchTerm}];
+            q.filters = filters;
+            q.disjunction = true;
 
+        }
+        // SORTING
+        if (options.sortProperty) {
+            var order = [{field: options.sortProperty, direction: options.sortDirection}];
+            q.order_by = order;
         }
 
         $.ajax(url, {
 
             // Set JSONP options for Flickr API
             dataType: 'json',
-            data: {"q": JSON.stringify({"filters": filters,
-                   "disjunction": true}),
+            data: {"q": JSON.stringify(q),
                    "results_per_page": options.pageSize,
                    "page": options.pageIndex + 1 },
-                jsonp: false,
-                contentType: "application/json",
-                type: 'GET'
+            jsonp: false,
+            contentType: "application/json",
+            type: 'GET'
 
         }).done(function (response) {
 

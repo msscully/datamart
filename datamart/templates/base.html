@@ -23,8 +23,6 @@
     <script type="text/javascript">
       var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="http://fuelcdn.com/fuelux-imh/2.2/loader.min.js" type="text/javascript"></script>
     {% endblock head %}
   </head>
 
@@ -77,7 +75,10 @@
   {% endblock body_content %}
 
   {% block datamart_js_footer %}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://fuelcdn.com/fuelux-imh/2.2/loader.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/datasource.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/dimensions.js') }}"></script>
   {% endblock datamart_js_footer %}
   </body>
 </html>

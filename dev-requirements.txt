@@ -1,4 +1,4 @@
 -r requirements.txt
+Flask-Script==0.5.3
 pip-tools==0.3.1
 readline==6.2.4.1
-Flask-Script==0.5.3

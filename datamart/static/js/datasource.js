@@ -6,12 +6,12 @@
  * Demo source released to public domain.
  */
 
-var FlickrDataSource = function (options) {
+var DimensionsDataSource = function (options) {
     this._formatter = options.formatter;
     this._columns = options.columns;
 };
 
-FlickrDataSource.prototype = {
+DimensionsDataSource.prototype = {
 
     /**
      * Returns stored column metadata
@@ -28,49 +28,52 @@ FlickrDataSource.prototype = {
      */
     data: function (options, callback) {
 
-        var url = 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d6d798f51bbd5ec0a1f9e9f1e62c43ab&format=json';
+        //var url = 'http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=d6d798f51bbd5ec0a1f9e9f1e62c43ab&format=json';
+        var url = 'http://127.0.0.1:5000/api/dimension';
         var self = this;
+        
+        var filters = [];
 
         if (options.search) {
 
+            var searchTerm = '%' + options.search + '%';
             // Search active.  Add URL parameters for Flickr API.
-            url += '&tags=' + options.search;
-            url += '&per_page=' + options.pageSize;
-            url += '&page=' + (options.pageIndex + 1);
-
-            $.ajax(url, {
-
-                // Set JSONP options for Flickr API
-                dataType: 'jsonp',
-                jsonpCallback: 'jsonFlickrApi',
-                jsonp: false,
-                type: 'GET'
-
-            }).done(function (response) {
-
-                // Prepare data to return to Datagrid
-                var data = response.photos.photo;
-                var count = response.photos.total;
-                var startIndex = (response.photos.page - 1) * response.photos.perpage;
-                var endIndex = startIndex + response.photos.perpage;
-                var end = (endIndex > count) ? count : endIndex;
-                var pages = response.photos.pages;
-                var page = response.photos.page;
-                var start = startIndex + 1;
-
-                // Allow client code to format the data
-                if (self._formatter) self._formatter(data);
-
-                // Return data to Datagrid
-                callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
-
-            });
-
-        } else {
-
-            // No search. Return zero results to Datagrid
-            callback({ data: [], start: 0, end: 0, count: 0, pages: 0, page: 0 });
+            filters = [{"name": "unit_name", "op": "like", "val": searchTerm},
+                {"name": "description", "op": "like", "val": searchTerm}];
 
         }
+
+        $.ajax(url, {
+
+            // Set JSONP options for Flickr API
+            dataType: 'json',
+            data: {"q": JSON.stringify({"filters": filters,
+                   "disjunction": true}),
+                   "results_per_page": options.pageSize,
+                   "page": options.pageIndex + 1 },
+                jsonp: false,
+                contentType: "application/json",
+                type: 'GET'
+
+        }).done(function (response) {
+
+            // Prepare data to return to Datagrid
+            var data = response.objects;
+            var count = response.num_results;
+            var startIndex = (response.page - 1) * options.pageSize;
+            var endIndex = startIndex + options.pageSize;
+            var end = (endIndex > count) ? count : endIndex;
+            var pages = response.total_pages;
+            var page = response.page;
+            var start = startIndex + 1;
+
+            // Allow client code to format the data
+            if (self._formatter) {self._formatter(data);}
+
+            // Return data to Datagrid
+            callback({ data: data, start: start, end: end, count: count, pages: pages, page: page });
+
+        });
+
     }
 };

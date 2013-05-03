@@ -9,7 +9,7 @@ define([
         initialize: function () {
             Backbone.Model.prototype.initialize.apply(this, arguments);
             this.on("change", function (model, options) {
-                if (options && options.save === false) return;
+                if (options && options.save === false) {return;}
                 model.save();
             });
         }
@@ -22,7 +22,6 @@ define([
           parse: function(response) {
                   return response.objects;
           }
-
     });
 
     var dimensions = new Dimensions();

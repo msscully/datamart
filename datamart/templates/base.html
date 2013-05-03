@@ -12,6 +12,7 @@
     <style> body { padding-top: 60px; } </style>
     <link href="http://fuelcdn.com/fuelux-imh/2.2/css/fuelux.css" rel="stylesheet" />
     <link href="http://fuelcdn.com/fuelux-imh/2.2/css/fuelux-responsive.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/backgrid.css') }}" />
 
     <!-- SUPPORT FOR IE6-8 OF HTML5 ELEMENTS -->
     <!--[if lt IE 9]>
@@ -75,10 +76,40 @@
   {% endblock body_content %}
 
   {% block datamart_js_footer %}
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="http://fuelcdn.com/fuelux-imh/2.2/loader.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/datasource.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/dimensions.js') }}"></script>
-  {% endblock datamart_js_footer %}
-  </body>
-</html>
+    <script data-main="/static/js/main" src="/static/js/ext/require.js"></script>
+    <script>
+      requirejs.config({
+        appDir: ".",
+        baseUrl: "/static/js",
+        paths: { 
+            /* Load jquery from google cdn. On fail, load local file. */
+            'jquery':
+              ['//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min','ext/jquery-1.8.2.min'],
+            /* Load bootstrap from cdn. On fail, load local file. */
+            'bootstrap':
+              ['//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min','ext/bootstrap-min'],
+            'underscore':
+              ['//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min','ext/underscore.min'],
+            'backbone':
+              ['//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min','ext/backbone-min'],
+            'backgrid':
+              'ext/backgrid.min'
+        },
+        shim: {
+            /* Set bootstrap dependencies (just jQuery) */
+            'bootstrap' : ['jquery'], // no exports
+            'underscore': { exports: '_' }, // no dependencies
+            'backbone': { 
+              deps: ['underscore', 'jquery'],
+              exports: 'Backbone' 
+            },
+            'backgrid': {
+              deps: ['jquery','backbone','underscore'],
+              exports: "Backgrid"
+            }
+        }
+      });
+    </script>
+    {% endblock datamart_js_footer %}
+    </body>
+    </html>

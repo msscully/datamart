@@ -10,8 +10,8 @@
     <meta charset="utf-8">
 
     <style> body { padding-top: 60px; } </style>
-    <link href="http://fuelcdn.com/fuelux-imh/2.2/css/fuelux.css" rel="stylesheet" />
-    <link href="http://fuelcdn.com/fuelux-imh/2.2/css/fuelux-responsive.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/backgrid.css') }}" />
 
     <!-- SUPPORT FOR IE6-8 OF HTML5 ELEMENTS -->
@@ -30,86 +30,84 @@
   <body>
 
     {% block navbar %}
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-              <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </a>
-              <a class="brand" href="#">Datamart</a>
-              <div class="nav-collapse">
-                <ul class="nav">
-                  <li class="active"><a href="#">Home</a></li>
-                  <li><a href="#about">About</a></li>
-                  <li><a href="#contact">Contact</a></li>
-                </ul>
-                {% block navbar_right %}
-                <ul class="nav pull-right">
-                  {% if not session.logged_in %}
-                    <li><a href="/login">Login or Signup</a></li>
-                  {% else %}
-                    <li><a href="/logout">Logout</a></li>
-                  {% endif %}
-                </ul>
-                {% endblock navbar_right %}
-              </div><!--/.nav-collapse -->
+      <div class="navbar navbar-fixed-top">
+          <div class="navbar-inner">
+              <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                </a>
+                <a class="brand" href="#">Datamart</a>
+                <div class="nav-collapse">
+                  <ul class="nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                  </ul>
+                  {% block navbar_right %}
+                  <ul class="nav pull-right">
+                    {% if not session.logged_in %}
+                      <li><a href="/login">Login or Signup</a></li>
+                    {% else %}
+                      <li><a href="/logout">Logout</a></li>
+                    {% endif %}
+                  </ul>
+                  {% endblock navbar_right %}
+                </div><!--/.nav-collapse -->
+              </div>
             </div>
-          </div>
-    </div>
+      </div>
     {% endblock navbar %}
 
-  {% block body_content %}
-    <div class="container">
-      {% block container_content %}
-      {% endblock container_content %}
+    {% block body_content %}
+      <div class="container">
+        {% block container_content %}
+        {% endblock container_content %}
 
-      {% block footer %}
-        <hr>
-        <footer>
-        <p>&copy; Company 2012 </p>
-        </footer>
-      {% endblock footer %}
+        {% block footer %}
+          <hr>
+          <footer>
+          <p>&copy; Company 2012 </p>
+          </footer>
+        {% endblock footer %}
 
-    </div> <!-- /container -->
-  {% endblock body_content %}
+      </div> <!-- /container -->
+    {% endblock body_content %}
 
-  {% block datamart_js_footer %}
-    <script data-main="/static/js/main" src="/static/js/ext/require.js"></script>
-    <script>
-      requirejs.config({
-        appDir: ".",
-        baseUrl: "/static/js",
-        paths: { 
-            /* Load jquery from google cdn. On fail, load local file. */
-            'jquery':
-              ['//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min','ext/jquery-1.8.2.min'],
-            /* Load bootstrap from cdn. On fail, load local file. */
-            'bootstrap':
-              ['//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min','ext/bootstrap-min'],
-            'underscore':
-              ['//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min','ext/underscore.min'],
-            'backbone':
-              ['//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min','ext/backbone-min'],
-            'backgrid':
-              'ext/backgrid.min'
-        },
-        shim: {
-            /* Set bootstrap dependencies (just jQuery) */
-            'bootstrap' : ['jquery'], // no exports
-            'underscore': { exports: '_' }, // no dependencies
-            'backbone': { 
-              deps: ['underscore', 'jquery'],
-              exports: 'Backbone' 
-            },
-            'backgrid': {
-              deps: ['jquery','backbone','underscore'],
-              exports: "Backgrid"
-            }
-        }
-      });
-    </script>
+    {% block datamart_js_footer %}
+      <script data-main="/static/js/main" src="/static/js/ext/require.js"></script>
+      <script>
+        requirejs.config({
+          appDir: ".",
+          baseUrl: "/static/js",
+          paths: { 
+              'jquery':
+                'ext/jquery.min',
+              'bootstrap':
+                'ext/bootstrap-min',
+              'underscore':
+                'ext/underscore-min',
+              'backbone':
+                'ext/backbone-min',
+              'backgrid':
+                'ext/backgrid.min'
+          },
+          shim: {
+              /* Set bootstrap dependencies (just jQuery) */
+              'bootstrap' : ['jquery'], // no exports
+              'underscore': { exports: '_' }, // no dependencies
+              'backbone': { 
+                deps: ['underscore', 'jquery'],
+                exports: 'Backbone' 
+              },
+              'backgrid': {
+                deps: ['jquery','backbone','underscore'],
+                exports: "Backgrid"
+              }
+          }
+        });
+      </script>
     {% endblock datamart_js_footer %}
-    </body>
-    </html>
+  </body>
+</html>

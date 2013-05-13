@@ -1,4 +1,6 @@
 from datamart import db
+from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.dialects.postgresql import HSTORE
 
 class Dimension(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -28,3 +30,10 @@ class Variable(db.Model):
         repr += 'mean: %r, std: %r' % (self.mean, self.std)
         return repr
 
+class Facts(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    reviewed = db.Column(db.Boolean, nullable=False, default=False)
+    values = db.Column(MutableDict.as_mutable(HSTORE))
+
+    def __repr__(self):
+        return 'Fact %r' % self.id

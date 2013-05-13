@@ -7,3 +7,5 @@ manager.create_api(models.Dimension,
     methods=['GET', 'POST', 'DELETE', 'PUT'], results_per_page=20)
 manager.create_api(models.Variable, 
     methods=['GET', 'POST', 'DELETE', 'PUT'], results_per_page=20)
+manager.create_api(models.Facts, 
+    methods=['GET', 'POST', 'DELETE', 'PUT'], results_per_page=20)

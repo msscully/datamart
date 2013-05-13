@@ -13,4 +13,4 @@ db = SQLAlchemy(app)
 import datamart.models
 import datamart.views
 import datamart.api
-#import admin
+import admin

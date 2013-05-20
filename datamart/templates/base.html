@@ -1,8 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" class="fuelux">
+<html ng-app="DatamartApp" lang="en" >
   <head>
-    {% block head %}
-    <title>Datamart{% block title %}{% endblock %}</title>
+    <title>Datamart</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="keywords" content="">
@@ -12,7 +11,6 @@
     <style> body { padding-top: 60px; } </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/backgrid.css') }}" />
 
     <!-- SUPPORT FOR IE6-8 OF HTML5 ELEMENTS -->
     <!--[if lt IE 9]>
@@ -20,94 +18,22 @@
       <![endif]-->
 
     <link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
-
     <script type="text/javascript">
       var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
-    {% endblock head %}
+    <script src="static/js/app.js"></script>
   </head>
 
   <body>
 
-    {% block navbar %}
-      <div class="navbar navbar-fixed-top">
-          <div class="navbar-inner">
-              <div class="container">
-                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                  <span class="icon-bar"></span>
-                </a>
-                <a class="brand" href="#">Datamart</a>
-                <div class="nav-collapse">
-                  <ul class="nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                  </ul>
-                  {% block navbar_right %}
-                  <ul class="nav pull-right">
-                    {% if not session.logged_in %}
-                      <li><a href="/login">Login or Signup</a></li>
-                    {% else %}
-                      <li><a href="/logout">Logout</a></li>
-                    {% endif %}
-                  </ul>
-                  {% endblock navbar_right %}
-                </div><!--/.nav-collapse -->
-              </div>
-            </div>
-      </div>
-    {% endblock navbar %}
-
-    {% block body_content %}
-      <div class="container">
-        {% block container_content %}
-        {% endblock container_content %}
-
-        {% block footer %}
-          <hr>
-          <footer>
-          <p>&copy; Company 2012 </p>
-          </footer>
-        {% endblock footer %}
-
-      </div> <!-- /container -->
-    {% endblock body_content %}
+    <div class="container">
+      <div ng-view></div>
+    </div>
 
     {% block datamart_js_footer %}
-      <script data-main="/static/js/main" src="/static/js/ext/require.js"></script>
-      <script>
-        requirejs.config({
-          appDir: ".",
-          baseUrl: "/static/js",
-          paths: { 
-              'jquery':
-                'ext/jquery.min',
-              'bootstrap':
-                'ext/bootstrap-min',
-              'underscore':
-                'ext/underscore-min',
-              'backbone':
-                'ext/backbone-min',
-              'backgrid':
-                'ext/backgrid.min'
-          },
-          shim: {
-              /* Set bootstrap dependencies (just jQuery) */
-              'bootstrap' : ['jquery'], // no exports
-              'underscore': { exports: '_' }, // no dependencies
-              'backbone': { 
-                deps: ['underscore', 'jquery'],
-                exports: 'Backbone' 
-              },
-              'backgrid': {
-                deps: ['jquery','backbone','underscore'],
-                exports: "Backgrid"
-              }
-          }
-        });
-      </script>
+    <script type="text/javascript" src="{{url_for('static', 'js/ext/jquery-1.9.1.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static','js/ext/angular.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static','js/ext/angular-resource.js')}}"></script>
     {% endblock datamart_js_footer %}
   </body>
 </html>

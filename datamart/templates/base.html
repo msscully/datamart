@@ -37,9 +37,14 @@
           <a class="brand" href="#">Datamart</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
+              {%- for endpoint, caption in [
+                ('index', 'Home'),
+                ('dimensions', 'Dimensions'),
+                ('variables', 'Variables'),
+                ] %}
+                <li{% if endpoint == request.endpoint %} class=active{% endif
+                %}><a href={{ url_for(endpoint) }}>{{ caption }}</a>
+              {%- endfor %}
             </ul>
             {% block navbar_right %}
               <ul class="nav pull-right">

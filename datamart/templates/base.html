@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="DatamartApp" lang="en" >
+<html lang="en" >
   <head>
     <title>Datamart</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,7 +21,6 @@
     <script type="text/javascript">
       var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
-    <script src="static/js/app.js"></script>
   </head>
 
   <body>
@@ -32,8 +31,7 @@
 
     {% block datamart_js_footer %}
     <script type="text/javascript" src="{{url_for('static', 'js/ext/jquery-1.9.1.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static','js/ext/angular.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static','js/ext/angular-resource.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', 'js/ext/bootstrap.js')}}"></script>
     {% endblock datamart_js_footer %}
   </body>
 </html>

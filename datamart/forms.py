@@ -19,3 +19,14 @@ class DimensionForm(Form):
     description = TextField('Description',
                             description='A human friendly description of the Dimension.')
 
+def current_dimensions():
+    return models.Dimension.query.all()
+
+class VariableForm(Form):
+    display_name = TextField('Display Name',
+                          [validators.Required("Please enter a display name.")],
+                          description='A human friendly name to use for this variable.')
+    description = TextField('Description',
+                            description='A human friendly description of the Dimension.')
+    dimensions = QuerySelectField(query_factory=current_dimensions, get_label='unit_name')
+

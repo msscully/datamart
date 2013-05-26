@@ -1,7 +1,7 @@
 from flask import render_template, request, flash, redirect, url_for,\
         jsonify, json
 from datamart import app, models, db
-from forms import ExampleForm, DimensionForm
+from forms import ExampleForm, DimensionForm, VariableForm
 
 @app.route('/', methods=['GET', 'POST',])
 def index():
@@ -51,8 +51,38 @@ def dimension_delete(dimension_id):
     return render_template('dimensions_view')
 
 @app.route('/variables', methods=['GET'])
-def variables_view():
-    return render_template('variables.html')
+@app.route('/variables/<int:variable_id>', methods=['GET'])
+def variables_view(variable_id=None):
+    if variable_id:
+        variables = [models.Variable.query.get_or_404(variable_id)]
+    else:
+        variables = models.Variable.query.all()
+    return render_template('variables.html', variables=variables)
+
+@app.route('/variables/add', methods=['GET', 'POST'])
+@app.route('/variables/<int:variable_id>/edit', methods=['GET', 'POST'])
+def variable_edit(variable_id=None):
+    if variable_id:
+        variable = models.Variable.query.get_or_404(variable_id)
+    else:
+        variable = models.Variable()
+
+    form = VariableForm(obj=variable)
+    if request.method == 'POST':
+        if form.validate():
+            form.populate_obj(variable)
+            variable.dimension_id = form.dimensions.data.id
+            db.session.add(variable)
+            db.session.commit()
+            flash("Variable updated", "alert-success")
+            return redirect(url_for("variables_view", variable_id=variable_id))
+        else:
+            flash("Please populate required fields.", "alert-error")
+            return render_template('variable_edit.html', variable=variable,
+                                   form=form)
+    elif request.method == 'GET':
+        return render_template('variable_edit.html', variable=variable, form=form)
+
 
 
 @app.errorhandler(404)

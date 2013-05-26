@@ -1,4 +1,5 @@
-from flask import render_template, request, flash, redirect, url_for
+from flask import render_template, request, flash, redirect, url_for,\
+        jsonify, json
 from datamart import app, models, db
 from forms import ExampleForm, DimensionForm
 
@@ -52,3 +53,67 @@ def dimension_delete(dimension_id):
 @app.route('/variables', methods=['GET'])
 def variables_view():
     return render_template('variables.html')
+
+
+@app.errorhandler(404)
+def not_found(error=None):
+    message = {
+            'status': 404,
+            'message': 'Not Found: ' + request.url,
+    }
+    resp = jsonify(message)
+    resp.status_code = 404
+
+    return resp
+
+@app.route('/api/facts/<int:id>', methods=['GET','PUT','PATCH','POST','DELETE'])
+def fact_api():
+    pass
+
+# Amazing http status code diagram: http://i.stack.imgur.com/whhD1.png
+@app.route('/api/facts', methods=['GET','PUT','PATCH','POST','DELETE'])
+def facts_api():
+    data = {'total_pages': 1,
+            'num_results': 0,
+            'page': 1,
+            'items': []
+           }
+
+    if request.headers['Content-Type'] == 'application/json':
+        if request.method == 'GET':
+            resp = jsonify(data)
+            resp.status_code = 200
+            return resp
+
+        elif request.method == 'POST':
+            blah = request.json
+            data['test'] = blah
+            #message = jsonify(json.loads(request.data))
+            resp = jsonify(data)
+            resp.status_code = 201
+            resp.location = url_for('fact_api', id=1)
+            return resp
+
+        elif request.method == 'PATCH':
+            return "ECHO: PATCH\n"
+
+        elif request.method == 'PUT':
+            # if new item then 201
+            resp = jsonify(data)
+            resp.status_code = 201
+            return resp
+
+        elif request.method == 'DELETE':
+            # If nothing in response body 204
+            resp = jsonify({})
+            resp.status_code = 204
+            return resp
+
+    else:
+        message = {
+            'status': 406,
+            'message': 'Content-Type: \'' + request.headers['Content-Type'] + '\' not supported.'
+        }
+        resp = jsonify(message)
+        resp.status_code = 406
+        return resp

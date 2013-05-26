@@ -14,7 +14,6 @@ class Variable(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(300), unique=True)
     display_name = db.Column(db.String(30), nullable=False, unique=True)
-    id = db.Column(db.Integer, primary_key=True)
     min = db.Column(db.Float, nullable=True)
     max = db.Column(db.Float, nullable=True)
     std = db.Column(db.Float, nullable=True)

@@ -23,7 +23,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    active = db.Column(db.Boolean())
+    active = db.Column(db.Boolean)
     confirmed_at = db.Column(db.DateTime())
     last_login_at = db.Column(db.DateTime())
     current_login_at = db.Column(db.DateTime())
@@ -67,6 +67,7 @@ class Variable(db.Model):
     dimension = db.relationship('Dimension', backref=db.backref('variables', lazy='dynamic'))
     roles = db.relationship('Role', secondary=roles_variables,
                             backref='variables')
+    in_use = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
         repr = 'Variable %r - dim: %r, ' % (self.display_name, self.dimension)

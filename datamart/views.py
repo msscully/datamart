@@ -2,7 +2,7 @@ from flask import render_template, request, flash, redirect, url_for,\
         jsonify, json
 from datamart import app, models, db
 from forms import RoleForm, DimensionForm, VariableForm, UserForm
-from flask.ext.security import login_required, LoginForm
+from flask.ext.security import login_required, LoginForm, current_user
 
 @app.route('/', methods=['GET', 'POST',])
 def index():
@@ -165,6 +165,16 @@ def not_found(error=None):
     resp.status_code = 404
 
     return resp
+
+@app.route('/facts', methods=['GET'])
+@login_required
+def facts_view():
+    facts = models.Facts.query.all()
+    # select role.variables where role.users contains current_user
+    variables = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
+            .join((models.User, models.Role.users)).filter(models.Variable.in_use == True)
+
+    return render_template('facts.html', variables=variables, facts=facts)
 
 @app.route('/api/facts/<int:id>', methods=['GET','PUT','PATCH','POST','DELETE'])
 @login_required

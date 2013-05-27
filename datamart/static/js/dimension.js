@@ -62,4 +62,25 @@
     return false;
   });
 
+  $('.remove-user').click(function(){
+    var id = $(this).attr('id').substring(3);
+    var unit_name = $('#un_'+id).html();
+    if (confirm("Are you sure you want to delete User " + unit_name + "?")) {
+      $.ajax({
+        url: '/api/user/'+id,
+        type: 'DELETE',
+        dataType: 'json',
+        data: '',
+        success: function(response) {
+          $('#ur_'+id).remove();
+          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted User " + unit_name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+        },
+        failure: function(response) {
+          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete User " + unit_name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+        }
+      });
+    }
+    return false;
+  });
+
 })(jQuery);

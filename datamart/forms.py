@@ -27,3 +27,14 @@ VariableForm = model_form(models.Variable, db_session=db.session, base_class=For
                          })
 
 RoleForm = model_form(models.Role, db_session=db.session, base_class=Form)
+
+UserForm = model_form(models.User, db_session=db.session, base_class=Form,
+                     exclude = [],
+                     field_args = {
+                         'roles': {
+                             'get_label': 'name'
+                         },
+                         'email': {
+                             'validators': [validators.Required(), validators.Email()]
+                         }
+                     })

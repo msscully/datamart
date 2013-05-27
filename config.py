@@ -10,3 +10,4 @@ MAIL_PORT = 25
 #MAIL_USE_SSL = True
 #MAIL_USERNAME = 'username'
 #MAIL_PASSWORD = 'password'
+SECURITY_PASSWORD_HASH='pbkdf2_sha512'

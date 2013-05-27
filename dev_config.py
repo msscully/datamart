@@ -1,4 +1,5 @@
 DEBUG = True
+DEBUG_TB_INTERCEPT_REDIRECTS = False
 BOOTSTRAP_USE_MINIFIED = False
 BOOTSTRAP_USE_CDN = False
 BOOTSTRAP_FONTAWESOME = True
@@ -10,7 +11,7 @@ MAIL_PORT = 25
 #MAIL_USE_SSL = True
 #MAIL_USERNAME = 'username'
 #MAIL_PASSWORD = 'password'
-SECURITY_PASSWORD_HASH='plaintext'
+SECURITY_PASSWORD_HASH = 'plaintext'
 
 import os
 basedir = os.path.abspath(os.path.dirname(__file__))

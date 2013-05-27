@@ -1,6 +1,6 @@
 from flask.ext.wtf import Form, TextField, HiddenField, ValidationError,\
                           Required, validators
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
+from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 from datamart import models
 
 class ExampleForm(Form):
@@ -22,11 +22,22 @@ class DimensionForm(Form):
 def current_dimensions():
     return models.Dimension.query.all()
 
+def current_roles():
+    return models.Role.query.all()
+
 class VariableForm(Form):
     display_name = TextField('Display Name',
                           [validators.Required("Please enter a display name.")],
                           description='A human friendly name to use for this variable.')
     description = TextField('Description',
-                            description='A human friendly description of the Dimension.')
-    dimensions = QuerySelectField(query_factory=current_dimensions, get_label='unit_name')
+                            description='A human friendly description of the Variable.')
+    dimension = QuerySelectField(query_factory=current_dimensions, get_label='unit_name')
+    roles = QuerySelectMultipleField(query_factory=current_roles, get_label='name')
+
+class RoleForm(Form):
+    name = TextField('Name',
+                     [validators.Required("Please enter a display name.")],
+                     description='A human friendly name to use for this role.')
+    description = TextField('Description',
+                            description='A human friendly description of this Role.')
 

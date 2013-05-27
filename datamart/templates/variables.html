@@ -9,6 +9,8 @@
       <th>Display Name</th>
       <th>Description</th>
       <th>Dimensions</th>
+      <th>Roles</th>
+      <th></th>
     </thead>
     <tbody>
     {% for variable in variables %}
@@ -16,6 +18,7 @@
       <td id='vdn_{{variable.id}}'>{{ variable.display_name }}</td>
       <td>{{ variable.description }}</td>
       <td>{{ variable.dimension }}</td>
+      <td>{% for role in variable.roles %}<a href={{url_for('roles_view',role_id=role.id)}}>{{role.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
       <td>
         <a href="{{url_for('variable_edit', variable_id=variable.id)}}"><i class="icon-pencil"></i></a>
         <a ><i id='dv_{{variable.id}}' class="icon-remove remove-variable"></i></a>

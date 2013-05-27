@@ -1,7 +1,7 @@
 from flask import render_template, request, flash, redirect, url_for,\
         jsonify, json
 from datamart import app, models, db
-from forms import ExampleForm, DimensionForm, VariableForm
+from forms import RoleForm, DimensionForm, VariableForm
 
 @app.route('/', methods=['GET', 'POST',])
 def index():
@@ -71,7 +71,7 @@ def variable_edit(variable_id=None):
     if request.method == 'POST':
         if form.validate():
             form.populate_obj(variable)
-            variable.dimension_id = form.dimensions.data.id
+            variable.dimension_id = form.dimension.data.id
             db.session.add(variable)
             db.session.commit()
             flash("Variable updated", "alert-success")
@@ -83,7 +83,37 @@ def variable_edit(variable_id=None):
     elif request.method == 'GET':
         return render_template('variable_edit.html', variable=variable, form=form)
 
+@app.route('/roles', methods=['GET'])
+@app.route('/roles/<int:role_id>', methods=['GET'])
+def roles_view(role_id=None):
+    if role_id:
+        roles = [models.Role.query.get_or_404(role_id)]
+    else:
+        roles = models.Role.query.all()
+    return render_template('roles.html', roles=roles, single=True)
 
+@app.route('/roles/add', methods=['GET', 'POST'])
+@app.route('/roles/<int:role_id>/edit', methods=['GET', 'POST'])
+def role_edit(role_id=None):
+    if role_id:
+        role = models.Role.query.get_or_404(role_id)
+    else:
+        role = models.Role()
+
+    form = RoleForm(obj=role)
+    if request.method == 'POST':
+        if form.validate():
+            form.populate_obj(role)
+            db.session.add(role)
+            db.session.commit()
+            flash("Role updated", "alert-success")
+            return redirect(url_for("roles_view", role_id=role_id))
+        else:
+            flash("Please populate required fields.", "alert-error")
+            return render_template('role_edit.html', role=role,
+                                   form=form)
+    elif request.method == 'GET':
+        return render_template('role_edit.html', role=role, form=form)
 
 @app.errorhandler(404)
 def not_found(error=None):

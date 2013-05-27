@@ -41,6 +41,7 @@
                 ('index', 'Home'),
                 ('dimensions_view', 'Dimensions'),
                 ('variables_view', 'Variables'),
+                ('roles_view', 'Roles'),
                 ] %}
                 <li{% if endpoint == request.endpoint %} class=active{% endif
                 %}><a href={{ url_for(endpoint) }}>{{ caption }}</a>

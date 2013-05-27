@@ -3,11 +3,15 @@ from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.dialects.postgresql import HSTORE, INET
 from flask.ext.security import RoleMixin, UserMixin
 
-roles_users = db.Table('roles_users',
-                       db.Column('user_id', db.Integer(),
-                                 db.ForeignKey('user.id')),
-                       db.Column('role_id', db.Integer(),
-                                 db.ForeignKey('role.id')))
+roles_users = db.Table('roles_users', 
+                       db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
+                      )
+
+roles_variables = db.Table('roles_variables',
+                           db.Column('variable_id', db.Integer(), db.ForeignKey('variable.id')),
+                           db.Column('role_id', db.Integer(), db.ForeignKey('role.id'))
+                          )
 
 class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
@@ -62,8 +66,8 @@ class Variable(db.Model):
     dimension_id = db.Column(db.Integer, db.ForeignKey('dimension.id'))
     # Here Dimension is upper case because it expects the class
     dimension = db.relationship('Dimension', backref=db.backref('variables', lazy='dynamic'))
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
-    role = db.relationship('Role', backref=db.backref('variables', lazy='dynamic'))
+    roles = db.relationship('Role', secondary=roles_variables,
+                            backref='variables')
 
     def __repr__(self):
         repr = 'Variable %r - dim: %r, ' % (self.display_name, self.dimension)

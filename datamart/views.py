@@ -5,10 +5,7 @@ from forms import RoleForm, DimensionForm, VariableForm
 
 @app.route('/', methods=['GET', 'POST',])
 def index():
-    form = ExampleForm()
-    if form.validate_on_submit():
-        return "PASSED"
-    return render_template('index.html', form=form)
+    return render_template('index.html')
 
 @app.route('/dimensions', methods=['GET'])
 @app.route('/dimensions/<int:dimension_id>', methods=['GET'])
@@ -29,14 +26,14 @@ def dimension_edit(dimension_id=None):
 
     form = DimensionForm(obj=dimension)
     if request.method == 'POST':
-        if form.validate():
+        if form.validate_on_submit():
             form.populate_obj(dimension)
             db.session.add(dimension)
             db.session.commit()
             flash("Dimension updated", "alert-success")
-            return redirect(url_for("dimensions_view", dimension_id=dimension_id))
+            return redirect(url_for("dimensions_view"))
         else:
-            flash("Please populate required fields.", "alert-error")
+            flash("Please fix errors and resubmit.", "alert-error")
             return render_template('dimension_edit.html', dimension=dimension,
                                    form=form)
     elif request.method == 'GET':
@@ -69,15 +66,15 @@ def variable_edit(variable_id=None):
 
     form = VariableForm(obj=variable)
     if request.method == 'POST':
-        if form.validate():
+        if form.validate_on_submit():
             form.populate_obj(variable)
             variable.dimension_id = form.dimension.data.id
             db.session.add(variable)
             db.session.commit()
             flash("Variable updated", "alert-success")
-            return redirect(url_for("variables_view", variable_id=variable_id))
+            return redirect(url_for("variables_view"))
         else:
-            flash("Please populate required fields.", "alert-error")
+            flash("Please fix errors and resubmit.", "alert-error")
             return render_template('variable_edit.html', variable=variable,
                                    form=form)
     elif request.method == 'GET':
@@ -90,7 +87,7 @@ def roles_view(role_id=None):
         roles = [models.Role.query.get_or_404(role_id)]
     else:
         roles = models.Role.query.all()
-    return render_template('roles.html', roles=roles, single=True)
+    return render_template('roles.html', roles=roles)
 
 @app.route('/roles/add', methods=['GET', 'POST'])
 @app.route('/roles/<int:role_id>/edit', methods=['GET', 'POST'])
@@ -102,14 +99,14 @@ def role_edit(role_id=None):
 
     form = RoleForm(obj=role)
     if request.method == 'POST':
-        if form.validate():
+        if form.validate_on_submit():
             form.populate_obj(role)
             db.session.add(role)
             db.session.commit()
             flash("Role updated", "alert-success")
-            return redirect(url_for("roles_view", role_id=role_id))
+            return redirect(url_for("roles_view"))
         else:
-            flash("Please populate required fields.", "alert-error")
+            flash("Please fix errors and resubmit.", "alert-error")
             return render_template('role_edit.html', role=role,
                                    form=form)
     elif request.method == 'GET':

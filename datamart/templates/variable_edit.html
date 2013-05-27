@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_formhelpers.html" import render_field %}
 
 {% block title %}{% if variable.display_name %} Edit Variable {{variable.display_name}} {% else %} Add Variable {% endif %}{% endblock %}
 
@@ -8,33 +9,10 @@
   <fieldset>
     {{ form.hidden_tag() }}
 
-    <div class="control-group">
-      {{ form.display_name.label(class="control-label") }}
-      <div class="controls">
-        {{ form.display_name }}
-      </div>
-    </div>
-
-    <div class="control-group">
-      {{ form.description.label(class="control-label") }}
-      <div class="controls">
-        {{ form.description }}
-      </div>
-    </div>
-
-    <div class="control-group">
-      {{ form.dimension.label(class="control-label") }}
-      <div class="controls">
-        {{ form.dimension }}
-      </div>
-    </div>
-
-    <div class="control-group">
-      {{ form.roles.label(class="control-label") }}
-      <div class="controls">
-        {{ form.roles }}
-      </div>
-    </div>
+    {{ render_field(form.display_name) }}
+    {{ render_field(form.description) }}
+    {{ render_field(form.dimension) }}
+    {{ render_field(form.roles) }}
 
     <div class="control-group">
       <div class="controls">

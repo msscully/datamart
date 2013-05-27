@@ -15,14 +15,14 @@ roles_variables = db.Table('roles_variables',
 
 class Role(db.Model, RoleMixin):
     id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(80), unique=True)
-    description = db.Column(db.String(255))
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(255), nullable=False)
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    email = db.Column(db.String(255), unique=True)
-    password = db.Column(db.String(255))
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     active = db.Column(db.Boolean())
     confirmed_at = db.Column(db.DateTime())
     last_login_at = db.Column(db.DateTime())
@@ -55,15 +55,14 @@ class Dimension(db.Model):
 
 class Variable(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(300), unique=True)
+    description = db.Column(db.String(300), unique=True, nullable=False)
     display_name = db.Column(db.String(30), nullable=False, unique=True)
-    id = db.Column(db.Integer, primary_key=True)
     min = db.Column(db.Float, nullable=True)
     max = db.Column(db.Float, nullable=True)
     std = db.Column(db.Float, nullable=True)
     mean = db.Column(db.Float, nullable=True)
     # dimension is lowercase here as it's the table name, not the class name
-    dimension_id = db.Column(db.Integer, db.ForeignKey('dimension.id'))
+    dimension_id = db.Column(db.Integer, db.ForeignKey('dimension.id'), nullable=False)
     # Here Dimension is upper case because it expects the class
     dimension = db.relationship('Dimension', backref=db.backref('variables', lazy='dynamic'))
     roles = db.relationship('Role', secondary=roles_variables,

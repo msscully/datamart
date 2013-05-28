@@ -29,7 +29,12 @@ VariableForm = model_form(models.Variable, db_session=db.session, base_class=For
 RoleForm = model_form(models.Role, db_session=db.session, base_class=Form)
 
 UserForm = model_form(models.User, db_session=db.session, base_class=Form,
-                     exclude = [],
+                     exclude = ['confirmed_at',
+                                'last_login_at',
+                                'current_login_at',
+                                'last_login_ip',
+                                'current_login_ip',
+                                'login_count'],
                      field_args = {
                          'roles': {
                              'get_label': 'name'

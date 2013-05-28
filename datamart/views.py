@@ -3,6 +3,8 @@ from flask import render_template, request, flash, redirect, url_for,\
 from datamart import app, models, db, api
 from forms import RoleForm, DimensionForm, VariableForm, UserForm
 from flask.ext.security import login_required, LoginForm, current_user
+from flask.ext.restless.views import jsonify_status_code
+from operator import itemgetter
 import math
 
 @app.route('/', methods=['GET', 'POST',])
@@ -192,7 +194,34 @@ def facts_api():
 
     if request.headers['Content-Type'] == 'application/json':
         if request.method == 'GET':
+            # try to get search query from the request query parameters
+            try:
+                search_params = json.loads(request.args.get('q', '{}'))
+            except (TypeError, ValueError, OverflowError), exception:
+                app.logger.exception(exception.message)
+                return jsonify_status_code(400, message='Unable to decode data')
+
             facts = models.Facts.query.all()
+
+            # select role.variables where role.users contains current_user
+            variables = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
+                    .join((models.User, models.Role.users)).filter(models.Variable.in_use == True,
+                                              models.User.id == 4)
+
+            objects = []
+            for fact in facts:
+                values = fact.values
+                approved_fact = {}
+                approved_fact['id'] = str(fact.id)
+                approved_fact['reviewed'] = str(fact.reviewed)
+                for var in variables:
+                    if values and str(var.id) in values:
+                        approved_fact[str(var.id)] = values[str(var.id)]
+                    else:
+                        approved_fact[str(var.id)] = ''
+                objects.append(approved_fact)
+
+            #Pagination logic
             num_results = len(facts)
             results_per_page = api.compute_results_per_page()
             if results_per_page > 0:
@@ -210,46 +239,44 @@ def facts_api():
             data['page'] = page_num
             data['total_pages'] = total_pages
 
-            # select role.variables where role.users contains current_user
-            variables = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
-                    .join((models.User, models.Role.users)).filter(models.Variable.in_use == True,
-                                              models.User.id == 4)
-            objects = []
-            for fact in facts:
-                values = fact.values
-                approved_fact = {}
-                approved_fact['id'] = str(fact.id)
-                approved_fact['reviewed'] = str(fact.reviewed)
-                for var in variables:
-                    if values and str(var.id) in values:
-                        approved_fact[str(var.id)] = values[str(var.id)]
-                objects.append(approved_fact)
+            s = objects
+            if 'order_by' in search_params:
+                for order in reversed(search_params['order_by']):
+                    desc = True if order['direction'] == 'desc' else False
+                    s = sorted(s, key=itemgetter(order['field']),
+                               reverse=desc)
 
-            data['objects'] = [obj for obj in objects[start:end]]
+            data['objects'] = [obj for obj in s[start:end]]
 
             resp = jsonify(data)
             resp.status_code = 200
             return resp
 
         elif request.method == 'POST':
-            blah = request.json
-            data['test'] = blah
-            #message = jsonify(json.loads(request.data))
-            resp = jsonify(data)
+            #TODO Make this not suck
+            request_data = request.json
+            new_fact = models.Fact()
+            if 'reviewed' in request_data:
+                new_fact.reviewed = request_data['reviewed']
+            if 'values' in request_data:
+                new_fact.values = request_data['values']
+            resp = jsonify({})
             resp.status_code = 201
-            resp.location = url_for('fact_api', id=1)
+            resp.location = url_for('fact_api', id=new_fact.id)
             return resp
 
         elif request.method == 'PATCH':
             return "ECHO: PATCH\n"
 
         elif request.method == 'PUT':
+            #TODO make this add data
             # if new item then 201
             resp = jsonify(data)
             resp.status_code = 201
             return resp
 
         elif request.method == 'DELETE':
+            #TODO Make this perform a delete.
             # If nothing in response body 204
             resp = jsonify({})
             resp.status_code = 204

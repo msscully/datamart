@@ -1,8 +1,9 @@
 from flask import render_template, request, flash, redirect, url_for,\
         jsonify, json
-from datamart import app, models, db
+from datamart import app, models, db, api
 from forms import RoleForm, DimensionForm, VariableForm, UserForm
 from flask.ext.security import login_required, LoginForm, current_user
+import math
 
 @app.route('/', methods=['GET', 'POST',])
 def index():
@@ -172,7 +173,9 @@ def facts_view():
     facts = models.Facts.query.all()
     # select role.variables where role.users contains current_user
     variables = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
-            .join((models.User, models.Role.users)).filter(models.Variable.in_use == True)
+            .join((models.User,
+                   models.Role.users)).filter(models.Variable.in_use == True,
+                                              models.User.id == current_user.id)
 
     return render_template('facts.html', variables=variables, facts=facts)
 
@@ -183,16 +186,47 @@ def fact_api():
 
 # Amazing http status code diagram: http://i.stack.imgur.com/whhD1.png
 @app.route('/api/facts', methods=['GET','PUT','PATCH','POST','DELETE'])
-@login_required
+#@login_required
 def facts_api():
-    data = {'total_pages': 1,
-            'num_results': 0,
-            'page': 1,
-            'items': []
-           }
+    data = {}
 
     if request.headers['Content-Type'] == 'application/json':
         if request.method == 'GET':
+            facts = models.Facts.query.all()
+            num_results = len(facts)
+            results_per_page = api.compute_results_per_page()
+            if results_per_page > 0:
+                # get the page number (first page is page 1)
+                page_num = int(request.args.get('page', 1))
+                start = (page_num - 1) * results_per_page
+                end = min(num_results, start + results_per_page)
+                total_pages = int(math.ceil(float(num_results) / results_per_page))
+            else:
+                page_num = 1
+                start = 0
+                end = num_results
+                total_pages = 1
+            data['num_results'] = num_results
+            data['page'] = page_num
+            data['total_pages'] = total_pages
+
+            # select role.variables where role.users contains current_user
+            variables = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
+                    .join((models.User, models.Role.users)).filter(models.Variable.in_use == True,
+                                              models.User.id == 4)
+            objects = []
+            for fact in facts:
+                values = fact.values
+                approved_fact = {}
+                approved_fact['id'] = str(fact.id)
+                approved_fact['reviewed'] = str(fact.reviewed)
+                for var in variables:
+                    if values and str(var.id) in values:
+                        approved_fact[str(var.id)] = values[str(var.id)]
+                objects.append(approved_fact)
+
+            data['objects'] = [obj for obj in objects[start:end]]
+
             resp = jsonify(data)
             resp.status_code = 200
             return resp

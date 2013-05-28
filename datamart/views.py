@@ -215,10 +215,14 @@ def facts_api():
                 approved_fact['id'] = str(fact.id)
                 approved_fact['reviewed'] = str(fact.reviewed)
                 for var in variables:
+                    new_val = {}
                     if values and str(var.id) in values:
-                        approved_fact[str(var.id)] = values[str(var.id)]
+                        new_val['value'] = values[str(var.id)]
                     else:
-                        approved_fact[str(var.id)] = ''
+                        new_val['value'] = ''
+
+                    new_val['data_type'] = models.Variable.query.get(var.id).dimension.data_type
+                    approved_fact[str(var.id)] = new_val
                 objects.append(approved_fact)
 
             #Pagination logic

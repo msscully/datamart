@@ -1,6 +1,6 @@
 from datamart import db
 from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy.dialects.postgresql import HSTORE, INET
+from sqlalchemy.dialects.postgresql import HSTORE, INET, ENUM
 from flask.ext.security import RoleMixin, UserMixin
 
 roles_users = db.Table('roles_users', 
@@ -49,6 +49,7 @@ class Dimension(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(300), unique=True)
     unit_name = db.Column(db.String(30), nullable=False, unique=True)
+    data_type = db.Column(ENUM("String","Integer","Boolean","Float", name="dim_data_type_enum"), nullable=False, default="String")
 
     def __repr__(self):
         return 'Dimension %r' % self.unit_name

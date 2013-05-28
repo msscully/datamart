@@ -14,7 +14,7 @@ class ExampleForm(Form):
         raise ValidationError('Always wrong')
 
 DimensionForm = model_form(models.Dimension, db_session=db.session,
-                           base_class=Form)
+                           base_class=Form, exclude = ['variables'])
 
 VariableForm = model_form(models.Variable, db_session=db.session, base_class=Form, 
                          field_args = {

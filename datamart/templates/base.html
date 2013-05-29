@@ -51,7 +51,7 @@
             {% block navbar_right %}
               {% if current_user.is_authenticated() %}
                 <div class='pull-right'>
-                  <a class='btn btn-primary' href="/logout">Logout {{ current_user.username }}</a>
+                  <a class='btn btn-primary' href="{{ url_for('security.logout') }}">Logout {{ current_user.username }}</a>
                 </div>
               {% else %}
                 <form class="navbar-form pull-right" action="{{url_for('security.login')}}" method="post">

@@ -204,9 +204,11 @@ def facts_api():
             facts = models.Facts.query.all()
 
             # select role.variables where role.users contains current_user
-            variables = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
+            variable_objs = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
                     .join((models.User, models.Role.users)).filter(models.Variable.in_use == True,
                                               models.User.id == 4)
+
+            variables = [str(var.id) for var in variable_objs]
 
             objects = []
             for fact in facts:
@@ -216,13 +218,13 @@ def facts_api():
                 approved_fact['reviewed'] = str(fact.reviewed)
                 for var in variables:
                     new_val = {}
-                    if values and str(var.id) in values:
-                        new_val['value'] = values[str(var.id)]
+                    if values and str(var) in values:
+                        new_val['value'] = values[str(var)]
                     else:
                         new_val['value'] = ''
 
-                    new_val['data_type'] = models.Variable.query.get(var.id).dimension.data_type
-                    approved_fact[str(var.id)] = new_val
+                    new_val['data_type'] = models.Variable.query.get(var).dimension.data_type
+                    approved_fact[str(var)] = new_val
                 objects.append(approved_fact)
 
             #Pagination logic
@@ -247,8 +249,16 @@ def facts_api():
             if 'order_by' in search_params:
                 for order in reversed(search_params['order_by']):
                     desc = True if order['direction'] == 'desc' else False
-                    s = sorted(s, key=itemgetter(order['field']),
-                               reverse=desc)
+                    if order['field'] in variables:
+                        data_type = DATATYPES[models.Variable.query.get(order['field']).dimension.data_type]
+                        s = sorted(s, key=lambda x:
+                                   data_type(x[order['field']]['value']), reverse=desc)
+                    elif getattr(models.Facts, str(order['field'])):
+                        s = sorted(s, key=itemgetter(order['field']), reverse=desc)
+                    else:
+                        # Return error
+                        pass
+
 
             data['objects'] = [obj for obj in s[start:end]]
 
@@ -294,3 +304,10 @@ def facts_api():
         resp = jsonify(message)
         resp.status_code = 406
         return resp
+
+DATATYPES = {
+    'String': str,
+    'Int': int,
+    'Float': float,
+    'Bool': bool
+}

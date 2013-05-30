@@ -34,13 +34,17 @@ class User(db.Model, UserMixin):
                             backref=db.backref('users', lazy='dynamic'))
 
     def approved_variables(self):
-        valid_vars = []
+        return self.approved_vars_and_datatypes.keys()
+
+    def approved_vars_and_datatypes(self):
+        valid_vars = {}
 
         for role in self.roles:
             for variable in role.variables:
-                valid_vars.append(variable.id)
+                valid_vars[str(variable.id)] = variable.dimension.data_type
 
         return valid_vars
+
 
     def __repr__(self):
         return 'User %r, %r' % (self.username, self.email)

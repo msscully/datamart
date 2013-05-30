@@ -1,7 +1,8 @@
 from flask.ext.wtf import Form, TextField, HiddenField, ValidationError,\
                           Required, validators
-from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from datamart import models
+from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
+from datamart import models, db
+from wtforms.ext.sqlalchemy.orm import model_form
 
 class ExampleForm(Form):
     field1 = TextField('First Field', description='This is field one.')
@@ -12,21 +13,33 @@ class ExampleForm(Form):
     def validate_hidden_field(form, field):
         raise ValidationError('Always wrong')
 
-class DimensionForm(Form):
-    unit_name = TextField('Unit Name',
-                          [validators.Required("Please enter a unit name.")],
-                          description='A name for the unit of measurement. e.g. kg.')
-    description = TextField('Description',
-                            description='A human friendly description of the Dimension.')
+DimensionForm = model_form(models.Dimension, db_session=db.session,
+                           base_class=Form, exclude = ['variables'])
 
-def current_dimensions():
-    return models.Dimension.query.all()
+VariableForm = model_form(models.Variable, db_session=db.session, base_class=Form, 
+                         field_args = {
+                             'roles': {
+                                 'get_label': 'name'
+                             },
+                             'dimension': {
+                                 'get_label': 'unit_name'
+                             }
+                         })
 
-class VariableForm(Form):
-    display_name = TextField('Display Name',
-                          [validators.Required("Please enter a display name.")],
-                          description='A human friendly name to use for this variable.')
-    description = TextField('Description',
-                            description='A human friendly description of the Dimension.')
-    dimensions = QuerySelectField(query_factory=current_dimensions, get_label='unit_name')
+RoleForm = model_form(models.Role, db_session=db.session, base_class=Form)
 
+UserForm = model_form(models.User, db_session=db.session, base_class=Form,
+                     exclude = ['confirmed_at',
+                                'last_login_at',
+                                'current_login_at',
+                                'last_login_ip',
+                                'current_login_ip',
+                                'login_count'],
+                     field_args = {
+                         'roles': {
+                             'get_label': 'name'
+                         },
+                         'email': {
+                             'validators': [validators.Required(), validators.Email()]
+                         }
+                     })

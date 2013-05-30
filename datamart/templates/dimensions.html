@@ -8,12 +8,15 @@
     <thead>
       <th>Unit Name</th>
       <th>Description</th>
+      <th>Data Type</th>
+      <th></th>
     </thead>
     <tbody>
     {% for dimension in dimensions %}
     <tr id='dr_{{dimension.id}}'>
       <td id='dun_{{dimension.id}}'>{{ dimension.unit_name }}</td>
       <td>{{ dimension.description }}</td>
+      <td>{{ dimension.data_type }}</td>
       <td>
         <a href="{{url_for('dimension_edit', dimension_id=dimension.id)}}"><i class="icon-pencil"></i></a>
         <a ><i id='dd_{{dimension.id}}' class="icon-remove remove-dimension"></i></a>

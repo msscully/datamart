@@ -1,25 +1,17 @@
 {% extends "base.html" %}
+{% from "_formhelpers.html" import render_field %}
 
-{% block title %} Edit Dimension {{dimension.id}}{% endblock %}
+{% block title %} {% if dimension.unit_name %} Edit Dimension {{dimension.unit_name}} {% else %} Add new Dimension {% endif %} {% endblock %}
+
 {% block container_content %}
-<h3>Edit Dimension {{dimension.id}}</h3>
+<h3>{% if dimension.unit_name %} Edit Dimension {{dimension.unit_name}} {% else %} Add new Dimension {% endif %}</h3>
 <form class='form-horizontal' action="{{ url_for('dimension_edit',dimension_id=dimension.id) }}" method=post>
   <fieldset>
     {{ form.hidden_tag() }}
 
-    <div class="control-group">
-      {{ form.unit_name.label(class="control-label") }}
-      <div class="controls">
-        {{ form.unit_name }}
-      </div>
-    </div>
-
-    <div class="control-group">
-      {{ form.description.label(class="control-label") }}
-      <div class="controls">
-        {{ form.description }}
-      </div>
-    </div>
+    {{ render_field(form.unit_name) }}
+    {{ render_field(form.description) }}
+    {{ render_field(form.data_type) }}
 
     <div class="control-group">
       <div class="controls">

@@ -19,3 +19,4 @@ verlib==0.1
 Werkzeug==0.8.3
 WTForms==1.0.3
 psycopg2==2.5
+alembic==0.5.0

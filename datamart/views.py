@@ -181,130 +181,134 @@ def facts_view():
 
     return render_template('facts.html', variables=variables, facts=facts)
 
-@app.route('/api/facts/<int:id>', methods=['GET','PUT','PATCH','POST','DELETE'])
-@login_required
-def fact_api():
-    pass
-
-# Amazing http status code diagram: http://i.stack.imgur.com/whhD1.png
-@app.route('/api/facts', methods=['GET','PUT','PATCH','POST','DELETE'])
+#@app.route('/api/facts/<int:id>', methods=['GET','PUT','PATCH','POST','DELETE'])
 #@login_required
-def facts_api():
-    data = {}
+#def fact_api():
+#    pass
 
-    if request.headers['Content-Type'] == 'application/json':
-        if request.method == 'GET':
-            # try to get search query from the request query parameters
-            try:
-                search_params = json.loads(request.args.get('q', '{}'))
-            except (TypeError, ValueError, OverflowError), exception:
-                app.logger.exception(exception.message)
-                return jsonify_status_code(400, message='Unable to decode data')
-
-            facts = models.Facts.query.all()
-
-            # select role.variables where role.users contains current_user
-            variable_objs = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
-                    .join((models.User, models.Role.users)).filter(models.Variable.in_use == True,
-                                              models.User.id == 4)
-
-            variables = [str(var.id) for var in variable_objs]
-
-            objects = []
-            for fact in facts:
-                values = fact.values
-                approved_fact = {}
-                approved_fact['id'] = str(fact.id)
-                approved_fact['reviewed'] = str(fact.reviewed)
-                for var in variables:
-                    new_val = {}
-                    if values and str(var) in values:
-                        new_val['value'] = values[str(var)]
-                    else:
-                        new_val['value'] = ''
-
-                    new_val['data_type'] = models.Variable.query.get(var).dimension.data_type
-                    approved_fact[str(var)] = new_val
-                objects.append(approved_fact)
-
-            #Pagination logic
-            num_results = len(facts)
-            results_per_page = api.compute_results_per_page()
-            if results_per_page > 0:
-                # get the page number (first page is page 1)
-                page_num = int(request.args.get('page', 1))
-                start = (page_num - 1) * results_per_page
-                end = min(num_results, start + results_per_page)
-                total_pages = int(math.ceil(float(num_results) / results_per_page))
-            else:
-                page_num = 1
-                start = 0
-                end = num_results
-                total_pages = 1
-            data['num_results'] = num_results
-            data['page'] = page_num
-            data['total_pages'] = total_pages
-
-            s = objects
-            if 'order_by' in search_params:
-                for order in reversed(search_params['order_by']):
-                    desc = True if order['direction'] == 'desc' else False
-                    if order['field'] in variables:
-                        data_type = DATATYPES[models.Variable.query.get(order['field']).dimension.data_type]
-                        s = sorted(s, key=lambda x:
-                                   data_type(x[order['field']]['value']), reverse=desc)
-                    elif getattr(models.Facts, str(order['field'])):
-                        s = sorted(s, key=itemgetter(order['field']), reverse=desc)
-                    else:
-                        # Return error
-                        pass
-
-
-            data['objects'] = [obj for obj in s[start:end]]
-
-            resp = jsonify(data)
-            resp.status_code = 200
-            return resp
-
-        elif request.method == 'POST':
-            #TODO Make this not suck
-            request_data = request.json
-            new_fact = models.Fact()
-            if 'reviewed' in request_data:
-                new_fact.reviewed = request_data['reviewed']
-            if 'values' in request_data:
-                new_fact.values = request_data['values']
-            resp = jsonify({})
-            resp.status_code = 201
-            resp.location = url_for('fact_api', id=new_fact.id)
-            return resp
-
-        elif request.method == 'PATCH':
-            return "ECHO: PATCH\n"
-
-        elif request.method == 'PUT':
-            #TODO make this add data
-            # if new item then 201
-            resp = jsonify(data)
-            resp.status_code = 201
-            return resp
-
-        elif request.method == 'DELETE':
-            #TODO Make this perform a delete.
-            # If nothing in response body 204
-            resp = jsonify({})
-            resp.status_code = 204
-            return resp
-
-    else:
-        message = {
-            'status': 406,
-            'message': 'Content-Type: \'' + request.headers['Content-Type'] + '\' not supported.'
-        }
-        resp = jsonify(message)
-        resp.status_code = 406
-        return resp
-
+## Amazing http status code diagram: http://i.stack.imgur.com/whhD1.png
+#@app.route('/api/facts', methods=['GET','PUT','PATCH','POST','DELETE'])
+##@login_required
+#def facts_api():
+#    data = {}
+#
+#    if request.headers['Content-Type'] == 'application/json':
+#        if request.method == 'GET':
+#            # try to get search query from the request query parameters
+#            try:
+#                search_params = json.loads(request.args.get('q', '{}'))
+#            except (TypeError, ValueError, OverflowError), exception:
+#                app.logger.exception(exception.message)
+#                return jsonify_status_code(400, message='Unable to decode data')
+#
+#            facts = models.Facts.query.all()
+#
+#            # select role.variables where role.users contains current_user
+#            variable_objs = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
+#                    .join((models.User, models.Role.users)).filter(models.Variable.in_use == True,
+#                                              models.User.id == 4)
+#
+#            variables = [str(var.id) for var in variable_objs]
+#
+#            if 'filters' in search_params:
+#                for filter in search_params['filters']:
+#                    pass
+#
+#            objects = []
+#            for fact in facts:
+#                values = fact.values
+#                approved_fact = {}
+#                approved_fact['id'] = str(fact.id)
+#                approved_fact['reviewed'] = str(fact.reviewed)
+#                for var in variables:
+#                    new_val = {}
+#                    if values and str(var) in values:
+#                        new_val['value'] = values[str(var)]
+#                    else:
+#                        new_val['value'] = ''
+#
+#                    new_val['data_type'] = models.Variable.query.get(var).dimension.data_type
+#                    approved_fact[str(var)] = new_val
+#                objects.append(approved_fact)
+#
+#            #Pagination logic
+#            num_results = len(facts)
+#            results_per_page = api.compute_results_per_page()
+#            if results_per_page > 0:
+#                # get the page number (first page is page 1)
+#                page_num = int(request.args.get('page', 1))
+#                start = (page_num - 1) * results_per_page
+#                end = min(num_results, start + results_per_page)
+#                total_pages = int(math.ceil(float(num_results) / results_per_page))
+#            else:
+#                page_num = 1
+#                start = 0
+#                end = num_results
+#                total_pages = 1
+#            data['num_results'] = num_results
+#            data['page'] = page_num
+#            data['total_pages'] = total_pages
+#
+#            s = objects
+#            if 'order_by' in search_params:
+#                for order in reversed(search_params['order_by']):
+#                    desc = True if order['direction'] == 'desc' else False
+#                    if order['field'] in variables:
+#                        data_type = DATATYPES[models.Variable.query.get(order['field']).dimension.data_type]
+#                        s = sorted(s, key=lambda x:
+#                                   data_type(x[order['field']]['value']), reverse=desc)
+#                    elif getattr(models.Facts, str(order['field'])):
+#                        s = sorted(s, key=itemgetter(order['field']), reverse=desc)
+#                    else:
+#                        # Return error
+#                        pass
+#
+#
+#            data['objects'] = [obj for obj in s[start:end]]
+#
+#            resp = jsonify(data)
+#            resp.status_code = 200
+#            return resp
+#
+#        elif request.method == 'POST':
+#            #TODO Make this not suck
+#            request_data = request.json
+#            new_fact = models.Fact()
+#            if 'reviewed' in request_data:
+#                new_fact.reviewed = request_data['reviewed']
+#            if 'values' in request_data:
+#                new_fact.values = request_data['values']
+#            resp = jsonify({})
+#            resp.status_code = 201
+#            resp.location = url_for('fact_api', id=new_fact.id)
+#            return resp
+#
+#        elif request.method == 'PATCH':
+#            return "ECHO: PATCH\n"
+#
+#        elif request.method == 'PUT':
+#            #TODO make this add data
+#            # if new item then 201
+#            resp = jsonify(data)
+#            resp.status_code = 201
+#            return resp
+#
+#        elif request.method == 'DELETE':
+#            #TODO Make this perform a delete.
+#            # If nothing in response body 204
+#            resp = jsonify({})
+#            resp.status_code = 204
+#            return resp
+#
+#    else:
+#        message = {
+#            'status': 406,
+#            'message': 'Content-Type: \'' + request.headers['Content-Type'] + '\' not supported.'
+#        }
+#        resp = jsonify(message)
+#        resp.status_code = 406
+#        return resp
+#
 DATATYPES = {
     'String': str,
     'Int': int,

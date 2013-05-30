@@ -65,7 +65,6 @@ def _create_operation(model, fieldname, operator, argument, relation=None):
     try:
         field = getattr(model, relation or fieldname)
     except AttributeError as a:
-        print "Trying the other one."
         # Check if the field is in the values hstore
         valid_vars = current_user.approved_vars_and_datatypes()
         if (fieldname or relation) in valid_vars:
@@ -88,6 +87,63 @@ def _create_operation(model, fieldname, operator, argument, relation=None):
 
 flask.ext.restless.search.QueryBuilder._create_operation = _create_operation
 
+@staticmethod
+def create_query(session, model, search_params):
+    """Builds an SQLAlchemy query instance based on the search parameters
+    present in ``search_params``, an instance of :class:`SearchParameters`.
+
+    This method returns a SQLAlchemy query in which all matched instances
+    meet the requirements specified in ``search_params``.
+
+    `model` is SQLAlchemy declarative model on which to create a query.
+
+    `search_params` is an instance of :class:`SearchParameters` which
+    specify the filters, order, limit, offset, etc. of the query.
+
+    Building the query proceeds in this order:
+    1. filtering the query
+    2. ordering the query
+    3. limiting the query
+    4. offsetting the query
+
+    Raises one of :exc:`AttributeError`, :exc:`KeyError`, or
+    :exc:`TypeError` if there is a problem creating the query. See the
+    documentation for :func:`_create_operation` for more information.
+
+    """
+    # Adding field filters
+    query = flask.ext.restless.helpers.session_query(session, model)
+    # may raise exception here
+    filters = flask.ext.restless.search.QueryBuilder._create_filters(model, search_params)
+    query = query.filter(search_params.junction(*filters))
+
+    # Order the search
+    for val in search_params.order_by:
+        try:
+            field = getattr(model, val.field)
+        except AttributeError as a:
+            # Check if the field is in the values hstore
+            valid_vars = current_user.approved_vars_and_datatypes()
+            if val.field in valid_vars:
+                field = model.values[val.field]
+                # If it is we need to cast
+                data_type = models.Variable.query.get(int(val.field)).dimension.data_type
+                field = sqlalchemy.cast(field, DIMENSION_DATATYPES[data_type])
+            else:
+                raise a
+
+        direction = getattr(field, val.direction)
+        query = query.order_by(direction())
+
+    # Limit it
+    if search_params.limit:
+        query = query.limit(search_params.limit)
+    if search_params.offset:
+        query = query.offset(search_params.offset)
+    return query
+
+flask.ext.restless.search.QueryBuilder.create_query = create_query
+
 RESULTS_PER_PAGE = 20
 MAX_RESULTS_PER_PAGE = 300
 manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
@@ -107,7 +163,7 @@ manager.create_api(models.Variable,
                    results_per_page=RESULTS_PER_PAGE,
                    preprocessors=preprocessors)
 manager.create_api(models.Facts, 
-                   methods=['GET', 'POST', 'DELETE', 'PUT'],
+                   methods=['GET'],
                    results_per_page=RESULTS_PER_PAGE,
                    preprocessors=preprocessors)
 manager.create_api(models.Role, 

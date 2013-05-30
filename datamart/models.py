@@ -34,7 +34,7 @@ class User(db.Model, UserMixin):
                             backref=db.backref('users', lazy='dynamic'))
 
     def approved_variables(self):
-        return self.approved_vars_and_datatypes.keys()
+        return self.approved_vars_and_datatypes().keys()
 
     def approved_vars_and_datatypes(self):
         valid_vars = {}
@@ -47,7 +47,7 @@ class User(db.Model, UserMixin):
 
 
     def __repr__(self):
-        return 'User %r, %r' % (self.username, self.email)
+        return '<User username=%r, email=%r>' % (self.username, self.email)
 
 class Dimension(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,7 +56,7 @@ class Dimension(db.Model):
     data_type = db.Column(ENUM("String","Integer","Boolean","Float", name="dim_data_type_enum"), nullable=False, default="String")
 
     def __repr__(self):
-        return 'Dimension %r' % self.unit_name
+        return '<Dimension name=%r>' % self.unit_name
 
 class Variable(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -75,9 +75,7 @@ class Variable(db.Model):
     in_use = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
-        repr = 'Variable %r - dim: %r, ' % (self.display_name, self.dimension)
-        repr +=  'min: %r, max: %r, ' % (self.min, self.max)
-        repr += 'mean: %r, std: %r' % (self.mean, self.std)
+        repr = '<Variable name=%r - dim=%r>' % (self.display_name, self.dimension)
         return repr
 
 class Facts(db.Model):
@@ -86,4 +84,4 @@ class Facts(db.Model):
     values = db.Column(MutableDict.as_mutable(HSTORE))
 
     def __repr__(self):
-        return 'Fact %r' % self.id
+        return '<Fact id=%r>' % self.id

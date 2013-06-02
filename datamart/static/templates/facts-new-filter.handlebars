@@ -1,0 +1,18 @@
+<form class='form-inline'> 
+  <fieldset>   
+    <select class='field-select'>
+      <option value=''></option>
+      {{#each columns}}
+      <option value={{this.property}}>{{this.label}}</option>
+      {{/each}}
+    </select>
+    <select class='op-select'>
+      <option value=''></option>
+      {{#each ops}}
+      <option>{{this.name}}</option>
+      {{/each}}
+    </select>
+    <input class='input val-input' disabled='True' type='text' name='value' placeholder='Value'> 
+    <i class="icon-remove remove-filter"></i>
+  </fieldset> 
+</form> 

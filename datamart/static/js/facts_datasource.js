@@ -6,6 +6,7 @@
  * Demo source released to public domain.
  */
 
+
 var FactsDataSource = function (options) {
     this._formatter = options.formatter;
     this._columns = options.columns;
@@ -17,36 +18,7 @@ FactsDataSource.prototype = {
      * Returns stored column metadata
      */
     columns: function () {
-        var url = '/api/variable';
-        var new_columns = [
-            {'property':'id', 'label': 'Table ID', 'sortable': true},
-            {'property':'reviewed', 'label': 'Reviewed', 'sortable': true},
-        ]
-
-        $.ajax(url, {
-
-            dataType: 'json',
-            async: false,
-            data: {"results_per_page": '500',
-                "page": 1 },
-                jsonp: false,
-                contentType: "application/json",
-                type: 'GET',
-                success: function(response) {
-                    var data = response.objects;
-                    var count = response.num_results;
-
-                    for (var i=0;i<data.length;i++){
-                        var column = data[i];
-                        if (column.in_use = 'True'){
-                            new_column = {property: column.id, label: column.display_name, sortable: true};
-                            new_columns.push(new_column);
-                        }
-                    }
-                }
-        });
-
-        return new_columns;
+        return this._columns;
     },
 
     /**
@@ -64,22 +36,20 @@ FactsDataSource.prototype = {
         if (options.search) {
 
             var searchTerm = '%' + options.search + '%';
-            var filters = [{"name": "unit_name", "op": "like", "val": searchTerm},
-                {"name": "description", "op": "like", "val": searchTerm}];
+            var filters = [{"name": "4", "op": "like", "val": searchTerm}];
             q.filters = filters;
             q.disjunction = true;
 
         }
         // Sorting
         if (options.sortProperty) {
-            var order = [{field: options.sortProperty, direction: options.sortDirection}];
+            var order = [{field: options.sortProperty.toString(), direction: options.sortDirection}];
             q.order_by = order;
         }
         // Filtering
-        //if (options.filterProperty) {
-        //    var filters = [{name: options.sortProperty, op: options.sortDirection, val: ''}];
-        //    q.order_by = order;
-        //}
+        if (options.filter) {
+            console.log('filter datasource');
+        }
 
 
         $.ajax(url, {

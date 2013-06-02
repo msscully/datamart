@@ -13,6 +13,9 @@
     <link href="http://fuelcdn.com/fuelux-imh/2.2/css/fuelux.css" rel="stylesheet" />
     <link href="http://fuelcdn.com/fuelux-imh/2.2/css/fuelux-responsive.css" rel="stylesheet" />
 
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" rel="stylesheet">
+
     <!-- SUPPORT FOR IE6-8 OF HTML5 ELEMENTS -->
     <!--[if lt IE 9]>
           <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -96,7 +99,6 @@
 
     {% block datamart_js_footer %}
     <script type="text/javascript" src="{{url_for('static', filename='js/ext/jquery-1.9.1.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/ext/bootstrap.js')}}"></script>
     {% block page_specific_js %}
     {% endblock page_specific_js %}
     {% endblock datamart_js_footer %}

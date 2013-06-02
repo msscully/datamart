@@ -18,7 +18,7 @@ def dimensions_view(dimension_id=None):
     if dimension_id:
         dimensions = [models.Dimension.query.get_or_404(dimension_id)]
     else:
-        dimensions = models.Dimension.query.all()
+        dimensions = models.Dimension.query.order_by(models.Dimension.id)
     return render_template('dimensions.html', dimensions=dimensions)
 
 @app.route('/dimensions/add', methods=['GET', 'POST'])
@@ -61,7 +61,7 @@ def variables_view(variable_id=None):
     if variable_id:
         variables = [models.Variable.query.get_or_404(variable_id)]
     else:
-        variables = models.Variable.query.all()
+        variables = models.Variable.query.order_by(models.Variable.id)
     return render_template('variables.html', variables=variables)
 
 @app.route('/variables/add', methods=['GET', 'POST'])

@@ -6,6 +6,7 @@
   <p><a class="btn btn-primary" href="{{url_for('dimension_edit')}}">Add Dimension</a></p>
   <table class="table table-striped table-bordered ">
     <thead>
+      <th>ID</th>
       <th>Unit Name</th>
       <th>Description</th>
       <th>Data Type</th>
@@ -14,6 +15,7 @@
     <tbody>
     {% for dimension in dimensions %}
     <tr id='dr_{{dimension.id}}'>
+      <td>{{dimension.id}}</td>
       <td id='dun_{{dimension.id}}'>{{ dimension.unit_name }}</td>
       <td>{{ dimension.description }}</td>
       <td>{{ dimension.data_type }}</td>

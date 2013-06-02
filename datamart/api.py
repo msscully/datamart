@@ -18,9 +18,9 @@ import uuid
  
 DIMENSION_DATATYPES = {
     'String': sqlalchemy.String,
-    'Int': sqlalchemy.Integer,
+    'Integer': sqlalchemy.Integer,
     'Float': sqlalchemy.Float,
-    'Bool': sqlalchemy.Boolean
+    'Boolean': sqlalchemy.Boolean
 }
 
 def is_mapped_class(cls):
@@ -131,7 +131,6 @@ def create_query(session, model, search_params):
     # Adding field filters
     query = flask.ext.restless.helpers.session_query(session, model)
     # may raise exception here
-    print search_params
     filters = flask.ext.restless.search.QueryBuilder._create_filters(model, search_params)
     query = query.filter(search_params.junction(*filters))
 
@@ -202,7 +201,6 @@ def search(session, model, search_params):
         valid_vars = current_user.approved_variables()
         for var in valid_vars:
             pass
-    print authorized_result
     return authorized_result
 
 flask.ext.restless.search.search = search
@@ -328,7 +326,6 @@ def to_dict(instance, deep=None, exclude=None, include=None,
             result[str(var)] = result['values'].get(str(var), '')
         del result['values']
 
-    print result
     return result
 
 flask.ext.restless.helpers.to_dict = to_dict
@@ -344,6 +341,33 @@ def auth_func(**kw):
 
 preprocessors=dict(GET_SINGLE=[auth_func], GET_MANY=[auth_func])
 
+def get_single_variable_preprocessor(instance_id=None, **kw):
+    """Accepts a single argument, `instance_id`, the primary key of the
+    instance of the model to get.
+
+    """
+    if instance_id not in current_user.approved_variables():
+        raise ProcessingException('Access to ' + instance_id + ' not authorized.')
+
+def get_many_variables_preprocessor(search_params=None, **kw):
+    """Accepts a single argument, `search_params`, which is a dictionary
+    containing the search parameters for the request.
+
+    """
+    # This checks if the preprocessor function is being called before a
+    # request that does not have search parameters.
+    if search_params is None:
+        return
+    # Create the filter you wish to add; in this case, we include only
+    # instances with ``id`` not equal to 1.
+    filt = dict(name='id', op='in', val=current_user.approved_variables())
+    # Check if there are any filters there already.
+    if 'filters' not in search_params:
+        search_params['filters'] = []
+    # *Append* your filter to the list of filters.
+    search_params['filters'].append(filt)
+    pass
+
 manager.create_api(models.Dimension, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'], 
                    results_per_page=RESULTS_PER_PAGE,
@@ -351,7 +375,9 @@ manager.create_api(models.Dimension,
 manager.create_api(models.Variable, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'], 
                    results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=preprocessors)
+                   preprocessors={'GET_SINGLE':[auth_func, get_single_variable_preprocessor],
+                                  'GET_MANY':[auth_func, get_many_variables_preprocessor]
+                                 })
 manager.create_api(models.Facts, 
                    methods=['GET'],
                    results_per_page=RESULTS_PER_PAGE,

@@ -1,4 +1,4 @@
 -r requirements.txt
 Flask-Script==0.5.3
-pip-tools==0.3.1
+pip-tools==0.3.4
 readline==6.2.4.1

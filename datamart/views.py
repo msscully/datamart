@@ -14,8 +14,8 @@ import os
 def index():
     return render_template('index.html', form=LoginForm())
 
-@app.route('/dimensions', methods=['GET'])
-@app.route('/dimensions/<int:dimension_id>', methods=['GET'])
+@app.route('/dimensions/', methods=['GET'])
+@app.route('/dimensions/<int:dimension_id>/', methods=['GET'])
 @login_required
 def dimensions_view(dimension_id=None):
     if dimension_id:
@@ -24,8 +24,8 @@ def dimensions_view(dimension_id=None):
         dimensions = models.Dimension.query.order_by(models.Dimension.id)
     return render_template('dimensions.html', dimensions=dimensions)
 
-@app.route('/dimensions/add', methods=['GET', 'POST'])
-@app.route('/dimensions/<int:dimension_id>/edit', methods=['GET', 'POST'])
+@app.route('/dimensions/add/', methods=['GET', 'POST'])
+@app.route('/dimensions/<int:dimension_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def dimension_edit(dimension_id=None):
     if dimension_id:
@@ -48,7 +48,7 @@ def dimension_edit(dimension_id=None):
     elif request.method == 'GET':
         return render_template('dimension_edit.html', dimension=dimension, form=form)
 
-@app.route('/dimensions/<int:dimension_id>/delete', methods=['POST'])
+@app.route('/dimensions/<int:dimension_id>/delete/', methods=['POST'])
 @login_required
 def dimension_delete(dimension_id):
     dimension = models.Dimension.query.get_or_404(dimension_id)
@@ -57,8 +57,8 @@ def dimension_delete(dimension_id):
     flash("Dimension " + dimension.unit_name + " succesfully deleted.", "alert-success")
     return render_template('dimensions_view')
 
-@app.route('/variables', methods=['GET'])
-@app.route('/variables/<int:variable_id>', methods=['GET'])
+@app.route('/variables/', methods=['GET'])
+@app.route('/variables/<int:variable_id>/', methods=['GET'])
 @login_required
 def variables_view(variable_id=None):
     if variable_id:
@@ -67,8 +67,8 @@ def variables_view(variable_id=None):
         variables = models.Variable.query.order_by(models.Variable.id)
     return render_template('variables.html', variables=variables)
 
-@app.route('/variables/add', methods=['GET', 'POST'])
-@app.route('/variables/<int:variable_id>/edit', methods=['GET', 'POST'])
+@app.route('/variables/add/', methods=['GET', 'POST'])
+@app.route('/variables/<int:variable_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def variable_edit(variable_id=None):
     if variable_id:
@@ -92,8 +92,8 @@ def variable_edit(variable_id=None):
     elif request.method == 'GET':
         return render_template('variable_edit.html', variable=variable, form=form)
 
-@app.route('/roles', methods=['GET'])
-@app.route('/roles/<int:role_id>', methods=['GET'])
+@app.route('/roles/', methods=['GET'])
+@app.route('/roles/<int:role_id>/', methods=['GET'])
 @login_required
 def roles_view(role_id=None):
     if role_id:
@@ -102,8 +102,8 @@ def roles_view(role_id=None):
         roles = models.Role.query.all()
     return render_template('roles.html', roles=roles)
 
-@app.route('/roles/add', methods=['GET', 'POST'])
-@app.route('/roles/<int:role_id>/edit', methods=['GET', 'POST'])
+@app.route('/roles/add/', methods=['GET', 'POST'])
+@app.route('/roles/<int:role_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def role_edit(role_id=None):
     if role_id:
@@ -126,8 +126,8 @@ def role_edit(role_id=None):
     elif request.method == 'GET':
         return render_template('role_edit.html', role=role, form=form)
 
-@app.route('/users', methods=['GET'])
-@app.route('/users/<int:user_id>', methods=['GET'])
+@app.route('/users/', methods=['GET'])
+@app.route('/users/<int:user_id>/', methods=['GET'])
 @login_required
 def users_view(user_id=None):
     if user_id:
@@ -136,8 +136,8 @@ def users_view(user_id=None):
         users = models.User.query.all()
     return render_template('users.html', users=users)
 
-@app.route('/users/add', methods=['GET', 'POST'])
-@app.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
+@app.route('/users/add/', methods=['GET', 'POST'])
+@app.route('/users/<int:user_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def user_edit(user_id=None):
     if user_id:
@@ -172,7 +172,7 @@ def not_found(error=None):
 
     return resp
 
-@app.route('/facts', methods=['GET'])
+@app.route('/facts/', methods=['GET'])
 @login_required
 def facts_view():
     facts = models.Facts.query.all()
@@ -184,7 +184,7 @@ def facts_view():
 
     return render_template('facts.html', variables=variables, facts=facts)
 
-@app.route('/upload/label/<filename>', methods=['GET', 'POST'])
+@app.route('/upload/label/<filename>/', methods=['GET', 'POST'])
 def label_upload_data(filename=None):
     try:
       with open(data_files.path(filename), 'rb') as csvfile:
@@ -278,7 +278,7 @@ def label_upload_data(filename=None):
                 flash("Error: " + error, "alert-error")
     return render_template('label_upload.html', data=top_ten, ind=1, form=form)
 
-@app.route('/upload', methods=['GET', 'POST'])
+@app.route('/upload/', methods=['GET', 'POST'])
 def upload():
     form = FileUploadForm()
     if form.validate_on_submit():

@@ -1,7 +1,13 @@
 from datamart import db
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.dialects.postgresql import HSTORE, INET, ENUM
-from flask.ext.security import RoleMixin, UserMixin
+from flask.ext.security import RoleMixin, UserMixin, current_user
+
+def variables_by_user():
+    return db.session.query(Variable).join((Role, Variable.roles))\
+            .join((User,
+                   Role.users)).filter(Variable.in_use == True,
+                                              User.id == current_user.id).all()
 
 roles_users = db.Table('roles_users', 
                        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),

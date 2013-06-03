@@ -4,11 +4,15 @@ from flask.ext.security import Security, SQLAlchemyUserDatastore, \
             UserMixin, RoleMixin, login_required
 from flask_mail import Mail
 from flask_debugtoolbar import DebugToolbarExtension
+from flask.ext.uploads import configure_uploads, UploadSet
 
 
 app = Flask(__name__)
 app.config.from_object('config')
 app.config.from_envvar('DATAMART_APP_SETTINGS')
+
+data_files = UploadSet('data',extensions=('txt','csv'))
+configure_uploads(app, (data_files))
 
 mail = Mail(app)
 
@@ -28,4 +32,4 @@ security = Security(app, user_datastore)
 
 import datamart.views
 import datamart.api
-import admin
+#import admin

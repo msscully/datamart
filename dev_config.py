@@ -12,3 +12,5 @@ MAIL_PORT = 25
 #MAIL_USERNAME = 'username'
 #MAIL_PASSWORD = 'password'
 SECURITY_PASSWORD_HASH = 'plaintext'
+
+UPLOADS_DEFAULT_DEST = '/Users/mscully/contracts/predict/datamart/uploads'

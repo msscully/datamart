@@ -1,11 +1,14 @@
 from flask import render_template, request, flash, redirect, url_for,\
-        jsonify, json
-from datamart import app, models, db, api
-from forms import RoleForm, DimensionForm, VariableForm, UserForm
+        jsonify, session, abort
+from datamart import app, models, db, data_files
+from forms import RoleForm, DimensionForm, VariableForm, UserForm, \
+        FileUploadForm, Form
 from flask.ext.security import login_required, LoginForm, current_user
 from flask.ext.restless.views import jsonify_status_code
-from operator import itemgetter
-import math
+from flask.ext.wtf import QuerySelectField, validators
+import csv
+import re
+import os
 
 @app.route('/', methods=['GET', 'POST',])
 def index():
@@ -181,137 +184,116 @@ def facts_view():
 
     return render_template('facts.html', variables=variables, facts=facts)
 
-#@app.route('/api/facts/<int:id>', methods=['GET','PUT','PATCH','POST','DELETE'])
-#@login_required
-#def fact_api():
-#    pass
+@app.route('/upload/label/<filename>', methods=['GET', 'POST'])
+def label_upload_data(filename=None):
+    try:
+      with open(data_files.path(filename), 'rb') as csvfile:
+          raw_data = csv.reader(csvfile, delimiter=',', quotechar='"')
+          new_data = [i for i in raw_data]
+    except IOError:
+        abort(404)
 
-## Amazing http status code diagram: http://i.stack.imgur.com/whhD1.png
-#@app.route('/api/facts', methods=['GET','PUT','PATCH','POST','DELETE'])
-##@login_required
-#def facts_api():
-#    data = {}
-#
-#    if request.headers['Content-Type'] == 'application/json':
-#        if request.method == 'GET':
-#            # try to get search query from the request query parameters
-#            try:
-#                search_params = json.loads(request.args.get('q', '{}'))
-#            except (TypeError, ValueError, OverflowError), exception:
-#                app.logger.exception(exception.message)
-#                return jsonify_status_code(400, message='Unable to decode data')
-#
-#            facts = models.Facts.query.all()
-#
-#            # select role.variables where role.users contains current_user
-#            variable_objs = db.session.query(models.Variable).join((models.Role, models.Variable.roles))\
-#                    .join((models.User, models.Role.users)).filter(models.Variable.in_use == True,
-#                                              models.User.id == 4)
-#
-#            variables = [str(var.id) for var in variable_objs]
-#
-#            if 'filters' in search_params:
-#                for filter in search_params['filters']:
-#                    pass
-#
-#            objects = []
-#            for fact in facts:
-#                values = fact.values
-#                approved_fact = {}
-#                approved_fact['id'] = str(fact.id)
-#                approved_fact['reviewed'] = str(fact.reviewed)
-#                for var in variables:
-#                    new_val = {}
-#                    if values and str(var) in values:
-#                        new_val['value'] = values[str(var)]
-#                    else:
-#                        new_val['value'] = ''
-#
-#                    new_val['data_type'] = models.Variable.query.get(var).dimension.data_type
-#                    approved_fact[str(var)] = new_val
-#                objects.append(approved_fact)
-#
-#            #Pagination logic
-#            num_results = len(facts)
-#            results_per_page = api.compute_results_per_page()
-#            if results_per_page > 0:
-#                # get the page number (first page is page 1)
-#                page_num = int(request.args.get('page', 1))
-#                start = (page_num - 1) * results_per_page
-#                end = min(num_results, start + results_per_page)
-#                total_pages = int(math.ceil(float(num_results) / results_per_page))
-#            else:
-#                page_num = 1
-#                start = 0
-#                end = num_results
-#                total_pages = 1
-#            data['num_results'] = num_results
-#            data['page'] = page_num
-#            data['total_pages'] = total_pages
-#
-#            s = objects
-#            if 'order_by' in search_params:
-#                for order in reversed(search_params['order_by']):
-#                    desc = True if order['direction'] == 'desc' else False
-#                    if order['field'] in variables:
-#                        data_type = DATATYPES[models.Variable.query.get(order['field']).dimension.data_type]
-#                        s = sorted(s, key=lambda x:
-#                                   data_type(x[order['field']]['value']), reverse=desc)
-#                    elif getattr(models.Facts, str(order['field'])):
-#                        s = sorted(s, key=itemgetter(order['field']), reverse=desc)
-#                    else:
-#                        # Return error
-#                        pass
-#
-#
-#            data['objects'] = [obj for obj in s[start:end]]
-#
-#            resp = jsonify(data)
-#            resp.status_code = 200
-#            return resp
-#
-#        elif request.method == 'POST':
-#            #TODO Make this not suck
-#            request_data = request.json
-#            new_fact = models.Fact()
-#            if 'reviewed' in request_data:
-#                new_fact.reviewed = request_data['reviewed']
-#            if 'values' in request_data:
-#                new_fact.values = request_data['values']
-#            resp = jsonify({})
-#            resp.status_code = 201
-#            resp.location = url_for('fact_api', id=new_fact.id)
-#            return resp
-#
-#        elif request.method == 'PATCH':
-#            return "ECHO: PATCH\n"
-#
-#        elif request.method == 'PUT':
-#            #TODO make this add data
-#            # if new item then 201
-#            resp = jsonify(data)
-#            resp.status_code = 201
-#            return resp
-#
-#        elif request.method == 'DELETE':
-#            #TODO Make this perform a delete.
-#            # If nothing in response body 204
-#            resp = jsonify({})
-#            resp.status_code = 204
-#            return resp
-#
-#    else:
-#        message = {
-#            'status': 406,
-#            'message': 'Content-Type: \'' + request.headers['Content-Type'] + '\' not supported.'
-#        }
-#        resp = jsonify(message)
-#        resp.status_code = 406
-#        return resp
-#
+    def is_type(type,s):
+        try:
+            type(s)
+            return True
+        except ValueError:
+            return False
+
+    top_ten = []
+    for i, row in enumerate(new_data):
+        if i >= 10: break
+        top_ten.append(row)
+
+    def column_datatype_check(form, field,data):
+        m = re.search('_(\d+)',field.name)
+        if m:
+            column_index = int(m.group(1))
+        else:
+            raise Exception("Column doesn't have a numerical index?!")
+
+        for row in data:
+            print row
+            print DATATYPES[field.data.dimension.data_type], row[column_index]
+            if not is_type(DATATYPES[field.data.dimension.data_type],row[column_index]):
+                field.errors.append('Not all data in Column ' + str(column_index+1) + ' can be cast to ' + field.data.dimension.data_type + '.')
+                return False
+        return True
+
+    class F(Form):
+        def __init__(self, data):
+            super(F, self).__init__()
+            self._data = data
+
+        def validate(self):
+            rv = Form.validate(self)
+            if not rv:
+                return False
+
+            fields = (i for i in self.__dict__ if 'column_' in i)
+            columns_valid = True
+            for field in fields:
+                print field
+                if(not column_datatype_check(self,form[field],self._data)):
+                    columns_valid = False
+            if not columns_valid:
+                return False
+            return True
+
+
+    for i,col in enumerate(top_ten[0]):
+        setattr(F, 'column_' + str(i), 
+                QuerySelectField('Variable type for Column ' + str(i+1),
+                                 [validators.Required()],
+                                 allow_blank=True, 
+                                 blank_text=u'-- please choose --',
+                                 get_label='display_name'))
+
+    if session['useheader']:
+        header_corrected_data = new_data[1:]
+    else:
+        header_corrected_data = new_data
+    form = F(header_corrected_data)
+
+    for i,col in enumerate(top_ten[0]):
+        form['column_' + str(i)].query = models.variables_by_user() 
+
+    if form.validate_on_submit():
+        for row in header_corrected_data:
+            new_fact = models.Facts()
+            new_fact.values = {}
+            for i,column in enumerate(row):
+                new_fact.values[str(form['column_' + str(i)].data.id)] = column
+            db.session.add(new_fact)
+        db.session.commit()
+        # Data has been committed so toss the uploaded file.
+        os.remove(data_files.path(filename))
+
+        flash('Variables Set and new data loaded!','alert-success')
+        del session['useheader']
+        return redirect(url_for('facts_view'))
+    else:
+        for key in form.errors:
+            for error in form.errors[key]:
+                flash("Error: " + error, "alert-error")
+    return render_template('label_upload.html', data=top_ten, ind=1, form=form)
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    form = FileUploadForm()
+    if form.validate_on_submit():
+        filename = data_files.save(request.files[form.data_file.name])
+        flash("File saved.")
+        with open(data_files.path(filename), 'rb') as csvfile:
+            spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
+            session['useheader'] = form.header_row
+            return redirect(url_for("label_upload_data", filename=filename))
+    return render_template('upload.html', form=form)
+
+
 DATATYPES = {
     'String': str,
-    'Int': int,
+    'Integer': int,
     'Float': float,
-    'Bool': bool
+    'Boolean': bool
 }

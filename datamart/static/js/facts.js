@@ -86,10 +86,8 @@
       });
 
       $(document).on('click', '#dg-add-filter', function(){
-          //var columnNames = _.pluck(columns, 'label');
           var compiledTemplate = Handlebars.getTemplate('facts-new-filter');
           var newFilter = compiledTemplate({columns: columns, ops: operations});
-          //var newFilter = "<form class='fact-filter form-inline'> <fieldset>   <input class='input' type='text' name='field' placeholder='Field'> <select>"+columnSelect+"</select><input class='input' type='text' name='op' placeholder='Operation'> <input class='input' type='text' name='value' placeholder='Value'> </fieldset> </form>";
 
           $('#facts-grid-filter').append($("<div class='fact-filter'></div>").html(newFilter));
       });
@@ -125,4 +123,3 @@
 
   });
 })(jQuery)
-

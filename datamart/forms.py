@@ -1,6 +1,5 @@
 from flask.ext.wtf import Form, TextField, HiddenField, ValidationError,\
-                          Required, validators
-from wtforms.ext.sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
+                          Required, validators, FileField, BooleanField
 from datamart import models, db
 from wtforms.ext.sqlalchemy.orm import model_form
 
@@ -12,6 +11,10 @@ class ExampleForm(Form):
 
     def validate_hidden_field(form, field):
         raise ValidationError('Always wrong')
+
+class FileUploadForm(Form):
+    header_row = BooleanField('Is the first column header names?')
+    data_file = FileField()
 
 DimensionForm = model_form(models.Dimension, db_session=db.session,
                            base_class=Form, exclude = ['variables'])

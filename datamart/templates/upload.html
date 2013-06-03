@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field %}
+
+{% block title %}File Upload{% endblock %}
+{% block container_content %}
+<form method='POST' enctype='multipart/form-data' action="{{ url_for('upload') }}">
+  <fieldset>
+    {{ form.hidden_tag() }}
+
+    {{ render_field(form.data_file) }}
+    {{ render_field(form.header_row) }}
+ 
+    <div class="control-group">
+      <div class="controls">
+        <button name="action_save" type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </fieldset>
+</form>
+{% endblock container_content %}

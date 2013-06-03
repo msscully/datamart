@@ -30,6 +30,7 @@
                       }
                   }
           });
+          new_columns.push({'property':'controls', 'label': '', 'sortable': false});
           return new_columns;
       };
       var columns = getColumns();
@@ -54,19 +55,21 @@
           formatter: function (items) {
               var compiledTemplate = Handlebars.getTemplate('model-table-controls');
               $.each(items, function (index, item) {
-                  item.controls = compiledTemplate({model: 'facts', id: item.id, item_name: item.unit_name, description: item.description});
+                  item.controls = compiledTemplate({model: 'facts', id: item.id, item_name: item.id, description: item.description});
               });
           }
       }),
       stretchHeight: false
       });
 
+      $('#FactsGrid').datagrid().data().datagrid.options.dataOptions.filter = [];
+
       $(document).on('click', '.remove-item', function(){
           var $me = $(this);
           var id = $(this).attr('id').substring(2);
           var unitName = $(this).attr('item_name');
           var model = $(this).attr('model');
-          if (confirm("Are you sure you want to delete " + model + " " + unitName + "?")) {
+          if (confirm("Are you sure you want to delete all " + model + " with id=" + unitName + "?")) {
               $.ajax({
                   url: '/api/' + model + '/' + id,
                   type: 'DELETE',
@@ -87,13 +90,13 @@
 
       $(document).on('click', '#dg-add-filter', function(){
           var compiledTemplate = Handlebars.getTemplate('facts-new-filter');
-          var newFilter = compiledTemplate({columns: columns, ops: operations});
+          var columns_no_controls = columns.slice(0,-1);
+          var newFilter = compiledTemplate({columns: columns_no_controls, ops: operations});
 
           $('#facts-grid-filter').append($("<div class='fact-filter'></div>").html(newFilter));
       });
 
       $(document).on('change', 'select.op-select', function(){
-          console.log('op select changed');
           if ($('option:selected', this).val() != ''){
               $(this).siblings('.val-input').removeAttr('disabled');
           }
@@ -103,16 +106,23 @@
       });
 
       $(document).on('change', '#facts-grid-filter', function(){
-          console.log('filter changed');
           filters = [];
           $(this).find('.fact-filter').each(function(){
-              newFilter = {field: $(this).find('select.field-select option:selected').val(),
-                  op: $(this).find('select.op-select option:selected').val(),
-                  val: $(this).find('.val-input').val()
-              };
-              filters.push(newFilter);
+              if (($(this).find('select.field-select option:selected').val() != '') &&
+                      ($(this).find('select.op-select option:selected').val() != '') &&
+                          ($(this).find('.val-input').val() != '')){
+                  newFilter = {name: $(this).find('select.field-select option:selected').val(),
+                      op: $(this).find('select.op-select option:selected').val(),
+                      val: $(this).find('.val-input').val()
+                  };
+                  filters.push(newFilter);
+              }
           });
-          console.log(filters);
+
+          if (!_.isEqual($('#FactsGrid').datagrid().data().datagrid.options.dataOptions.filter,filters)) {
+              $('#FactsGrid').datagrid().data().datagrid.options.dataOptions.filter = filters;
+              $('#FactsGrid').datagrid('reload');
+          }
 
       });
 

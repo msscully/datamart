@@ -379,7 +379,7 @@ manager.create_api(models.Variable,
                                   'GET_MANY':[auth_func, get_many_variables_preprocessor]
                                  })
 manager.create_api(models.Facts, 
-                   methods=['GET'],
+                   methods=['GET', 'DELETE'],
                    results_per_page=RESULTS_PER_PAGE,
                    preprocessors=preprocessors)
 manager.create_api(models.Role, 

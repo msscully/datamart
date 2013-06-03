@@ -48,7 +48,7 @@ FactsDataSource.prototype = {
         }
         // Filtering
         if (options.filter) {
-            console.log('filter datasource');
+            q.filters = options.filter;
         }
 
 

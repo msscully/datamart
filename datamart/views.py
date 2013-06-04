@@ -188,6 +188,7 @@ def facts_view():
     return render_template('facts.html', variables=variables, facts=facts)
 
 @app.route('/facts/upload/label/<filename>/', methods=['GET', 'POST'])
+@login_required
 def label_upload_data(filename=None):
     try:
       with open(data_files.path(filename), 'rb') as csvfile:
@@ -279,6 +280,7 @@ def label_upload_data(filename=None):
     return render_template('label_upload.html', data=top_ten, ind=1, form=form)
 
 @app.route('/facts/upload/', methods=['GET', 'POST'])
+@login_required
 def upload():
     form = FileUploadForm()
     if form.validate_on_submit():
@@ -298,6 +300,7 @@ def get_facts_api_response(*args, **kwargs):
     return res
 
 @app.route('/facts/download/', methods=['GET'])
+@login_required
 def download_facts():
     if request.args.get('filters'):
         filters = request.args.get('filters')

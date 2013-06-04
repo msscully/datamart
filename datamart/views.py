@@ -1,14 +1,17 @@
 from flask import render_template, request, flash, redirect, url_for,\
-        jsonify, session, abort
+        jsonify, session, abort, current_app
 from datamart import app, models, db, data_files
 from forms import RoleForm, DimensionForm, VariableForm, UserForm, \
         FileUploadForm, Form
 from flask.ext.security import login_required, LoginForm, current_user
 from flask.ext.restless.views import jsonify_status_code
 from flask.ext.wtf import QuerySelectField, validators
+from flask import send_file, Response
 import csv
 import re
 import os
+import json
+import StringIO
 
 @app.route('/', methods=['GET', 'POST',])
 def index():
@@ -184,7 +187,7 @@ def facts_view():
 
     return render_template('facts.html', variables=variables, facts=facts)
 
-@app.route('/upload/label/<filename>/', methods=['GET', 'POST'])
+@app.route('/facts/upload/label/<filename>/', methods=['GET', 'POST'])
 def label_upload_data(filename=None):
     try:
       with open(data_files.path(filename), 'rb') as csvfile:
@@ -213,8 +216,6 @@ def label_upload_data(filename=None):
             raise Exception("Column doesn't have a numerical index?!")
 
         for row in data:
-            print row
-            print DATATYPES[field.data.dimension.data_type], row[column_index]
             if not is_type(DATATYPES[field.data.dimension.data_type],row[column_index]):
                 field.errors.append('Not all data in Column ' + str(column_index+1) + ' can be cast to ' + field.data.dimension.data_type + '.')
                 return False
@@ -233,7 +234,6 @@ def label_upload_data(filename=None):
             fields = (i for i in self.__dict__ if 'column_' in i)
             columns_valid = True
             for field in fields:
-                print field
                 if(not column_datatype_check(self,form[field],self._data)):
                     columns_valid = False
             if not columns_valid:
@@ -263,7 +263,7 @@ def label_upload_data(filename=None):
             new_fact = models.Facts()
             new_fact.values = {}
             for i,column in enumerate(row):
-                new_fact.values[str(form['column_' + str(i)].data.id)] = column
+                new_fact.values[str(form['column_' + str(i)].data.id)] = column.lstrip()
             db.session.add(new_fact)
         db.session.commit()
         # Data has been committed so toss the uploaded file.
@@ -278,18 +278,58 @@ def label_upload_data(filename=None):
                 flash("Error: " + error, "alert-error")
     return render_template('label_upload.html', data=top_ten, ind=1, form=form)
 
-@app.route('/upload/', methods=['GET', 'POST'])
+@app.route('/facts/upload/', methods=['GET', 'POST'])
 def upload():
     form = FileUploadForm()
     if form.validate_on_submit():
         filename = data_files.save(request.files[form.data_file.name])
         flash("File saved.")
-        with open(data_files.path(filename), 'rb') as csvfile:
-            spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
-            session['useheader'] = form.header_row
-            return redirect(url_for("label_upload_data", filename=filename))
+        #with open(data_files.path(filename), 'rb') as csvfile:
+        #    spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        session['useheader'] = form.header_row
+        return redirect(url_for("label_upload_data", filename=filename))
     return render_template('upload.html', form=form)
 
+def get_facts_api_response(*args, **kwargs):
+    view = current_app.view_functions['factsapi0.factsapi']
+    res = view(None,None)
+    return res
+
+@app.route('/facts/download/', methods=['GET'])
+def download_facts():
+    if request.args.get('filters'):
+        filters = request.args.get('filters')
+    if request.args.get('order_by'):
+        order_by = request.args.get('filters')
+    stuff = get_facts_api_response()
+    print stuff.data
+    fact_data = json.loads(stuff.data)
+    response = Response()
+    response.mimetype = 'text/csv'
+    filename = 'FactData.csv'
+    response.headers['Content-Disposition'] = 'attachment; filename="%s";' % filename
+    response.headers['Content-Transfer-Encoding'] = 'binary'
+
+    columns = dict((i.display_name,i.id) for i in models.variables_by_user())
+    print columns
+    output = StringIO.StringIO()
+
+    writer = csv.writer(output)
+    writer.writerow(columns.keys())
+    for row in fact_data['objects']:
+        new_row = []
+        for col in columns.keys():
+            col_key = str(columns[col])
+            if col_key in row:
+                print row[col_key]
+                new_row.append(row[col_key])
+            else:
+                new_row.append('')
+        writer.writerow(new_row)
+
+    response.data = output.getvalue()
+    response.headers['Content-Length'] = len(response.data)
+    return response
 
 DATATYPES = {
     'String': str,

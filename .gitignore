@@ -34,3 +34,6 @@ nosetests.xml
 
 # sqlite files
 *.db
+
+# The local uploaded files
+uploads/

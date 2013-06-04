@@ -13,25 +13,11 @@
       <th>
         <span class="datagrid-header-title">Facts</span>
         <div class="datagrid-header-left">
-          <div class="input-append search">
-            <input type="text" class="input-medium" placeholder="Search"><button class="btn"><i class="icon-search"></i></button>
-          </div>
+          <button class='btn' id='dg-fv-DownloadFacts'>Download Selection as CSV</button>
         </div>
-
         <div class="datagrid-header-right">
-          
-  <div class="select filter" data-resize="auto">
-    <button type="button" data-toggle="dropdown" class="btn dropdown-toggle">
-      <span class="dropdown-label">Population &lt; 5M</span>
-      <span class="caret"></span>
-    </button>
-    <ul class="dropdown-menu">
-      <li data-value="all" data-selected="true"><a href="#">All</a></li>
-      <li data-value="lt5m"><a href="#">Population &lt; 5M</a></li>
-      <li data-value="gte5m"><a href="#">Population &gt;= 5M</a></li>
-    </ul>
-  </div>
-</div>
+            <a class="btn" href="{{url_for('upload')}}">Upload New Facts</a>
+        </div>
       </th>
     </tr>
     </thead>
@@ -77,6 +63,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/ext/underscore.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/ext/handlebars.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/templates.js') }}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/ext/jquery.fileDownload.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/facts_datasource.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/facts.js')}}"></script>
 {% endblock page_specific_js %}

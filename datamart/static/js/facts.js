@@ -131,5 +131,18 @@
           $('#facts-grid-filter').change();
       });
 
+      $(document).on('click','#dg-fv-DownloadFacts',function(){
+          datagridOptions = $('#FactsGrid').datagrid().data().datagrid.options.dataOptions;
+          q = {};
+
+          q.filters = datagridOptions.filter;
+          if (datagridOptions.sortProperty){
+              q.order_by = [{field: datagridOptions.sortProperty.toString(), direction: datagridOptions.sortDirection}];
+          }
+
+          data = {results_per_page: 10000};
+          data.q = JSON.stringify(q);
+          $.fileDownload('/facts/download/',{data:data});
+      });
   });
 })(jQuery)

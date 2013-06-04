@@ -291,6 +291,8 @@ def upload():
     return render_template('upload.html', form=form)
 
 def get_facts_api_response(*args, **kwargs):
+    #request.args.set('results_per_page', 100000)
+    print request
     view = current_app.view_functions['factsapi0.factsapi']
     res = view(None,None)
     return res
@@ -302,7 +304,6 @@ def download_facts():
     if request.args.get('order_by'):
         order_by = request.args.get('filters')
     stuff = get_facts_api_response()
-    print stuff.data
     fact_data = json.loads(stuff.data)
     response = Response()
     response.mimetype = 'text/csv'
@@ -310,7 +311,9 @@ def download_facts():
     response.headers['Content-Disposition'] = 'attachment; filename="%s";' % filename
     response.headers['Content-Transfer-Encoding'] = 'binary'
 
-    columns = dict((i.display_name,i.id) for i in models.variables_by_user())
+    vars_by_user = models.variables_by_user()
+    columns = dict((i.display_name,i.id) for i in vars_by_user)
+    datatypes = dict((i.display_name,i.dimension.data_type) for i in vars_by_user)
     print columns
     output = StringIO.StringIO()
 
@@ -321,14 +324,17 @@ def download_facts():
         for col in columns.keys():
             col_key = str(columns[col])
             if col_key in row:
-                print row[col_key]
-                new_row.append(row[col_key])
+                if datatypes[col] == 'String':
+                    new_row.append(json.dumps(row[col_key]))
+                else:
+                    new_row.append(row[col_key])
             else:
                 new_row.append('')
         writer.writerow(new_row)
 
     response.data = output.getvalue()
     response.headers['Content-Length'] = len(response.data)
+    response.set_cookie('fileDownload', 'true', path='/')
     return response
 
 DATATYPES = {

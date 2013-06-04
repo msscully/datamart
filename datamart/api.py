@@ -331,8 +331,8 @@ def to_dict(instance, deep=None, exclude=None, include=None,
 flask.ext.restless.helpers.to_dict = to_dict
 flask.ext.restless.views.to_dict = to_dict
 
-RESULTS_PER_PAGE = 20
-MAX_RESULTS_PER_PAGE = 300
+RESULTS_PER_PAGE = 50
+MAX_RESULTS_PER_PAGE = 10000
 manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
  
 def auth_func(**kw):

@@ -4,6 +4,5 @@ from datamart import app, db, models
 
 #TODO Make name configurable
 admin = Admin(app, name='Datamart Admin', url='/admin')
-admin.add_view(ModelView(models.Dimension, db.session))
-admin.add_view(ModelView(models.Variable, db.session))
-admin.add_view(ModelView(models.Facts, db.session))
+admin.add_view(ModelView(models.User, db.session))
+admin.add_view(ModelView(models.Role, db.session))

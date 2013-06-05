@@ -1,6 +1,6 @@
 import flask.ext.restless
-from flask import request
-from datamart import app, db, models
+from flask import request, _request_ctx_stack, current_app
+from datamart import app, db, models, security
 import inspect
 import sqlalchemy
 from sqlalchemy.orm import ColumnProperty
@@ -10,7 +10,9 @@ from sqlalchemy.orm.exc import UnmappedInstanceError
 from flask.ext.restless import ProcessingException
 from flask.ext.restless.helpers import BLACKLIST as COLUMN_BLACKLIST
 from flask.ext.restless.helpers import is_like_list
-from flask.ext.security import current_user
+from flask.ext.security import current_user, utils
+from flask.ext.principal import Identity, identity_changed 
+from flask.ext.security.decorators import BasicAuth
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.util import class_mapper
 import datetime
@@ -336,8 +338,19 @@ MAX_RESULTS_PER_PAGE = 10000
 manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
  
 def auth_func(**kw):
-   if not current_user.is_authenticated():
-       raise ProcessingException(message='Not authenticated!')
+    auth = request.authorization or BasicAuth(username=None, password=None)
+    user = security.datastore.find_user(email=auth.username)
+
+    if user and utils.verify_and_update_password(auth.password, user):
+        security.datastore.commit()
+        app = current_app._get_current_object()
+        _request_ctx_stack.top.user = user
+        identity_changed.send(app,
+                              identity=Identity(user.id))
+        return
+    if not current_user.is_authenticated():
+        raise ProcessingException(message='Not authenticated!')
+
 
 preprocessors=dict(GET_SINGLE=[auth_func], GET_MANY=[auth_func])
 

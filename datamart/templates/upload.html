@@ -3,11 +3,25 @@
 
 {% block title %}File Upload{% endblock %}
 {% block container_content %}
-<form method='POST' enctype='multipart/form-data' action="{{ url_for('upload') }}">
+<h3>Upload a csv file containing new facts.</h3>
+<form class='form-horizontal' method='POST' enctype='multipart/form-data' action="{{ url_for('upload') }}">
   <fieldset>
     {{ form.hidden_tag() }}
 
-    {{ render_field(form.data_file) }}
+  <div class="control-group">
+    {{ form.data_file.label(class="control-label") }}
+    <div class="controls">
+      {{ form.data_file(class="nice_file_field")|safe }}
+      {% if form.data_file.errors %}
+      <div class="label label-important">
+        {% for error in form.data_file.errors %}
+        <span>{{ error }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
     {{ render_field(form.header_row) }}
  
     <div class="control-group">
@@ -18,3 +32,7 @@
   </fieldset>
 </form>
 {% endblock container_content %}
+
+{% block page_specific_js %}
+    <script type="text/javascript" src="{{url_for('static', filename='js/upload.js')}}"></script>
+{% endblock page_specific_js %}

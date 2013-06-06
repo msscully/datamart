@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% from "_formhelpers.html" import render_field, render_controls %}
 
-{% block title %} {% if role.name %} Edit Role {{role.name}} {% else %} Add new Role {% endif %} {% endblock %}
+{% block title %} {% if model_data.name %} Edit Role {{model_data.name}} {% else %} Add new Role {% endif %} {% endblock %}
 
 {% block container_content %}
-<h3>{% if role.name %} Edit Role {{role.name}} {% else %} Add new Role {% endif %}</h3>
-<form class='form-horizontal' action="{{ url_for('role_edit',role_id=role.id) }}" method=post>
+<h3>{% if model_data.name %} Edit Role {{model_data.name}} {% else %} Add new Role {% endif %}</h3>
+<form class='form-horizontal' action="{{ url_for('role_edit',role_id=model_data.id) }}" method=post>
   <fieldset>
     {{ form.hidden_tag() }}
 

@@ -16,7 +16,7 @@
       <th></th>
     </thead>
     <tbody>
-    {% for user in users %}
+    {% for user in models_data %}
     <tr id='ur_{{user.id}}'>
       <td id='un_{{user.id}}'><a href="{{url_for('users_view', user_id=user.id)}}">{{ user.username }}</a></td>
       <td>{{ user.email }}</td>

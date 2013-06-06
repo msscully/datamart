@@ -11,7 +11,7 @@
       <th></th>
     </thead>
     <tbody>
-    {% for role in roles %}
+    {% for role in models_data %}
     <tr id='drr_{{role.id}}'>
       <td id='rn_{{role.id}}'><a href="{{url_for('roles_view', role_id=role.id)}}">{{ role.name }}</a></td>
       <td>{{ role.description }}</td>

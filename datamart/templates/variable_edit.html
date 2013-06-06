@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% from "_formhelpers.html" import render_field, render_controls %}
 
-{% block title %}{% if variable.name %} Edit Variable {{variable.name}} {% else %} Add Variable {% endif %}{% endblock %}
+{% block title %}{% if model_data.name %} Edit Variable {{model_data.name}} {% else %} Add Variable {% endif %}{% endblock %}
 
 {% block container_content %}
-<h3>{% if variable.name %} Edit Variable {{variable.name}} {% else %} Add Variable {% endif %}</h3>
-<form class='form-horizontal' action="{{ url_for('variable_edit',variable_id=variable.id) }}" method=post>
+<h3>{% if model_data.name %} Edit Variable {{model_data.name}} {% else %} Add Variable {% endif %}</h3>
+<form class='form-horizontal' action="{{ url_for('variable_edit',variable_id=model_data.id) }}" method=post>
   <fieldset>
     {{ form.hidden_tag() }}
 

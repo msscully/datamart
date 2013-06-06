@@ -11,7 +11,7 @@
       <th></th>
     </thead>
     <tbody>
-    {% for event in events %}
+    {% for event in models_data %}
     <tr id='dre_{{event.id}}'>
       <td id='en_{{event.id}}'><a href="{{url_for('events_view', event_id=event.id)}}">{{ event.name }}</a></td>
       <td>{{ event.description }}</td>

@@ -14,6 +14,35 @@ import os
 import json
 import StringIO
 
+def model_view(model, template, model_id=None):
+    if model_id:
+        models_data = [model.query.get_or_404(model_id)]
+    else:
+        models_data = model.query.all()
+    return render_template(template, models_data=models_data)
+
+def model_edit(model, template, FormType, redirect_default, model_id=None):
+    if model_id:
+        model_data = model.query.get_or_404(model_id)
+    else:
+        model_data = model()
+
+    form = FormType(obj=model_data)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            form.populate_obj(model_data)
+            db.session.add(model_data)
+            db.session.commit()
+            flash(model.__tablename__.title() + " updated", "alert-success")
+            return form.redirect(redirect_default)
+        else:
+            flash("Please fix errors and resubmit.", "alert-error")
+            return render_template(template, model_data=model_data,
+                                   form=form)
+    elif request.method == 'GET':
+        return render_template(template, model_data=model_data,
+                               form=form, next=next)
+
 @app.route('/', methods=['GET', 'POST',])
 def index():
     return render_template('index.html', form=LoginForm())
@@ -22,182 +51,66 @@ def index():
 @app.route('/dimensions/<int:dimension_id>/', methods=['GET'])
 @login_required
 def dimensions_view(dimension_id=None):
-    if dimension_id:
-        dimensions = [models.Dimension.query.get_or_404(dimension_id)]
-    else:
-        dimensions = models.Dimension.query.order_by(models.Dimension.id)
-    return render_template('dimensions.html', dimensions=dimensions)
+    return model_view(models.Dimension,'dimensions.html',dimension_id)
 
 @app.route('/dimensions/add/', methods=['GET', 'POST'])
 @app.route('/dimensions/<int:dimension_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def dimension_edit(dimension_id=None):
-    if dimension_id:
-        dimension = models.Dimension.query.get_or_404(dimension_id)
-    else:
-        dimension = models.Dimension()
-
-    form = DimensionForm(obj=dimension)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            form.populate_obj(dimension)
-            db.session.add(dimension)
-            db.session.commit()
-            flash("Dimension updated", "alert-success")
-            return form.redirect("dimensions_view")
-        else:
-            flash("Please fix errors and resubmit.", "alert-error")
-            return render_template('dimension_edit.html', dimension=dimension,
-                                   form=form)
-    elif request.method == 'GET':
-        return render_template('dimension_edit.html', dimension=dimension,
-                               form=form, next=next)
-
-@app.route('/dimensions/<int:dimension_id>/delete/', methods=['POST'])
-@login_required
-def dimension_delete(dimension_id):
-    dimension = models.Dimension.query.get_or_404(dimension_id)
-    db.session.delete(dimension)
-    db.session.commit()
-    flash("Dimension " + dimension.name + " succesfully deleted.", "alert-success")
-    return render_template('dimensions_view')
+    return model_edit(models.Dimension, 'dimension_edit.html', DimensionForm,
+                      'dimensions_view', dimension_id)
 
 @app.route('/variables/', methods=['GET'])
 @app.route('/variables/<int:variable_id>/', methods=['GET'])
 @login_required
 def variables_view(variable_id=None):
-    if variable_id:
-        variables = [models.Variable.query.get_or_404(variable_id)]
-    else:
-        variables = models.Variable.query.order_by(models.Variable.id)
-    return render_template('variables.html', variables=variables)
+    return model_view(models.Variable,'variables.html',variable_id)
 
 @app.route('/variables/add/', methods=['GET', 'POST'])
 @app.route('/variables/<int:variable_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def variable_edit(variable_id=None):
-    if variable_id:
-        variable = models.Variable.query.get_or_404(variable_id)
-    else:
-        variable = models.Variable()
-
-    form = VariableForm(obj=variable)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            form.populate_obj(variable)
-            variable.dimension_id = form.dimension.data.id
-            db.session.add(variable)
-            db.session.commit()
-            flash("Variable updated", "alert-success")
-            return form.redirect("variables_view")
-        else:
-            flash("Please fix errors and resubmit.", "alert-error")
-            return render_template('variable_edit.html', variable=variable,
-                                   form=form)
-    elif request.method == 'GET':
-        return render_template('variable_edit.html', variable=variable, form=form)
+    return model_edit(models.Variable, 'variable_edit.html', VariableForm,
+                      'variables_view', variable_id)
 
 @app.route('/roles/', methods=['GET'])
 @app.route('/roles/<int:role_id>/', methods=['GET'])
 @login_required
 def roles_view(role_id=None):
-    if role_id:
-        roles = [models.Role.query.get_or_404(role_id)]
-    else:
-        roles = models.Role.query.all()
-    return render_template('roles.html', roles=roles)
+    return model_view(models.Role,'roles.html',role_id)
 
 @app.route('/roles/add/', methods=['GET', 'POST'])
 @app.route('/roles/<int:role_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def role_edit(role_id=None):
-    if role_id:
-        role = models.Role.query.get_or_404(role_id)
-    else:
-        role = models.Role()
-
-    form = RoleForm(obj=role)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            form.populate_obj(role)
-            db.session.add(role)
-            db.session.commit()
-            flash("Role updated", "alert-success")
-            return form.redirect("roles_view")
-        else:
-            flash("Please fix errors and resubmit.", "alert-error")
-            return render_template('role_edit.html', role=role,
-                                   form=form)
-    elif request.method == 'GET':
-        return render_template('role_edit.html', role=role, form=form)
+    return model_edit(models.Role, 'role_edit.html', RoleForm,
+                      'roles_view', role_id)
 
 @app.route('/users/', methods=['GET'])
 @app.route('/users/<int:user_id>/', methods=['GET'])
 @login_required
 def users_view(user_id=None):
-    if user_id:
-        users = [models.User.query.get_or_404(user_id)]
-    else:
-        users = models.User.query.all()
-    return render_template('users.html', users=users)
+    return model_view(models.User,'users.html',user_id)
 
 @app.route('/users/add/', methods=['GET', 'POST'])
 @app.route('/users/<int:user_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def user_edit(user_id=None):
-    if user_id:
-        user = models.User.query.get_or_404(user_id)
-    else:
-        user = models.User()
-
-    form = UserForm(obj=user)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            form.populate_obj(user)
-            db.session.add(user)
-            db.session.commit()
-            flash("User updated", "alert-success")
-            return form.redirect("users_view")
-        else:
-            flash("Please fix errors and resubmit.", "alert-error")
-            return render_template('user_edit.html', user=user,
-                                   form=form)
-    elif request.method == 'GET':
-        return render_template('user_edit.html', user=user, form=form)
+    return model_edit(models.User, 'user_edit.html', UserForm,
+                      'users_view', user_id)
 
 @app.route('/events/', methods=['GET'])
 @app.route('/events/<int:event_id>/', methods=['GET'])
 @login_required
 def events_view(event_id=None):
-    if event_id:
-        events = [models.Event.query.get_or_404(event_id)]
-    else:
-        events = models.Event.query.all()
-    return render_template('events.html', events=events)
+    return model_view(models.Event,'events.html',event_id)
 
 @app.route('/events/add/', methods=['GET', 'POST'])
 @app.route('/events/<int:event_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def event_edit(event_id=None):
-    if event_id:
-        event = models.Event.query.get_or_404(event_id)
-    else:
-        event = models.Event()
-
-    form = EventForm(obj=event)
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            form.populate_obj(event)
-            db.session.add(event)
-            db.session.commit()
-            flash("Event updated", "alert-success")
-            return form.redirect("events_view")
-        else:
-            flash("Please fix errors and resubmit.", "alert-error")
-            return render_template('event_edit.html', event=event,
-                                   form=form)
-    elif request.method == 'GET':
-        return render_template('event_edit.html', event=event, form=form)
+    return model_edit(models.Event, 'event_edit.html', EventForm,
+                      'events_view', event_id)
 
 @app.errorhandler(404)
 def not_found(error=None):

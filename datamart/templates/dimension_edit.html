@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_field, render_controls %}
 
 {% block title %} {% if dimension.name %} Edit Dimension {{dimension.name}} {% else %} Add new Dimension {% endif %} {% endblock %}
 
@@ -13,11 +13,7 @@
     {{ render_field(form.description) }}
     {{ render_field(form.data_type) }}
 
-    <div class="control-group">
-      <div class="controls">
-        <button name="action_save" type="submit" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
+    {{ render_controls(form, 'dimensions_view') }}
   </fieldset>
 </form>
 {% endblock container_content %}

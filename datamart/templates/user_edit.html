@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "_formhelpers.html" import render_field %}
+{% from "_formhelpers.html" import render_field, render_controls %}
 
 {% block title %} {% if user.username %} Edit User {{user.username}} {% else %} Add new User {% endif %} {% endblock %}
 
@@ -15,11 +15,7 @@
     {{ render_field(form.active) }}
     {{ render_field(form.roles) }}
 
-    <div class="control-group">
-      <div class="controls">
-        <button name="action_save" type="submit" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
+    {{ render_controls(form, 'roles_view') }}
   </fieldset>
 </form>
 {% endblock container_content %}

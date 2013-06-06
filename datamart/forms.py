@@ -2,8 +2,9 @@ from flask.ext.wtf import Form, TextField, HiddenField, ValidationError,\
                           Required, validators, FileField, BooleanField
 from datamart import models, db
 from wtforms.ext.sqlalchemy.orm import model_form
+from secure_redirect import RedirectForm
 
-class ExampleForm(Form):
+class ExampleForm(RedirectForm):
     field1 = TextField('First Field', description='This is field one.')
     field2 = TextField('Second Field', description='This is field two.',
                        validators=[Required()])
@@ -12,14 +13,14 @@ class ExampleForm(Form):
     def validate_hidden_field(form, field):
         raise ValidationError('Always wrong')
 
-class FileUploadForm(Form):
+class FileUploadForm(RedirectForm):
     header_row = BooleanField('Is the first column header names?')
     data_file = FileField()
 
 DimensionForm = model_form(models.Dimension, db_session=db.session,
-                           base_class=Form, exclude = ['variables'])
+                           base_class=RedirectForm, exclude = ['variables'])
 
-VariableForm = model_form(models.Variable, db_session=db.session, base_class=Form, 
+VariableForm = model_form(models.Variable, db_session=db.session, base_class=RedirectForm, 
                          field_args = {
                              'roles': {
                                  'get_label': 'name'
@@ -29,9 +30,9 @@ VariableForm = model_form(models.Variable, db_session=db.session, base_class=For
                              }
                          })
 
-RoleForm = model_form(models.Role, db_session=db.session, base_class=Form)
+RoleForm = model_form(models.Role, db_session=db.session, base_class=RedirectForm)
 
-UserForm = model_form(models.User, db_session=db.session, base_class=Form,
+UserForm = model_form(models.User, db_session=db.session, base_class=RedirectForm,
                      exclude = ['confirmed_at',
                                 'last_login_at',
                                 'current_login_at',

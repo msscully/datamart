@@ -7,6 +7,7 @@ from flask.ext.security import login_required, LoginForm, current_user
 from flask.ext.restless.views import jsonify_status_code
 from flask.ext.wtf import QuerySelectField, validators
 from flask import send_file, Response
+from secure_redirect import get_redirect_target, redirect_back
 import csv
 import re
 import os
@@ -43,13 +44,14 @@ def dimension_edit(dimension_id=None):
             db.session.add(dimension)
             db.session.commit()
             flash("Dimension updated", "alert-success")
-            return redirect(url_for("dimensions_view"))
+            return form.redirect("dimensions_view")
         else:
             flash("Please fix errors and resubmit.", "alert-error")
             return render_template('dimension_edit.html', dimension=dimension,
                                    form=form)
     elif request.method == 'GET':
-        return render_template('dimension_edit.html', dimension=dimension, form=form)
+        return render_template('dimension_edit.html', dimension=dimension,
+                               form=form, next=next)
 
 @app.route('/dimensions/<int:dimension_id>/delete/', methods=['POST'])
 @login_required
@@ -87,7 +89,7 @@ def variable_edit(variable_id=None):
             db.session.add(variable)
             db.session.commit()
             flash("Variable updated", "alert-success")
-            return redirect(url_for("variables_view"))
+            return form.redirect("variables_view")
         else:
             flash("Please fix errors and resubmit.", "alert-error")
             return render_template('variable_edit.html', variable=variable,
@@ -121,7 +123,7 @@ def role_edit(role_id=None):
             db.session.add(role)
             db.session.commit()
             flash("Role updated", "alert-success")
-            return redirect(url_for("roles_view"))
+            return form.redirect("roles_view")
         else:
             flash("Please fix errors and resubmit.", "alert-error")
             return render_template('role_edit.html', role=role,
@@ -155,7 +157,7 @@ def user_edit(user_id=None):
             db.session.add(user)
             db.session.commit()
             flash("User updated", "alert-success")
-            return redirect(url_for("users_view"))
+            return form.redirect("users_view")
         else:
             flash("Please fix errors and resubmit.", "alert-error")
             return render_template('user_edit.html', user=user,

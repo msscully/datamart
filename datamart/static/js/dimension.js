@@ -43,7 +43,7 @@
 
   $('.remove-role').click(function(){
     var id = $(this).attr('id').substring(3);
-    var name = $('#rn_'+id).html();
+    var name = $('#rn_'+id).text();
     if (confirm("Are you sure you want to delete Role " + name + "?")) {
       $.ajax({
         url: '/api/role/'+id,

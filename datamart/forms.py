@@ -25,7 +25,7 @@ VariableForm = model_form(models.Variable, db_session=db.session, base_class=For
                                  'get_label': 'name'
                              },
                              'dimension': {
-                                 'get_label': 'unit_name'
+                                 'get_label': 'name'
                              }
                          })
 

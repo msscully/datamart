@@ -7,7 +7,7 @@
   <table class="table table-striped table-bordered ">
     <thead>
       <th>ID</th>
-      <th>Display Name</th>
+      <th>Name</th>
       <th>Description</th>
       <th>Dimension</th>
       <th>Roles</th>
@@ -18,9 +18,9 @@
     {% for variable in variables %}
     <tr id='vr_{{variable.id}}'>
       <td>{{ variable.id }}</td>
-      <td id='vdn_{{variable.id}}'>{{ variable.display_name }}</td>
+      <td id='vdn_{{variable.id}}'>{{ variable.name }}</td>
       <td>{{ variable.description }}</td>
-      <td><a href={{ url_for('dimensions_view', dimension_id=variable.dimension.id) }}>{{ variable.dimension.unit_name }}</a></td>
+      <td><a href={{ url_for('dimensions_view', dimension_id=variable.dimension.id) }}>{{ variable.dimension.name }}</a></td>
       <td>{% for role in variable.roles %}<a href={{url_for('roles_view',role_id=role.id)}}>{{role.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
       <td>{{ variable.in_use }}</td>
       <td>

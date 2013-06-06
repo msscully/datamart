@@ -24,7 +24,7 @@
                       for (var i=0;i<data.length;i++){
                           var column = data[i];
                           if (column.in_use = 'True'){
-                              new_column = {property: column.id, label: column.display_name, sortable: true};
+                              new_column = {property: column.id, label: column.name, sortable: true};
                               new_columns.push(new_column);
                           }
                       }
@@ -67,9 +67,9 @@
       $(document).on('click', '.remove-item', function(){
           var $me = $(this);
           var id = $(this).attr('id').substring(2);
-          var unitName = $(this).attr('item_name');
+          var name = $(this).attr('item_name');
           var model = $(this).attr('model');
-          if (confirm("Are you sure you want to delete all " + model + " with id=" + unitName + "?")) {
+          if (confirm("Are you sure you want to delete all " + model + " with id=" + name + "?")) {
               $.ajax({
                   url: '/api/' + model + '/' + id,
                   type: 'DELETE',
@@ -78,10 +78,10 @@
                   success: function(response) {
                       $('#FactsGrid').datagrid('reload');
                       //$me.closest('tr').remove();
-                      $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted " + model + " " + unitName + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+                      $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted " + model + " " + name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
                   },
                   failure: function(response) {
-                      $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete " + model + " " + unitName + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+                      $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete " + model + " " + name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
                   }
               });
           }

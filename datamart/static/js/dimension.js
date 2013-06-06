@@ -1,8 +1,8 @@
 (function($){
   $('.remove-dimension').click(function(){
     var id = $(this).attr('id').substring(3);
-    var unit_name = $('#dun_'+id).html();
-    if (confirm("Are you sure you want to delete Dimension " + unit_name + "?")) {
+    var name = $('#dun_'+id).html();
+    if (confirm("Are you sure you want to delete Dimension " + name + "?")) {
       $.ajax({
         url: '/api/dimension/'+id,
         type: 'DELETE',
@@ -10,10 +10,10 @@
         data: '',
         success: function(response) { 
           $('#dr_'+id).remove();
-          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted Dimension " + unit_name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted Dimension " + name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
         },
         failure: function(response) {
-          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete Dimension " + unit_name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete Dimension " + name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
         }
       });
     }
@@ -22,8 +22,8 @@
 
   $('.remove-variable').click(function(){
     var id = $(this).attr('id').substring(3);
-    var unit_name = $('#vdn_'+id).html();
-    if (confirm("Are you sure you want to delete Variable " + unit_name + "?")) {
+    var name = $('#vdn_'+id).html();
+    if (confirm("Are you sure you want to delete Variable " + name + "?")) {
       $.ajax({
         url: '/api/variable/'+id,
         type: 'DELETE',
@@ -31,10 +31,10 @@
         data: '',
         success: function(response) {
           $('#vr_'+id).remove();
-          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted Variable " + unit_name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted Variable " + name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
         },
         failure: function(response) {
-          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete Variable " + unit_name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete Variable " + name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
         }
       });
     }
@@ -43,8 +43,8 @@
 
   $('.remove-role').click(function(){
     var id = $(this).attr('id').substring(3);
-    var unit_name = $('#rn_'+id).html();
-    if (confirm("Are you sure you want to delete Role " + unit_name + "?")) {
+    var name = $('#rn_'+id).html();
+    if (confirm("Are you sure you want to delete Role " + name + "?")) {
       $.ajax({
         url: '/api/role/'+id,
         type: 'DELETE',
@@ -52,10 +52,10 @@
         data: '',
         success: function(response) {
           $('#drr_'+id).remove();
-          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted Role " + unit_name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted Role " + name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
         },
         failure: function(response) {
-          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete Role " + unit_name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete Role " + name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
         }
       });
     }
@@ -64,8 +64,8 @@
 
   $('.remove-user').click(function(){
     var id = $(this).attr('id').substring(3);
-    var unit_name = $('#un_'+id).html();
-    if (confirm("Are you sure you want to delete User " + unit_name + "?")) {
+    var name = $('#un_'+id).html();
+    if (confirm("Are you sure you want to delete User " + name + "?")) {
       $.ajax({
         url: '/api/user/'+id,
         type: 'DELETE',
@@ -73,10 +73,10 @@
         data: '',
         success: function(response) {
           $('#ur_'+id).remove();
-          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted User " + unit_name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted User " + name + ". <a class='close' data-dismiss='alert'>&#215;</a> </div>");
         },
         failure: function(response) {
-          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete User " + unit_name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete User " + name + ". Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
         }
       });
     }

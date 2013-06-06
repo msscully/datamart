@@ -57,7 +57,7 @@ def dimension_delete(dimension_id):
     dimension = models.Dimension.query.get_or_404(dimension_id)
     db.session.delete(dimension)
     db.session.commit()
-    flash("Dimension " + dimension.unit_name + " succesfully deleted.", "alert-success")
+    flash("Dimension " + dimension.name + " succesfully deleted.", "alert-success")
     return render_template('dimensions_view')
 
 @app.route('/variables/', methods=['GET'])
@@ -248,7 +248,7 @@ def label_upload_data(filename=None):
                                  [validators.Required()],
                                  allow_blank=True, 
                                  blank_text=u'-- please choose --',
-                                 get_label='display_name'))
+                                 get_label='name'))
 
     if session['useheader']:
         header_corrected_data = new_data[1:]
@@ -315,8 +315,8 @@ def download_facts():
     response.headers['Content-Transfer-Encoding'] = 'binary'
 
     vars_by_user = models.variables_by_user()
-    columns = dict((i.display_name,i.id) for i in vars_by_user)
-    datatypes = dict((i.display_name,i.dimension.data_type) for i in vars_by_user)
+    columns = dict((i.name,i.id) for i in vars_by_user)
+    datatypes = dict((i.name,i.dimension.data_type) for i in vars_by_user)
     print columns
     output = StringIO.StringIO()
 

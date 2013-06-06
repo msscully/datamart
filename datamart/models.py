@@ -58,16 +58,16 @@ class User(db.Model, UserMixin):
 class Dimension(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(300), unique=True)
-    unit_name = db.Column(db.String(30), nullable=False, unique=True)
+    name = db.Column(db.String(30), nullable=False, unique=True)
     data_type = db.Column(ENUM("String","Integer","Boolean","Float", name="dim_data_type_enum"), nullable=False, default="String")
 
     def __repr__(self):
-        return '<Dimension name=%r>' % self.unit_name
+        return '<Dimension name=%r>' % self.name
 
 class Variable(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(300), unique=True, nullable=False)
-    display_name = db.Column(db.String(30), nullable=False, unique=True)
+    name = db.Column(db.String(30), nullable=False, unique=True)
     min = db.Column(db.Float, nullable=True)
     max = db.Column(db.Float, nullable=True)
     std = db.Column(db.Float, nullable=True)
@@ -81,7 +81,7 @@ class Variable(db.Model):
     in_use = db.Column(db.Boolean, default=True, nullable=False)
 
     def __repr__(self):
-        repr = '<Variable name=%r - dim=%r>' % (self.display_name, self.dimension)
+        repr = '<Variable name=%r - dim=%r>' % (self.name, self.dimension)
         return repr
 
 class Facts(db.Model):

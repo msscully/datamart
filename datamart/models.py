@@ -84,9 +84,19 @@ class Variable(db.Model):
         repr = '<Variable name=%r - dim=%r>' % (self.name, self.dimension)
         return repr
 
+class Event(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+
+    def __repr__(self):
+        return '<Event id=%r, name=%r>' % (self.id, self.name)
+
 class Facts(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     reviewed = db.Column(db.Boolean, nullable=False, default=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    event = db.relationship('Event')
     values = db.Column(MutableDict.as_mutable(HSTORE))
 
     def __repr__(self):

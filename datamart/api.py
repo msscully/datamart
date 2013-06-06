@@ -399,6 +399,11 @@ manager.create_api(models.Role,
                    methods=['GET', 'POST', 'DELETE', 'PUT'],
                    results_per_page=RESULTS_PER_PAGE,
                    preprocessors=preprocessors)
+manager.create_api(models.Event, 
+                   methods=['GET', 'POST', 'DELETE', 'PUT'],
+                   results_per_page=RESULTS_PER_PAGE,
+                   preprocessors=preprocessors)
+
 
 def compute_results_per_page():
     """Helper function which returns the number of results per page based

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field, render_controls %}
+
+{% block title %} {% if event.name %} Edit Event {{event.name}} {% else %} Add new Event {% endif %} {% endblock %}
+
+{% block container_content %}
+<h3>{% if event.name %} Edit Event {{event.name}} {% else %} Add new Event {% endif %}</h3>
+<form class='form-horizontal' action="{{ url_for('event_edit',event_id=event.id) }}" method=post>
+  <fieldset>
+    {{ form.hidden_tag() }}
+
+    {{ render_field(form.name) }}
+    {{ render_field(form.description) }}
+
+    {{ render_controls(form, 'events_view') }}
+  </fieldset>
+</form>
+{% endblock container_content %}

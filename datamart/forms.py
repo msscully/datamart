@@ -32,6 +32,8 @@ VariableForm = model_form(models.Variable, db_session=db.session, base_class=Red
 
 RoleForm = model_form(models.Role, db_session=db.session, base_class=RedirectForm)
 
+EventForm = model_form(models.Event, db_session=db.session, base_class=RedirectForm)
+
 UserForm = model_form(models.User, db_session=db.session, base_class=RedirectForm,
                      exclude = ['confirmed_at',
                                 'last_login_at',

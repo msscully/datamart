@@ -2,7 +2,7 @@ from flask import render_template, request, flash, redirect, url_for,\
         jsonify, session, abort, current_app
 from datamart import app, models, db, data_files
 from forms import RoleForm, DimensionForm, VariableForm, UserForm, \
-        FileUploadForm, Form
+        FileUploadForm, Form, EventForm
 from flask.ext.security import login_required, LoginForm, current_user
 from flask.ext.restless.views import jsonify_status_code
 from flask.ext.wtf import QuerySelectField, validators
@@ -165,6 +165,39 @@ def user_edit(user_id=None):
     elif request.method == 'GET':
         return render_template('user_edit.html', user=user, form=form)
 
+@app.route('/events/', methods=['GET'])
+@app.route('/events/<int:event_id>/', methods=['GET'])
+@login_required
+def events_view(event_id=None):
+    if event_id:
+        events = [models.Event.query.get_or_404(event_id)]
+    else:
+        events = models.Event.query.all()
+    return render_template('events.html', events=events)
+
+@app.route('/events/add/', methods=['GET', 'POST'])
+@app.route('/events/<int:event_id>/edit/', methods=['GET', 'POST'])
+@login_required
+def event_edit(event_id=None):
+    if event_id:
+        event = models.Event.query.get_or_404(event_id)
+    else:
+        event = models.Event()
+
+    form = EventForm(obj=event)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            form.populate_obj(event)
+            db.session.add(event)
+            db.session.commit()
+            flash("Event updated", "alert-success")
+            return form.redirect("events_view")
+        else:
+            flash("Please fix errors and resubmit.", "alert-error")
+            return render_template('event_edit.html', event=event,
+                                   form=form)
+    elif request.method == 'GET':
+        return render_template('event_edit.html', event=event, form=form)
 
 @app.errorhandler(404)
 def not_found(error=None):

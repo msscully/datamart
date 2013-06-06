@@ -5,6 +5,7 @@
           var url = '/api/variable';
           var new_columns = [
               {'property':'id', 'label': 'Table ID', 'sortable': true},
+              {'property':'event', 'label': 'Event', 'sortable': false},
               {'property':'reviewed', 'label': 'Reviewed', 'sortable': true},
           ]
 
@@ -55,6 +56,7 @@
           formatter: function (items) {
               var compiledTemplate = Handlebars.getTemplate('model-table-controls');
               $.each(items, function (index, item) {
+                  item.event = item.event.name;
                   item.controls = compiledTemplate({model: 'facts', id: item.id, item_name: item.id, description: item.description});
               });
           }

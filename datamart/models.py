@@ -66,7 +66,7 @@ class Dimension(db.Model):
 
 class Variable(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    description = db.Column(db.String(300), unique=True, nullable=False)
+    description = db.Column(db.String(300), nullable=False)
     name = db.Column(db.String(30), nullable=False, unique=True)
     min = db.Column(db.Float, nullable=True)
     max = db.Column(db.Float, nullable=True)
@@ -78,7 +78,7 @@ class Variable(db.Model):
     dimension = db.relationship('Dimension', backref=db.backref('variables', lazy='dynamic'))
     roles = db.relationship('Role', secondary=roles_variables,
                             backref='variables')
-    in_use = db.Column(db.Boolean, default=True, nullable=False)
+    in_use = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         repr = '<Variable name=%r - dim=%r>' % (self.name, self.dimension)

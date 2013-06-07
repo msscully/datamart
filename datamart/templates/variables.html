@@ -11,6 +11,7 @@
       <th>Description</th>
       <th>Dimension</th>
       <th>Roles</th>
+      <th>Sources</th>
       <th>In Use</th>
       <th></th>
     </thead>
@@ -22,6 +23,7 @@
       <td>{{ variable.description }}</td>
       <td><a href={{ url_for('dimensions_view', dimension_id=variable.dimension.id) }}>{{ variable.dimension.name }}</a></td>
       <td>{% for role in variable.roles %}<a href={{url_for('roles_view',role_id=role.id)}}>{{role.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
+      <td>{% for source in variable.sources %}<a href={{url_for('sources_view',source_id=source.id)}}>{{source.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
       <td>{{ variable.in_use }}</td>
       <td>
         <a href="{{url_for('variable_edit', variable_id=variable.id)}}"><i class="icon-pencil"></i></a>

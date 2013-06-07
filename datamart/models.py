@@ -84,6 +84,24 @@ class Variable(db.Model):
         repr = '<Variable name=%r - dim=%r>' % (self.name, self.dimension)
         return repr
 
+sources_events = db.Table('sources_events', 
+                       db.Column('source_id',
+                                 db.Integer(),
+                                 db.ForeignKey('source.id')),
+                       db.Column('event_id',
+                                 db.Integer(),
+                                 db.ForeignKey('event.id'))
+                      )
+
+sources_variables = db.Table('sources_variables', 
+                       db.Column('source_id',
+                                 db.Integer(),
+                                 db.ForeignKey('source.id')),
+                       db.Column('variable_id',
+                                 db.Integer(),
+                                 db.ForeignKey('variable.id'))
+                      )
+
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
@@ -91,6 +109,20 @@ class Event(db.Model):
 
     def __repr__(self):
         return '<Event id=%r, name=%r>' % (self.id, self.name)
+
+class Source(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    description = db.Column(db.String(255), nullable=False)
+    url = db.Column(db.String(255), nullable=True)
+    events = db.relationship('Event', secondary=sources_events,
+                            backref='sources')
+    variables = db.relationship('Variable', secondary=sources_variables,
+                            backref='sources')
+
+
+    def __repr__(self):
+        return '<Source id=%r, name=%r, url=%r>' % (self.id, self.name, self.url)
 
 class Facts(db.Model):
     id = db.Column(db.Integer, primary_key=True)

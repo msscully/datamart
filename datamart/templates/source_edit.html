@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field, render_controls %}
+
+{% block title %} {% if model_data.name %} Edit Source {{model_data.name}} {% else %} Add new Source {% endif %} {% endblock %}
+
+{% block container_content %}
+<h3>{% if model_data.name %} Edit Source {{model_data.name}} {% else %} Add new Source {% endif %}</h3>
+<form class='form-horizontal' action="{{ url_for('source_edit',source_id=model_data.id) }}" method=post>
+  <fieldset>
+    {{ form.hidden_tag() }}
+
+    {{ render_field(form.name) }}
+    {{ render_field(form.description) }}
+    {{ render_field(form.url) }}
+    {{ render_field(form.events) }}
+    {{ render_field(form.variables) }}
+
+    {{ render_controls(form, 'sources_view') }}
+  </fieldset>
+</form>
+{% endblock container_content %}

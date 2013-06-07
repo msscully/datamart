@@ -2,7 +2,7 @@ from flask import render_template, request, flash, redirect, url_for,\
         jsonify, session, abort, current_app
 from datamart import app, models, db, data_files
 from forms import RoleForm, DimensionForm, VariableForm, UserForm, \
-        FileUploadForm, Form, EventForm
+        FileUploadForm, Form, EventForm, SourceForm
 from flask.ext.security import login_required, LoginForm, current_user
 from flask.ext.restless.views import jsonify_status_code
 from flask.ext.wtf import QuerySelectField, validators
@@ -111,6 +111,20 @@ def events_view(event_id=None):
 def event_edit(event_id=None):
     return model_edit(models.Event, 'event_edit.html', EventForm,
                       'events_view', event_id)
+
+@app.route('/sources/', methods=['GET'])
+@app.route('/sources/<int:source_id>/', methods=['GET'])
+@login_required
+def sources_view(source_id=None):
+    return model_view(models.Source,'sources.html',source_id)
+
+@app.route('/sources/add/', methods=['GET', 'POST'])
+@app.route('/sources/<int:source_id>/edit/', methods=['GET', 'POST'])
+@login_required
+def source_edit(source_id=None):
+    return model_edit(models.Source, 'source_edit.html', SourceForm,
+                      'sources_view', source_id)
+
 
 @app.errorhandler(404)
 def not_found(error=None):

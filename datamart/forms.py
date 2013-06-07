@@ -18,12 +18,22 @@ VariableForm = model_form(models.Variable, db_session=db.session, base_class=Red
                              },
                              'dimension': {
                                  'get_label': 'name'
+                             },
+                             'sources': {
+                               'get_label': 'name'
                              }
                          })
 
 RoleForm = model_form(models.Role, db_session=db.session, base_class=RedirectForm)
 
-EventForm = model_form(models.Event, db_session=db.session, base_class=RedirectForm)
+EventForm = model_form(models.Event, db_session=db.session,
+                       base_class=RedirectForm,
+                       field_args = {
+                           'sources': {
+                               'get_label': 'name'
+                           }
+                       }
+                      )
 
 UserForm = model_form(models.User, db_session=db.session, base_class=RedirectForm,
                      exclude = ['confirmed_at',
@@ -39,4 +49,17 @@ UserForm = model_form(models.User, db_session=db.session, base_class=RedirectFor
                          'email': {
                              'validators': [validators.Required(), validators.Email()]
                          }
+                     })
+
+SourceForm = model_form(models.Source, db_session=db.session, base_class=RedirectForm,
+                     field_args = {
+                         'url': {
+                             'validators': [validators.URL()]
+                         },
+                         'events': {
+                             'get_label': 'name'
+                         },
+                         'variables': {
+                             'get_label': 'name'
+                         },
                      })

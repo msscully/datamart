@@ -25,11 +25,11 @@ def _shell_context():
                 required=False, )
 def create_user(user, admin, email):
     '''Create a new user in the application.'''
-    password = prompt_pass('New user password')
     if not user:
         user = raw_input('Username: ')
     if not email:
         email = raw_input('email: ')
+    password = prompt_pass('New user password')
     datamart.user_datastore.create_user(email=email, password=password, username=user,
                                active=True)
     db.session.commit()
@@ -40,6 +40,13 @@ def create_tables():
     db.create_all()
     print('Database Created.')
 
+@manager.command
+def drop_db():
+    '''Drop EVERYTHING in databse.'''
+    #db.reflect()
+    db.drop_all()
+    print('Everything dropped from database.')
+
 if __name__ == "__main__":
-    manager.add_command('shell', Shell(make_context=_shell_context, use_ipython=False))
+    manager.add_command('shell', Shell(make_context=_shell_context, use_ipython=True))
     manager.run()

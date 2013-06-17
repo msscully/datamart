@@ -47,6 +47,9 @@
                 ('upload', 'Upload Facts'),
                 ('roles_view', 'Roles'),
                 ('users_view', 'Users'),
+                ('subjects_view', 'Subjects'),
+                ('externalIDs_view', 'External IDs'),
+                ('sources_view', 'Sources'),
                 ] %}
                 <li{% if endpoint == request.endpoint %} class=active{% endif
                 %}><a href={{ url_for(endpoint) }}>{{ caption }}</a>

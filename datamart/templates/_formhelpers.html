@@ -17,7 +17,7 @@
 {% macro render_controls(form, destination) %}
   <div class="control-group">
     <div class="controls">
-      <button name="action_save" type="submit" class="btn btn-primary">Save changes</button>
+      <input name="action_save" type="submit" class="btn btn-primary" value="Save changes">
       {% if form.next.data %}
       {% set next_val = form.next.data %}
       {% else %}

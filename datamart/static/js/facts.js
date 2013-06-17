@@ -5,15 +5,16 @@
           var url = '/api/variable';
           var new_columns = [
               {'property':'id', 'label': 'Table ID', 'sortable': true},
+              {'property':'subject_id', 'label': 'Subject ID', 'sortable': false},
               {'property':'event', 'label': 'Event', 'sortable': false},
               {'property':'reviewed', 'label': 'Reviewed', 'sortable': true},
           ]
 
           $.ajax(url, {
-
               dataType: 'json',
               async: false,
               data: {"results_per_page": '500',
+                  "q": JSON.stringify({filters:[{name:"in_use",op:"eq",val:"true"}]}),
                   "page": 1 },
                   jsonp: false,
                   contentType: "application/json",
@@ -29,6 +30,9 @@
                               new_columns.push(new_column);
                           }
                       }
+                  },
+                  error: function(jqXHR, textStatus, errorThrown) {
+                      alert('An error has occurred when fetching variables.  Please alert the system administrator.\n' + errorThrown)
                   }
           });
           new_columns.push({'property':'controls', 'label': '', 'sortable': false});

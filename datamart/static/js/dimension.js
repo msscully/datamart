@@ -85,7 +85,7 @@
 
   $('.remove-event').click(function(){
     var id = $(this).attr('id').substring(3);
-    var name = $('#re_'+id).text();
+    var name = $('#en_'+id).text();
     if (confirm("Are you sure you want to delete Event '" + name + "'?")) {
       $.ajax({
         url: '/api/event/'+id,
@@ -124,5 +124,27 @@
     }
     return false;
   });
+
+  $('.remove-subject').click(function(){
+    var id = $(this).attr('id').substring(3);
+    var name = $('#sn_'+id).text();
+    if (confirm("Are you sure you want to delete Subject '" + name + "'?")) {
+      $.ajax({
+        url: '/api/subject/'+id,
+        type: 'DELETE',
+        dataType: 'json',
+        data: '',
+        success: function(response) {
+          $('#sr_'+id).remove();
+          $('#flash-messages').append("<div class='alert alert-success'>Successfully deleted Subject '" + name + "'. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+        },
+        failure: function(response) {
+          $('#flash-messages').append("<div calss='alert alert-failure'>Error encountered when trying to delete Subject '" + name + "'. Please inform the site administrator. <a class='close' data-dismiss='alert'>&#215;</a> </div>");
+        }
+      });
+    }
+    return false;
+  });
+
 
 })(jQuery);

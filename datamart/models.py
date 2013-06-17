@@ -7,7 +7,7 @@ def variables_by_user():
     return db.session.query(Variable).join((Role, Variable.roles))\
             .join((User,
                    Role.users)).filter(Variable.in_use == True,
-                                              User.id == current_user.id).all()
+                                              User.id == current_user.id).order_by(Variable.name).all()
 
 roles_users = db.Table('roles_users', 
                        db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
@@ -20,11 +20,13 @@ roles_variables = db.Table('roles_variables',
                           )
 
 class Role(db.Model, RoleMixin):
+    __tablename__ = 'role'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(255), nullable=False)
 
 class User(db.Model, UserMixin):
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
@@ -56,6 +58,7 @@ class User(db.Model, UserMixin):
         return '<User username=%r, email=%r>' % (self.username, self.email)
 
 class Dimension(db.Model):
+    __tablename__ = 'dimension'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(300), unique=True)
     name = db.Column(db.String(30), nullable=False, unique=True)
@@ -65,6 +68,7 @@ class Dimension(db.Model):
         return '<Dimension name=%r>' % self.name
 
 class Variable(db.Model):
+    __tablename__ = 'variable'
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(300), nullable=False)
     name = db.Column(db.String(30), nullable=False, unique=True)
@@ -103,14 +107,16 @@ sources_variables = db.Table('sources_variables',
                       )
 
 class Event(db.Model):
+    __tablename__ = 'event'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
-    description = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
         return '<Event id=%r, name=%r>' % (self.id, self.name)
 
 class Source(db.Model):
+    __tablename__ = 'source'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     description = db.Column(db.String(255), nullable=False)
@@ -125,11 +131,33 @@ class Source(db.Model):
         return '<Source id=%r, name=%r, url=%r>' % (self.id, self.name, self.url)
 
 class Facts(db.Model):
+    __tablename__ = 'facts'
     id = db.Column(db.Integer, primary_key=True)
     reviewed = db.Column(db.Boolean, nullable=False, default=False)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    subject_id = db.Column(db.Integer, 
+                           db.ForeignKey('subject.id', ondelete='CASCADE'), 
+                           nullable=False)
+    subject = db.relationship('Subject')
+    event_id = db.Column(db.Integer, 
+                         db.ForeignKey('event.id', ondelete='CASCADE'), 
+                         nullable=False)
     event = db.relationship('Event')
     values = db.Column(MutableDict.as_mutable(HSTORE))
 
     def __repr__(self):
         return '<Fact id=%r>' % self.id
+
+class ExternalID(db.Model):
+    __tablename__ = 'externalID'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    subject_id = db.Column(db.Integer, db.ForeignKey('subject.id'), nullable=False)
+    __table_args__ = (db.UniqueConstraint('subject_id', 'name',
+                                       name='_subject_externalid_name_uc'),)
+
+class Subject(db.Model):
+    __tablename__ = 'subject'
+    id = db.Column(db.Integer, primary_key=True)
+    internal_id = db.Column(db.String(100), unique=True)
+    external_ids = db.relationship('ExternalID', backref='subject')

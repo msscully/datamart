@@ -8,7 +8,7 @@ from sqlalchemy.orm import object_mapper
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import UnmappedInstanceError
 from flask.ext.restless import ProcessingException
-from flask.ext.restless.helpers import BLACKLIST as COLUMN_BLACKLIST
+from flask.ext.restless.helpers import COLUMN_BLACKLIST
 from flask.ext.restless.helpers import is_like_list
 from flask.ext.security import current_user, utils
 from flask.ext.principal import Identity, identity_changed 
@@ -379,7 +379,6 @@ def get_many_variables_preprocessor(search_params=None, **kw):
         search_params['filters'] = []
     # *Append* your filter to the list of filters.
     search_params['filters'].append(filt)
-    pass
 
 manager.create_api(models.Dimension, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'], 
@@ -404,6 +403,14 @@ manager.create_api(models.Event,
                    results_per_page=RESULTS_PER_PAGE,
                    preprocessors=preprocessors)
 manager.create_api(models.Source, 
+                   methods=['GET', 'POST', 'DELETE', 'PUT'],
+                   results_per_page=RESULTS_PER_PAGE,
+                   preprocessors=preprocessors)
+manager.create_api(models.Subject, 
+                   methods=['GET', 'POST', 'DELETE', 'PUT'],
+                   results_per_page=RESULTS_PER_PAGE,
+                   preprocessors=preprocessors)
+manager.create_api(models.ExternalID, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'],
                    results_per_page=RESULTS_PER_PAGE,
                    preprocessors=preprocessors)

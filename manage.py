@@ -1,4 +1,5 @@
 from flask.ext.script import Manager, Server, Shell, prompt_pass
+from flask.ext.alembic import ManageMigrations
 import datamart
 import os
 
@@ -49,4 +50,5 @@ def drop_db():
 
 if __name__ == "__main__":
     manager.add_command('shell', Shell(make_context=_shell_context, use_ipython=True))
+    manager.add_command("migrate", ManageMigrations())
     manager.run()

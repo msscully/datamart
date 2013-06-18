@@ -11,6 +11,7 @@
       <th>Password</th>
       <th>Active</th>
       <th>Roles</th>
+      <th>Admin</th>
       <th>Last Logged In At</th>
       <th>Login Count</th>
       <th></th>
@@ -23,6 +24,7 @@
       <td>{{ user.password }}</td>
       <td>{{ user.active }}</td>
       <td>{% for role in user.roles %}{{ role.name }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+      <td>{{ user.is_admin }}</td>
       <td>{{ user.last_login_at }}</td>
       <td>{{ user.login_count }}</td>
       <td>

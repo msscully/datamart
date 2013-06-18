@@ -15,9 +15,11 @@
         <div class="datagrid-header-left">
           <button class='btn' id='dg-fv-DownloadFacts'>Download Selection as CSV</button>
         </div>
-        <div class="datagrid-header-right">
-            <a class="btn" href="{{url_for('upload')}}">Upload New Facts</a>
-        </div>
+        {% if current_user.is_admin %}
+          <div class="datagrid-header-right">
+              <a class="btn" href="{{url_for('upload')}}">Upload New Facts</a>
+          </div>
+        {% endif %}
       </th>
     </tr>
     </thead>

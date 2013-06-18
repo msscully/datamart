@@ -35,4 +35,4 @@ security = Security(app, user_datastore)
 
 import datamart.views
 import datamart.api
-#import admin
+import datamart.jinja_filters

@@ -44,16 +44,27 @@
                 ('variables_view', 'Variables'),
                 ('events_view', 'Events'),
                 ('facts_view', 'Facts'),
-                ('upload', 'Upload Facts'),
-                ('roles_view', 'Roles'),
-                ('users_view', 'Users'),
                 ('subjects_view', 'Subjects'),
                 ('externalIDs_view', 'External IDs'),
                 ('sources_view', 'Sources'),
                 ] %}
-                <li{% if endpoint == request.endpoint %} class=active{% endif
-                %}><a href={{ url_for(endpoint) }}>{{ caption }}</a>
+                <li{% if endpoint == request.endpoint %} class=active{% endif %}><a href={{ url_for(endpoint) }}>{{ caption }}</a></li>
               {%- endfor %}
+              {% if current_user.is_admin %}
+              <li class="divider-vertical"></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  {%- for endpoint, caption in [
+                    ('roles_view', 'Roles'),
+                    ('users_view', 'Users'),
+                    ('upload', 'Upload Facts'),
+                    ] %}
+                    <li{% if endpoint == request.endpoint %} class=active{% endif %}><a href={{ url_for(endpoint) }}>{{ caption }}</a></li>
+                  {%- endfor %}
+                </ul>
+              </li> 
+              {% endif %}
             </ul>
             {% block navbar_right %}
               {% if current_user.is_authenticated() %}

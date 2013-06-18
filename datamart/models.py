@@ -40,6 +40,7 @@ class User(db.Model, UserMixin):
     login_count = db.Column(db.Integer())
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))
+    is_admin = db.Column(db.Boolean, default=False)
 
     def approved_variables(self):
         return self.approved_vars_and_datatypes().keys()
@@ -52,7 +53,6 @@ class User(db.Model, UserMixin):
                 valid_vars[str(variable.id)] = variable.dimension.data_type
 
         return valid_vars
-
 
     def __repr__(self):
         return '<User username=%r, email=%r>' % (self.username, self.email)

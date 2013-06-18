@@ -1,8 +1,13 @@
-from flask.ext.admin import Admin, BaseView, expose
-from flask.ext.admin.contrib.sqlamodel import ModelView
-from datamart import app, db, models
+from functools import wraps
+from flask import request
+from flask import redirect
+from flask import url_for
+from flask.ext.security import current_user
 
-#TODO Make name configurable
-admin = Admin(app, name='Datamart Admin', url='/admin')
-admin.add_view(ModelView(models.User, db.session))
-admin.add_view(ModelView(models.Role, db.session))
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_admin:
+            return redirect(url_for('security.login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function

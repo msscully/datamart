@@ -16,19 +16,22 @@ from flask.ext.restless.views import jsonify_status_code
 from flask.ext.wtf import QuerySelectField
 from flask.ext.wtf import SelectField
 from flask.ext.wtf import validators
-from flask import send_file
 from flask import Response
+from admin import admin_required
 import csv
 import re
 import os
 import json
 import StringIO
 
-def model_view(model, template, model_id=None):
+def model_view(model, template, model_id=None, filter=None):
     if model_id:
         models_data = [model.query.get_or_404(model_id)]
     else:
-        models_data = model.query.all()
+        if filter is not None:
+            models_data = model.query.filter(filter).all()
+        else:
+            models_data = model.query.all()
     return render_template(template, models_data=models_data)
 
 def model_edit(model, template, FormType, redirect_default, model_id=None):
@@ -66,6 +69,7 @@ def dimensions_view(dimension_id=None):
 @app.route('/dimensions/add/', methods=['GET', 'POST'])
 @app.route('/dimensions/<int:dimension_id>/edit/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def dimension_edit(dimension_id=None):
     return model_edit(models.Dimension, 'dimension_edit.html', DimensionForm,
                       'dimensions_view', dimension_id)
@@ -74,11 +78,16 @@ def dimension_edit(dimension_id=None):
 @app.route('/variables/<int:variable_id>/', methods=['GET'])
 @login_required
 def variables_view(variable_id=None):
-    return model_view(models.Variable,'variables.html',variable_id)
+    filter_clause = (models.Variable.id.in_(current_user.approved_variables()))
+    return model_view(models.Variable,
+                      'variables.html',
+                      model_id=variable_id,
+                      filter=filter_clause)
 
 @app.route('/variables/add/', methods=['GET', 'POST'])
 @app.route('/variables/<int:variable_id>/edit/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def variable_edit(variable_id=None):
     return model_edit(models.Variable, 'variable_edit.html', VariableForm,
                       'variables_view', variable_id)
@@ -86,12 +95,14 @@ def variable_edit(variable_id=None):
 @app.route('/roles/', methods=['GET'])
 @app.route('/roles/<int:role_id>/', methods=['GET'])
 @login_required
+@admin_required
 def roles_view(role_id=None):
     return model_view(models.Role,'roles.html',role_id)
 
 @app.route('/roles/add/', methods=['GET', 'POST'])
 @app.route('/roles/<int:role_id>/edit/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def role_edit(role_id=None):
     return model_edit(models.Role, 'role_edit.html', RoleForm,
                       'roles_view', role_id)
@@ -99,12 +110,14 @@ def role_edit(role_id=None):
 @app.route('/users/', methods=['GET'])
 @app.route('/users/<int:user_id>/', methods=['GET'])
 @login_required
+@admin_required
 def users_view(user_id=None):
     return model_view(models.User,'users.html',user_id)
 
 @app.route('/users/add/', methods=['GET', 'POST'])
 @app.route('/users/<int:user_id>/edit/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def user_edit(user_id=None):
     return model_edit(models.User, 'user_edit.html', UserForm,
                       'users_view', user_id)
@@ -118,6 +131,7 @@ def events_view(event_id=None):
 @app.route('/events/add/', methods=['GET', 'POST'])
 @app.route('/events/<int:event_id>/edit/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def event_edit(event_id=None):
     return model_edit(models.Event, 'event_edit.html', EventForm,
                       'events_view', event_id)
@@ -131,6 +145,7 @@ def sources_view(source_id=None):
 @app.route('/sources/add/', methods=['GET', 'POST'])
 @app.route('/sources/<int:source_id>/edit/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def source_edit(source_id=None):
     return model_edit(models.Source, 'source_edit.html', SourceForm,
                       'sources_view', source_id)
@@ -161,6 +176,7 @@ def facts_view():
 
 @app.route('/facts/upload/label/<filename>/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def label_upload_data(filename=None):
     try:
       with open(data_files.path(filename), 'rb') as csvfile:
@@ -288,6 +304,7 @@ def label_upload_data(filename=None):
 
 @app.route('/facts/upload/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def upload():
     form = FileUploadForm()
     if form.validate_on_submit():
@@ -310,6 +327,7 @@ def subjects_view(subject_id=None):
 @app.route('/subjects/add/', methods=['GET', 'POST'])
 @app.route('/subjects/<int:subject_id>/edit/', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def subject_edit(subject_id=None):
     return model_edit(models.Subject, 'subject_edit.html', SubjectForm,
                       'subjects_view', subject_id)

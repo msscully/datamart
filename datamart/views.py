@@ -186,8 +186,15 @@ def label_upload_data(filename=None):
     except IOError:
         abort(404)
 
+    if 'useheader' in session and session['useheader']:
+        header_corrected_data = new_data[1:]
+        headers = new_data[0]
+    else:
+        header_corrected_data = new_data
+        headers = None
+
     top_ten = []
-    for i, row in enumerate(new_data):
+    for i, row in enumerate(header_corrected_data):
         if i >= 10: break
         top_ten.append(row)
 
@@ -226,11 +233,6 @@ def label_upload_data(filename=None):
                                  [validators.Required()],
                             choices=select_options_sorted
                            ))
-
-    if 'useheader' in session and session['useheader']:
-        header_corrected_data = new_data[1:]
-    else:
-        header_corrected_data = new_data
 
     form = FactsUploadForm(header_corrected_data)
 
@@ -300,7 +302,8 @@ def label_upload_data(filename=None):
         for key in form.errors:
             for error in form.errors[key]:
                 flash("Error: " + error, "alert-error")
-    return render_template('label_upload.html', data=top_ten, ind=1, form=form)
+    return render_template('label_upload.html', data=top_ten, ind=1, form=form,
+                          headers=headers)
 
 @app.route('/facts/upload/', methods=['GET', 'POST'])
 @login_required

@@ -26,7 +26,11 @@
         <table class="table table-striped table-bordered"> 
           <thead>
             <tr>
-              <th>Column {{loop.index}}</th>
+              {% if headers is defined and headers[loop.index0] %}
+                <th> {{ headers[loop.index0] }} </th>
+              {% else %}
+                <th>Column {{loop.index}}</th>
+              {% endif %}
             </tr>
           </thead>
           <tbody>

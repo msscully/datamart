@@ -351,8 +351,24 @@ def auth_func(**kw):
     if not current_user.is_authenticated():
         raise ProcessingException(message='Not authenticated!')
 
+def auth_admin(**kw):
+    auth_func(**kw)
+    if not current_user.is_admin:
+        raise ProcessingException(message='Permission denied!')
 
-preprocessors=dict(GET_SINGLE=[auth_func], GET_MANY=[auth_func])
+
+
+preprocessors=dict(GET_SINGLE=[auth_func],
+                   GET_MANY=[auth_func],
+                   DELETE=[auth_admin],
+                   PATCH_SINGLE=[auth_admin],
+                   PATCH_MANY=[auth_admin],
+                   POST=[auth_admin],
+                  )
+
+admin_only_proprocessors = dict(preprocessors)
+admin_only_proprocessors['GET_SINGLE'] = [auth_admin]
+admin_only_proprocessors['GET_MANY'] = [auth_admin]
 
 def get_single_variable_preprocessor(instance_id=None, **kw):
     """Accepts a single argument, `instance_id`, the primary key of the
@@ -397,7 +413,7 @@ manager.create_api(models.Facts,
 manager.create_api(models.Role, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'],
                    results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=preprocessors)
+                   preprocessors=admin_only_proprocessors)
 manager.create_api(models.Event, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'],
                    results_per_page=RESULTS_PER_PAGE,
@@ -409,7 +425,7 @@ manager.create_api(models.Source,
 manager.create_api(models.Subject, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'],
                    results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=preprocessors)
+                   preprocessors=admin_only_proprocessors)
 manager.create_api(models.ExternalID, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'],
                    results_per_page=RESULTS_PER_PAGE,

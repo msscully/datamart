@@ -22,7 +22,7 @@
       <div class="step-pane{%if loop.first%} active{%endif%}" id="{{ 'step' ~ loop.index }}">
         <h2>Please select Variable type for Column {{loop.index}}</h2>
 
-        {{ render_field(form['column_' ~ loop.index0]) }}
+        {{ render_field(form['column_' ~ loop.index0], **{'data-placeholder':'Select a Variable'}) }}
         <table class="table table-striped table-bordered"> 
           <thead>
             <tr>
@@ -58,4 +58,5 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/ext/handlebars.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/templates.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/label-upload.js') }}"></script>
+
 {% endblock page_specific_js %}

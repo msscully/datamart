@@ -405,7 +405,7 @@ DATATYPES = {
 def get_label_select_options():
     select_options = [(str(g.id), g.name) for g in models.variables_by_user()]
     select_options.extend([('subjects','Subjects'),('events','Events')])
-    select_options_sorted = [('','--Please select a variable--')]
+    select_options_sorted = [('','')]
     select_options_sorted.extend(sorted(select_options, key=lambda var: var[1]))
     return select_options_sorted
 

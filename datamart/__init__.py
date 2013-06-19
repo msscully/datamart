@@ -28,6 +28,8 @@ app.config['SECURITY_REGISTERABLE'] = False
 #app.config['SECURITY_CONFIRMABLE'] = True
 app.config['SECURITY_TRACKABLE'] = True
 #app.config['SECURITY_REGISTER_URL'] = '/create_account'
+app.config['SECURITY_LOGIN_USER_TEMPLATE'] = 'login.html'
+
 # Setup Flask-Security
 import datamart.models
 user_datastore = SQLAlchemyUserDatastore(db, datamart.models.User, datamart.models.Role)

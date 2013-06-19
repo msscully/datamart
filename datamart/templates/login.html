@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field, render_controls %}
+
+{% block title %} Login to Datamart {% endblock %}
+
+
+{% block container_content %}
+<form class='form-horizontal' action="{{ url_for('security.login') }}" method=post>
+  <fieldset>
+    {{ login_user_form.hidden_tag() }}
+
+    {{ render_field(login_user_form.email) }}
+    {{ render_field(login_user_form.password) }}
+    {{ render_field(login_user_form.remember) }}
+
+    <div class="control-group">
+      <div class="controls">
+        <input name="action_save" type="submit" class="btn btn-primary" value="Save changes">
+      </div>
+    </div>
+
+  </fieldset>
+</form>
+{% endblock container_content %}

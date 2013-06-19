@@ -58,7 +58,7 @@ def model_edit(model, template, FormType, redirect_default, model_id=None):
 
 @app.route('/', methods=['GET', 'POST',])
 def index():
-    return render_template('index.html', form=LoginForm())
+    return render_template('index.html', login_user_form=LoginForm())
 
 @app.route('/dimensions/', methods=['GET'])
 @app.route('/dimensions/<int:dimension_id>/', methods=['GET'])

@@ -71,9 +71,9 @@
                 <div class='pull-right'>
                   <a class='btn btn-primary' href="{{ url_for('security.logout') }}">Logout {{ current_user.username }}</a>
                 </div>
-              {% else %}
+              {% elif request.endpoint != 'security.login' %}
                 <form class="navbar-form pull-right" action="{{url_for('security.login')}}" method="post">
-                  {{ form.hidden_tag() }}
+                  {{ login_user_form.hidden_tag() }}
                   <input type="email" name='email' class="span2" placeholder="you@example.com">
                   <input type="password" name='password' class="span2" placeholder="Password">
                   <input type="submit" value="Login" class="btn"/>

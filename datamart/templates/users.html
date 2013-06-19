@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_gridhelpers.html" import render_grid_controls %}
 
 {% block title %}Users{% endblock %}
 {% block container_content %}
@@ -27,10 +28,7 @@
       <td>{{ user.is_admin }}</td>
       <td>{{ user.last_login_at }}</td>
       <td>{{ user.login_count }}</td>
-      <td>
-        <a href="{{url_for('user_edit', user_id=user.id)}}"><i class="icon-pencil"></i></a>
-        <a ><i id='m_{{user.id}}' class="icon-remove remove-item"></i></a>
-      </td>
+      {{ render_grid_controls(url_for('user_edit', user_id=user.id),user.id) }}
     </tr>
     {% endfor %}
     </tbody>

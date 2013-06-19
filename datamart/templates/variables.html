@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_gridhelpers.html" import render_grid_controls %}
 
 {% block title %} Variables {% endblock %}
 {% block container_content %}
@@ -33,10 +34,7 @@
       <td>{% for source in variable.sources %}<a href={{url_for('sources_view',source_id=source.id)}}>{{source.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
       <td>{{ variable.in_use }}</td>
       {% if current_user.is_admin %}
-        <td>
-          <a href="{{url_for('variable_edit', variable_id=variable.id)}}"><i class="icon-pencil"></i></a>
-          <a ><i id='m_{{variable.id}}' class="icon-remove remove-item"></i></a>
-        </td>
+        {{ render_grid_controls(url_for('variable_edit', variable_id=variable.id),variable.id) }}
       {% endif %}
     </tr>
     {% endfor %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_gridhelpers.html" import render_grid_controls %}
 
 {% block title %}External IDs{% endblock %}
 {% block container_content %}
@@ -17,10 +18,7 @@
       <td id='n_{{externalid.id}}'><a href="{{url_for('subjects_view', subject_id_id=externalid.subject.internal_id)}}">{{ externalid.subject.internal_id }}</a></td>
       <td>{{externalid.name}}</td>
       <td>{{externalid.description}}</td>
-      <td>
-        <a href="{{url_for('externalID_edit', externalid_id=externalid.id)}}"><i class="icon-pencil"></i></a>
-        <a ><i id='m_{{externalid.id}}' class="icon-remove remove-item"></i></a>
-      </td>
+      {{ render_grid_controls(url_for('externalID_edit', externalid_id=externalid.id),externalid.id) }}
     </tr>
     {% endfor %}
     </tbody>

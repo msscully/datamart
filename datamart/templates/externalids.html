@@ -13,13 +13,13 @@
     </thead>
     <tbody>
     {% for externalid in models_data %}
-    <tr id='er_{{externalid.id}}'>
-      <td id='en_{{externalid.id}}'><a href="{{url_for('subjects_view', subject_id_id=externalid.subject.internal_id)}}">{{ externalid.subject.internal_id }}</a></td>
+    <tr id='r_{{externalid.id}}'>
+      <td id='n_{{externalid.id}}'><a href="{{url_for('subjects_view', subject_id_id=externalid.subject.internal_id)}}">{{ externalid.subject.internal_id }}</a></td>
       <td>{{externalid.name}}</td>
       <td>{{externalid.description}}</td>
       <td>
         <a href="{{url_for('externalID_edit', externalid_id=externalid.id)}}"><i class="icon-pencil"></i></a>
-        <a ><i id='de_{{externalid.id}}' class="icon-remove remove-externalid"></i></a>
+        <a ><i id='m_{{externalid.id}}' class="icon-remove remove-item"></i></a>
       </td>
     </tr>
     {% endfor %}

@@ -15,16 +15,16 @@
     </thead>
     <tbody>
     {% for subject in models_data %}
-    <tr id='sr_{{subject.id}}'>
-      <td id='sn_{{subject.id}}'><a href="{{url_for('subjects_view', subject_id=subject.id)}}">{{ subject.id }}</a></td>
+    <tr id='r_{{subject.id}}'>
+      <td id='n_{{subject.id}}'><a href="{{url_for('subjects_view', subject_id=subject.id)}}">{{ subject.id }}</a></td>
       {% if current_user.is_admin %}
-      <td id='sn_{{subject.id}}'><a href="{{url_for('subjects_view', subject_id=subject.id)}}">{{ subject.internal_id }}</a></td>
+      <td id='n_{{subject.id}}'><a href="{{url_for('subjects_view', subject_id=subject.id)}}">{{ subject.internal_id }}</a></td>
       {% endif %}
       <td>{% for external_id in subject.external_ids %}<a href="{{ url_for('externalIDs_view', externalid_id=external_id.id) }}">{{ external_id.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
       {% if current_user.is_admin %}
       <td>
         <a href="{{url_for('subject_edit', subject_id=subject.id)}}"><i class="icon-pencil"></i></a>
-        <a ><i id='ds_{{subject.id}}' class="icon-remove remove-subject"></i></a>
+        <a ><i id='m_{{subject.id}}' class="icon-remove remove-item"></i></a>
       </td>
       {% endif %}
     </tr>

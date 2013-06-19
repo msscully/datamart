@@ -19,8 +19,8 @@
     </thead>
     <tbody>
     {% for source in models_data %}
-    <tr id='drs_{{source.id}}'>
-      <td id='sn_{{source.id}}'><a href="{{url_for('sources_view', source_id=source.id)}}">{{ source.name }}</a></td>
+    <tr id='r_{{source.id}}'>
+      <td id='n_{{source.id}}'><a href="{{url_for('sources_view', source_id=source.id)}}">{{ source.name }}</a></td>
       <td>{{ source.description }}</td>
       <td><a href="{{ source.url }}" target="_blank">{{ source.url }}</a></td>
       <td>{% for event in source.events %}<a href={{url_for('events_view',event_id=event.id)}}>{{event.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
@@ -32,7 +32,7 @@
       {% if current_user.is_admin %}
         <td>
           <a href="{{url_for('source_edit', source_id=source.id)}}"><i class="icon-pencil"></i></a>
-          <a ><i id='ds_{{source.id}}' class="icon-remove remove-source"></i></a>
+          <a ><i id='m_{{source.id}}' class="icon-remove remove-item"></i></a>
         </td>
       {% endif %}
     </tr>

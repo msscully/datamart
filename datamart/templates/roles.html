@@ -12,12 +12,12 @@
     </thead>
     <tbody>
     {% for role in models_data %}
-    <tr id='drr_{{role.id}}'>
-      <td id='rn_{{role.id}}'><a href="{{url_for('roles_view', role_id=role.id)}}">{{ role.name }}</a></td>
+    <tr id='r_{{role.id}}'>
+      <td id='n_{{role.id}}'><a href="{{url_for('roles_view', role_id=role.id)}}">{{ role.name }}</a></td>
       <td>{{ role.description }}</td>
       <td>
         <a href="{{url_for('role_edit', role_id=role.id)}}"><i class="icon-pencil"></i></a>
-        <a ><i id='dr_{{role.id}}' class="icon-remove remove-role"></i></a>
+        <a ><i id='m_{{role.id}}' class="icon-remove remove-item"></i></a>
       </td>
     </tr>
     {% endfor %}

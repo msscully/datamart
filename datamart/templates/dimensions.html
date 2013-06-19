@@ -18,15 +18,15 @@
     </thead>
     <tbody>
     {% for dimension in models_data %}
-    <tr id='dr_{{dimension.id}}'>
+    <tr id='r_{{dimension.id}}'>
       <td>{{dimension.id}}</td>
-      <td id='dun_{{dimension.id}}'>{{ dimension.name }}</td>
+      <td id='n_{{dimension.id}}'>{{ dimension.name }}</td>
       <td>{{ dimension.description }}</td>
       <td>{{ dimension.data_type }}</td>
       {% if current_user.is_admin %}
         <td>
           <a href="{{url_for('dimension_edit', dimension_id=dimension.id)}}"><i class="icon-pencil"></i></a>
-          <a ><i id='dd_{{dimension.id}}' class="icon-remove remove-dimension"></i></a>
+          <a ><i id='m_{{dimension.id}}' class="icon-remove remove-item"></i></a>
         </td>
       {% endif %}
     </tr>

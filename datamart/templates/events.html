@@ -15,14 +15,14 @@
     </thead>
     <tbody>
     {% for event in models_data %}
-    <tr id='dre_{{event.id}}'>
-      <td id='en_{{event.id}}'><a href="{{url_for('events_view', event_id=event.id)}}">{{ event.name }}</a></td>
+    <tr id='r_{{event.id}}'>
+      <td id='n_{{event.id}}'><a href="{{url_for('events_view', event_id=event.id)}}">{{ event.name }}</a></td>
       <td>{{ event.description }}</td>
       <td>{% for source in event.sources %}<a href={{url_for('sources_view',source_id=source.id)}}>{{source.name}}</a>{% if not loop.last %}, {% endif %}{% endfor %}</td>
       {% if current_user.is_admin %}
         <td>
           <a href="{{url_for('event_edit', event_id=event.id)}}"><i class="icon-pencil"></i></a>
-          <a ><i id='de_{{event.id}}' class="icon-remove remove-event"></i></a>
+          <a ><i id='m_{{event.id}}' class="icon-remove remove-item"></i></a>
         </td>
       {% endif %}
     </tr>

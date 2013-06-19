@@ -18,8 +18,8 @@
     </thead>
     <tbody>
     {% for user in models_data %}
-    <tr id='ur_{{user.id}}'>
-      <td id='un_{{user.id}}'><a href="{{url_for('users_view', user_id=user.id)}}">{{ user.username }}</a></td>
+    <tr id='r_{{user.id}}'>
+      <td id='n_{{user.id}}'><a href="{{url_for('users_view', user_id=user.id)}}">{{ user.username }}</a></td>
       <td>{{ user.email }}</td>
       <td>{{ user.password }}</td>
       <td>{{ user.active }}</td>
@@ -29,7 +29,7 @@
       <td>{{ user.login_count }}</td>
       <td>
         <a href="{{url_for('user_edit', user_id=user.id)}}"><i class="icon-pencil"></i></a>
-        <a ><i id='du_{{user.id}}' class="icon-remove remove-user"></i></a>
+        <a ><i id='m_{{user.id}}' class="icon-remove remove-item"></i></a>
       </td>
     </tr>
     {% endfor %}

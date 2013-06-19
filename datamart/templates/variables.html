@@ -19,9 +19,9 @@
     </thead>
     <tbody>
     {% for variable in models_data %}
-    <tr id='vr_{{variable.id}}'>
+    <tr id='r_{{variable.id}}'>
       <td>{{ variable.id }}</td>
-      <td id='vdn_{{variable.id}}'>{{ variable.name }}</td>
+      <td id='n_{{variable.id}}'>{{ variable.name }}</td>
       <td>{{ variable.description }}</td>
       <td><a href={{ url_for('dimensions_view', dimension_id=variable.dimension.id) }}>{{ variable.dimension.name }}</a></td>
       {% if current_user.is_admin %}
@@ -35,7 +35,7 @@
       {% if current_user.is_admin %}
         <td>
           <a href="{{url_for('variable_edit', variable_id=variable.id)}}"><i class="icon-pencil"></i></a>
-          <a ><i id='dv_{{variable.id}}' class="icon-remove remove-variable"></i></a>
+          <a ><i id='m_{{variable.id}}' class="icon-remove remove-item"></i></a>
         </td>
       {% endif %}
     </tr>

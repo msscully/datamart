@@ -3,6 +3,13 @@ from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.dialects.postgresql import HSTORE, INET, ENUM
 from flask.ext.security import RoleMixin, UserMixin, current_user
 
+DATATYPES = {
+    'String': str,
+    'Integer': int,
+    'Float': float,
+    'Boolean': bool
+}
+
 def variables_by_user():
     return db.session.query(Variable).join((Role, Variable.roles))\
             .join((User,

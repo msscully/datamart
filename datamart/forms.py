@@ -12,6 +12,7 @@ from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.orm import QuerySelectField
 from wtforms import Form as WTForm
 from wtforms.validators import ValidationError
+from wtforms.validators import Required
 from secure_redirect import RedirectForm
 from flask.ext.security import current_user
 
@@ -23,22 +24,19 @@ def is_type(type,s):
         return False
 
 def approved_var(form, field):
-    if field.data not in current_user.approved_variables():
-        raise ValidationError('Variable ' + field.data + ' does not exist.')
+    if str(field.data) not in current_user.approved_variables():
+        raise ValidationError('Variable %r does not exist.' % field.data)
 
 class IndvVariableFactForm(WTForm):
-    variable_id = IntegerField('',[approved_var])
+    variable_id = IntegerField('',[approved_var, Required()])
     value = TextField('')
 
-    def __init__(self, data):
-        super(IndvVariableFactForm, self).__init__()
-        self._data = data
-
     def validate_value(form, field):
-        variable = models.Variable.get(form.variable_id.data)
+        variable = models.Variable.query.get(form.variable_id.data)
         data_type = variable.dimension.data_type
         if not is_type(models.DATATYPES[data_type],field.data):
-            raise ValidationError("Value for variable, \"" + variable + "\" can't be converted to data type, \"" + data_type + "\"")
+            raise ValidationError("Value for variable, \"" + variable.name + "\" can't be converted to data type, \"" + data_type + "\"")
+
 
 def current_subjects():
     return models.Subject.query.order_by(models.Subject.internal_id)
@@ -52,6 +50,12 @@ class IndvFactForm(RedirectForm):
     event = QuerySelectField(query_factory=current_events, 
                                 get_label='name')
     values = FieldList(FormField(IndvVariableFactForm))
+
+    def get_value_errors(self):
+        errors_dict = {}
+        for value in self.values:
+            errors_dict[str(value.variable_id.data)] = value.errors
+        return errors_dict
 
 class FileUploadForm(RedirectForm):
     header_row = BooleanField('Is the first column header names?')

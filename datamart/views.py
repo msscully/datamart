@@ -172,21 +172,58 @@ def fact_edit(fact_id=None):
     if fact_id:
         fact_data = models.Facts.query.get_or_404(fact_id)
     else:
-        fact_data = models.Facts.query.all()
+        fact_data = models.Facts()
+        fact_data.values = {}
 
-    form = IndvFactForm()
+    if fact_data.values:
+        values = [{'variable_id': key, 'value': value} for (key, value) in fact_data.values.items()]
+    else:
+        values = []
+    form = IndvFactForm(subject=fact_data.subject, 
+                        event=fact_data.event,
+                        values=values)
 
     subjects = models.Subject.query.order_by(models.Subject.internal_id).all()
     events = models.Event.query.order_by(models.Event.name).all()
     variables = models.variables_by_user()
     var_by_id = dict((str(var.id),var) for var in variables)
 
-    if form.validate_on_submit():
-        flash('Saved and stuff','alert-success')
-    else:
-        for key in form.errors:
-            for error in form.errors[key]:
-                flash("Error: " + error, "alert-error")
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            fact_data.subject_id = form.subject.data.id
+            fact_data.event_id = form.event.data.id
+            fact_values = {}
+            for value in form.values:
+               fact_values[value.variable_id.data] = value.value.data
+
+            fact_data.values = fact_values
+            db.session.add(fact_data)
+            db.session.commit()
+
+            if fact_id:
+                flash('Fact updated!','alert-success')
+            else:
+                flash('New Fact added!', 'alert-success')
+            redirect('fact_edit', fact_id=fact_data.id)
+        else:
+            for key in form.errors:
+                if key == 'values':
+                    for value_dict in form.errors[key]:
+                        for value_key in value_dict:
+                            for error in value_dict[value_key]:
+                                flash("Error: " + error, "alert-error")
+                else:
+                    for error in form.errors[key]:
+                        flash("Error: " + error, "alert-error")
+
+            flash("Please fix errors and resubmit.", "alert-error")
+            return render_template('fact_edit.html', 
+                                   fact=fact_data,
+                                   subjects=subjects,
+                                   events=events,
+                                   var_by_id=var_by_id,
+                                   form=form
+                                  )
 
     return render_template('fact_edit.html', 
                            fact=fact_data,

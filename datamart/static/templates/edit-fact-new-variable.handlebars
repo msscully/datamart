@@ -1,0 +1,26 @@
+<tr>
+  <td>
+    <select class='variable-select chzn-select' data-placeholder='Select a Variable'>
+      <option value=''></option>
+      {{#each variables}}
+      <option value={{this.id}}>{{this.name}}</option>
+      {{/each}}
+    </select>
+  </td>
+  <td class='muted'>Dimension</td>
+  <td class='muted'>Data Type</td>
+  <td>
+    <div class="control-group">
+      <div class="controls">
+        <div style="display:none">
+          <input type="text" id='id_values-{{ index }}-variable_id' name='values-{{ index }}-variable_id' value="" hidden>
+        </div>
+        <input disabled type="text" id='id_values-{{ index }}-value' name='values-{{ index }}-value' value="">
+      </div>
+    </div>
+  </td>
+  <td>
+    <a><i class="icon-remove remove-fact-edit"></i></a>
+  </td>
+</tr>
+

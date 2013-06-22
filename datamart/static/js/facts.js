@@ -1,8 +1,6 @@
 (function($){
-
   $(function() {
-      var getColumns = function(){
-          var url = '/api/variable';
+       var getColumns = function(){
           var new_columns = [
               {'property':'id', 'label': 'Table ID', 'sortable': true},
               {'property':'subject_id', 'label': 'Subject ID', 'sortable': false},
@@ -10,34 +8,19 @@
               {'property':'reviewed', 'label': 'Reviewed', 'sortable': true},
           ]
 
-          $.ajax(url, {
-              dataType: 'json',
-              async: false,
-              data: {"results_per_page": '500',
-                  "q": JSON.stringify({filters:[{name:"in_use",op:"eq",val:"true"}]}),
-                  "page": 1 },
-                  jsonp: false,
-                  contentType: "application/json",
-                  type: 'GET',
-                  success: function(response) {
-                      var data = response.objects;
-                      var count = response.num_results;
-
-                      for (var i=0;i<data.length;i++){
-                          var column = data[i];
-                          if (column.in_use = 'True'){
-                              new_column = {property: column.id, label: column.name, sortable: true};
-                              new_columns.push(new_column);
-                          }
-                      }
-                  },
-                  error: function(jqXHR, textStatus, errorThrown) {
-                      alert('An error has occurred when fetching variables.  Please alert the system administrator.\n' + errorThrown)
-                  }
-          });
+          var variables = FACTS.getVariables();
+          
+          for (var i=0;i<variables.length;i++){
+              var column = variables[i];
+              if (column.in_use = 'True'){
+                  new_column = {property: column.id, label: column.name, sortable: true};
+                  new_columns.push(new_column);
+              }
+          }
           new_columns.push({'property':'controls', 'label': '', 'sortable': false});
           return new_columns;
       };
+
       var columns = getColumns();
       var operations = [
           {name: '=='},

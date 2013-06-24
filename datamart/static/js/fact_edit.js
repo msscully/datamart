@@ -47,6 +47,17 @@ var FACTS = {}; // FACTS Namespace
         });
     };
 
+    FACTS.countBlankVarSelects = function(){
+        var selects = $('td select.variable-select :selected')
+        var blankCount = 0;
+        $.each(selects, function(index, value) {
+            if ($(value).attr('value') === ''){
+                blankCount++;
+            }
+        });
+        return blankCount;
+    };
+
     $(function() {
         $(document).on('click','#AddVarToFact',function(){
             var compiledTemplate = Handlebars.getTemplate('edit-fact-new-variable');
@@ -56,9 +67,11 @@ var FACTS = {}; // FACTS Namespace
                 var varIDString = $(n).attr('id');
                 return Math.floor(/-(\d+)-/.exec(varIDString)[1]);
             });
+            var blankCount = FACTS.countBlankVarSelects();
             maxID = Math.max.apply(Math, varNums);
             var index = maxID + 1;
-            if (variables && variables.length > 0 ){
+            // Don't allow adding variables if all variables have been used.
+            if (variables && variables.length > 0 && variables.length > blankCount){
                 $('#FactVariablesTable tr:last').after(compiledTemplate({variables: variables, index: index}));
                 $('#FactVariablesTable tr:last select').chosen({allow_single_deselect: true});
             }else {
@@ -68,14 +81,16 @@ var FACTS = {}; // FACTS Namespace
         });
 
         $(document).on('change', '.variable-select', function() {
-            var $newVarRow = $($(this).closest('tr'));
+            var thisSelect = this;
+            var $newVarRow = $($(thisSelect).closest('tr'));
             var $dimension = $($newVarRow.children('td.dimension'));
             var $datatype = $($newVarRow.children('td.data-type'));
             var $controls = $($newVarRow.find('.controls'));
             var $input = $($controls.children('input'));
             var $varIDHiddenInput = $($controls.find('div > input'));
-            if ($(this).children('option:selected').attr('value') !== '' ){
-                var variableID = $(this).children('option:selected').attr('value');
+            if ($(thisSelect).children('option:selected').attr('value') !== '' ){
+                // New Variable selected.
+                var variableID = $(thisSelect).children('option:selected').attr('value');
                 var variables = FACTS.getVariables();
                 var currentVariable = $.map(variables, function(n) {
                     if (n.id == variableID){
@@ -94,13 +109,45 @@ var FACTS = {}; // FACTS Namespace
                 $datatype.removeClass('muted');
                 $input.removeAttr('disabled');
                 $varIDHiddenInput.attr('value',variableID);
+
+                // Remove the selected variable from other variable selects if
+                // they exist.
+                $('.variable-select option[value="' + variableID + '"]:not(:selected)').remove();
+                $('.variable-select').trigger("liszt:updated");
             } else {
+                // Variable selection cleared.
                 $dimension.text('Dimension');
                 $dimension.addClass('muted');
                 $datatype.text('Data Type');
                 $datatype.addClass('muted');
                 $input.attr('disabled', 'disabled');
                 $varIDHiddenInput.attr('value','');
+
+                // Add the previously selected variable to other variable
+                // selects if they exist.
+                var variableSelects = $('.variable-select');
+                if (variableSelects.length > 1){
+                    thisOptions = $.map($(thisSelect).children('option'), function(value) {
+                        return $(value).attr('value');
+                    });
+                    otherOptions = [];
+                    $.each(variableSelects, function(index, varSelect) {
+                        if(! $(varSelect).is($(thisSelect))){
+                            var varSelectOptions = $.map($(varSelect).children('option'), function(value) {
+                                return $(value).attr('value');
+                            });
+                            $.extend(otherOptions, varSelectOptions);
+                        }
+                    });
+                    var idToAdd = $.disjoin(thisOptions, otherOptions);
+                    var idToAddHtml = $(thisSelect).children('option[value="' + parseInt(idToAdd) + '"]').clone();
+                    $.each(variableSelects, function(index, varSelect) {
+                        if(! $(varSelect).is($(thisSelect))){
+                            $(varSelect).append(idToAddHtml);
+                        }
+                    });
+                    $('.variable-select').trigger("liszt:updated");
+                }
             }
         });
 

@@ -118,7 +118,10 @@
     <script type="text/javascript" src="{{url_for('static', filename='js/ext/chosen.jquery.js')}}"></script>
     <script>
       $(document).ready(function(){
+        // Activate Chosen.js for select statements
         $('select').chosen({allow_single_deselect:true});
+        // Turn on bootstrap tooltips
+        $('a').tooltip(container=true);
       });
     </script>
     {% block page_specific_js %}

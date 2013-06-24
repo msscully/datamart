@@ -164,7 +164,29 @@ var FACTS = {}; // FACTS Namespace
                     $pairedInput.removeAttr('name');
                 }
             });
+        });
 
+        $(document).on('click', '.remove-fact', function() {
+            // Remove row and renumber the input ids and names so they'll be
+            // processed correctly on the backend.
+            var $row = $($(this).closest('tr'));
+            var $table = $($row.closest('table'));
+            $row.remove();
+            controls = $table.find('td .controls')
+            $.each(controls, function(i,control) {
+                var valueInput = $(control).children('input')
+                var oldValueID = $(valueInput).attr('id');
+                var newValueID = oldValueID.replace(/-\d+-/,'-'+i+'-');
+                var oldValueName = $(valueInput).attr('name');
+                var newValueName = oldValueName.replace(/-\d+-/,'-'+i+'-');
+                $(valueInput).attr('id',newValueID);
+                $(valueInput).attr('name',newValueName);
+                var hiddenInput = $(control).find('div > input');
+                var newHiddenID = $(hiddenInput).attr('id').replace(/-\d+-/,'-'+i+'-');
+                var newHiddenName = $(hiddenInput).attr('name').replace(/-\d+-/,'-'+i+'-');
+                $(hiddenInput).attr('id',newHiddenID);
+                $(hiddenInput).attr('name',newHiddenName);
+            });
         });
     });
 })(jQuery)

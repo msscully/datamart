@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% from "_gridhelpers.html" import render_grid_controls %}
+{% from "_formhelpers.html" import render_field, render_controls %}
+
+{% block title %}{% if fact.subject_id %} Edit Fact {{fact.id}} {% else %} Add Fact {% endif %}{% endblock %}
+
+{% block container_content %}
+<h3>{% if fact.subject_id %} Edit Fact {{fact.id}} {% else %} Add Fact {% endif %}</h3>
+{% if current_user.is_admin %}
+  <form action="{{ url_for('fact_edit', fact_id=fact.id) }}" method=post>
+  <form>
+    {{ form.hidden_tag() }}
+{% endif %}
+  <h3>Fact</h3>
+  <div class="span4 well">
+    <h3>Subject</h3>
+      <div class="control-group{% if form.errors['subject'] %} error{% endif %}">
+        <div class="controls">
+          <select id='subject' name='subject' data-placeholder='Select a subject'>
+            <option value=''></option>
+            {% for subject in subjects %}
+            <option value='{{ subject.id }}'{% if subject.id==fact.subject_id %} selected{% endif %}>{{subject.internal_id}}</option>
+            {% endfor %}
+          </select>
+          {% if form.errors['subject'] %}
+            <div class="label label-important">
+              {% for error in form.errors['event'] %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% if fact.subject.id is defined %}
+    <p>Table ID: <a title='Edit subject "{{ fact.subject.internal_id }}"' href="{{ url_for('subject_edit', subject_id=fact.subject.id) }}">{{ fact.subject.id }}</a></p>
+    <p>Internal ID: <a title='Edit subject "{{ fact.subject.internal_id }}"' href="{{ url_for('subject_edit', subject_id=fact.subject.id) }}">{{ fact.subject.internal_id }}</a></p>
+    <p>External IDs: {% for id in fact.subject.external_ids %}<a title='Edit External ID "{{ id.id }}"' href="{{ url_for('externalID_edit', externalid_id=id.id) }}">{{ id.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+    </p>
+    {% endif %}
+  </div>
+  <div class="span4 well">
+    <h3>Event</h3>
+      <div class="control-group{% if form.errors['event'] %} error{% endif %}">
+        <div class="controls">
+          <select id='event' name='event' data-placeholder='Select an Event'>
+            <option value=''></option>
+            {% for event in events %}
+            <option value='{{ event.id }}'{% if event.id==fact.event_id %} selected{% endif %}>{{event.name}}</option>
+            {% endfor %}
+          </select>
+          {% if form.errors['event'] %}
+            <div class="label label-important">
+              {% for error in form.errors['event'] %}
+              <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% if fact.event.id is defined %}
+    <p>Event ID: <a title='Edit event "{{ fact.event.name }}"' href="{{ url_for('event_edit', event_id=fact.event_id) }}">{{ fact.event_id }}</a></p>
+    <p>Description: {% if fact.event.description != '' %}{{ fact.event.description}}{% else %}None{% endif %}</p>
+    <p>Sources: {% for source in fact.event.sources %}<a href="{{ url_for('source_edit', source_id=source.id) }}">{{ source.name }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+    </p>
+    {% endif %}
+  </div>
+  <div class="span10 well">
+    <h3>Variables</h3> 
+    <p><input id="AddVarToFact" type="button" class="btn btn-primary" value="Add Variable"></p>
+    <table id="FactVariablesTable" class="table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Dimension</th>
+          <th>Data Type</th>
+          <th>Value</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% set value_errors = form.get_value_errors() %}
+      {% for variable in form.values %}
+        {% set var = variable.data['variable_id'] %}
+        <tr>
+          <td><a title="{{ var_by_id['' ~ var].description }}" href="{{ url_for('variables_view',variable_id=var) }}">{{ var_by_id['' ~ var].name }}</a></td>
+          <td><a title="{{ var_by_id['' ~ var].dimension.description }}" href="{{ url_for('dimensions_view',dimension_id=var_by_id['' ~ var].dimension.id) }}">{{ var_by_id['' ~ var].dimension.name }}</a></td>
+          <td>{{ var_by_id['' ~ var].dimension.data_type }}</td>
+          <td>
+            <div class="control-group{% if value_errors[var] %} error{% endif %}">
+              <div class="controls">
+                <div style="display:none">
+                  <input type="text" id='id_values-{{ loop.index0 }}-variable_id' name='values-{{ loop.index0 }}-variable_id' class="hidden-variable-id" value="{{ var }}">
+                </div>
+                <input type="text" id='id_values-{{ loop.index0 }}-value' name='values-{{ loop.index0 }}-value' value="{{ form.values[loop.index0]['value'].data }}" {% if not current_user.is_admin %}disabled{% endif %}>
+                {% if value_errors[var] %}
+                <div class="label label-important">
+                  {% for error in value_errors[var]['value'] %}
+                  <span>{{ error }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+              </div>
+            </div>
+          </td>
+          <td>
+            {% if current_user.is_admin %}
+            <a><i id='m_{{var}}' class="icon-remove remove-fact"></i></a>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if current_user.is_admin %}
+    {{ render_controls(form, 'facts_view') }}
+    {% endif %}
+  </div>
+{% if current_user.is_admin %}</form>{% endif %}
+
+  <div id="NoUnusedVarsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="noUnusedVarsModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="noUnusedVarsModalLabel">All Variables already in use.</h3>
+  </div>
+  <div class="modal-body">
+    <p>All available variables have already been added for this Subject/Event.
+    To add another please first <a href="{{ url_for('variable_edit') }}">create a Variable</a>.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+  </div>
+  </div>
+{% endblock container_content %}
+
+{% block page_specific_js %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ext/underscore.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ext/handlebars.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/templates.js') }}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/dimension.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/fact_edit.js')}}"></script>
+{% endblock page_specific_js %}

@@ -1,6 +1,6 @@
 from flask import render_template, request, flash, redirect, url_for,\
         jsonify, session, abort, current_app
-from datamart import app, models, db, data_files
+from datamart import app, models, db, data_files, forms
 from forms import RoleForm
 from forms import DimensionForm
 from forms import VariableForm
@@ -11,6 +11,7 @@ from forms import EventForm
 from forms import SourceForm
 from forms import SubjectForm
 from forms import ExternalIDForm
+from forms import IndvFactForm
 from flask.ext.security import login_required, LoginForm, current_user
 from flask.ext.restless.views import jsonify_status_code
 from flask.ext.wtf import QuerySelectField
@@ -162,6 +163,77 @@ def not_found(error=None):
 
     return resp
 
+
+@app.route('/facts/add/', methods=['GET', 'POST'])
+@app.route('/facts/<int:fact_id>/edit/', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def fact_edit(fact_id=None):
+    if fact_id:
+        fact_data = models.Facts.query.get_or_404(fact_id)
+    else:
+        fact_data = models.Facts()
+        fact_data.values = {}
+
+    if fact_data.values:
+        values = [{'variable_id': key, 'value': value} for (key, value) in fact_data.values.items()]
+    else:
+        values = []
+    form = IndvFactForm(subject=fact_data.subject, 
+                        event=fact_data.event,
+                        values=values)
+
+    subjects = models.Subject.query.order_by(models.Subject.internal_id).all()
+    events = models.Event.query.order_by(models.Event.name).all()
+    variables = models.variables_by_user()
+    var_by_id = dict((str(var.id),var) for var in variables)
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            fact_data.subject_id = form.subject.data.id
+            fact_data.event_id = form.event.data.id
+            fact_values = {}
+            for value in form.values:
+                if value.variable_id.data != '':
+                    fact_values[str(value.variable_id.data)] = value.value.data
+
+            fact_data.values = fact_values
+            db.session.add(fact_data)
+            db.session.commit()
+
+            if fact_id:
+                flash('Fact updated!','alert-success')
+            else:
+                flash('New Fact added!', 'alert-success')
+            redirect(url_for('fact_edit', fact_id=fact_data.id))
+        else:
+            for key in form.errors:
+                if key == 'values':
+                    for value_dict in form.errors[key]:
+                        for value_key in value_dict:
+                            for error in value_dict[value_key]:
+                                flash("Error: " + error, "alert-error")
+                else:
+                    for error in form.errors[key]:
+                        flash("Error: " + error, "alert-error")
+
+            flash("Please fix errors and resubmit.", "alert-error")
+            return render_template('fact_edit.html', 
+                                   fact=fact_data,
+                                   subjects=subjects,
+                                   events=events,
+                                   var_by_id=var_by_id,
+                                   form=form
+                                  )
+
+    return render_template('fact_edit.html', 
+                           fact=fact_data,
+                           subjects=subjects,
+                           events=events,
+                           var_by_id=var_by_id,
+                           form=form
+                          )
+
 @app.route('/facts/', methods=['GET'])
 @login_required
 def facts_view():
@@ -256,7 +328,7 @@ def label_upload_data(filename=None):
                             event_id = new_event.id
                     else:
                         # All subjects exist, as we've passed validation.
-                        if is_type(int,column.lstrip()):
+                        if forms.is_type(int,column.lstrip()):
                             event_id = models.Event.query.get(column.lstrip()).id
                         else:
                             event_id = models.Event.query.filter(models.Event.name == column.lstrip()).one().id
@@ -274,7 +346,7 @@ def label_upload_data(filename=None):
                             subject_id = new_subject.id
                     else:
                         # All subjects exist, as we've passed validation.
-                        if is_type(int,column.lstrip()):
+                        if forms.is_type(int,column.lstrip()):
                             subject_id = models.Subject.query.get(column.lstrip()).id
                         else:
                             subject_id = models.Subject.query.filter(models.Subject.internal_id==column.lstrip()).one().id
@@ -395,13 +467,6 @@ def download_facts():
     response.set_cookie('fileDownload', 'true', path='/')
     return response
 
-DATATYPES = {
-    'String': str,
-    'Integer': int,
-    'Float': float,
-    'Boolean': bool
-}
-
 def get_label_select_options():
     select_options = [(str(g.id), g.name) for g in models.variables_by_user()]
     select_options.extend([('subjects','Subjects'),('events','Events')])
@@ -421,7 +486,7 @@ def column_datatype_check(form, field,data):
             # Did they give us DB IDs, internal_ids, or external_ids?
             if 'createsubjects' not in session or session['createsubjects'] != True:
                 # All subjects must already exist.
-                if is_type(int, row[column_index]):
+                if forms.is_type(int, row[column_index]):
                     if not models.Subject.query.get(row[column_index]):
                         field.errors.append('Not all data in Column ' +
                                             str(column_index+1) + 
@@ -441,7 +506,7 @@ def column_datatype_check(form, field,data):
             # Did they give us DB IDs, or event.name(s)?
             if 'createevents' not in session or session['createevents'] != True:
                 # All events must already exist.
-                if is_type(int, row[column_index]):
+                if forms.is_type(int, row[column_index]):
                     if not models.Event.query.get(row[column_index]):
                         field.errors.append('Not all data in Column ' +
                                             str(column_index+1) + 
@@ -458,19 +523,11 @@ def column_datatype_check(form, field,data):
                 pass
         else:
             variable = models.Variable.query.get(field.data)
-            if not is_type(DATATYPES[variable.dimension.data_type],row[column_index]):
+            if not forms.is_type(models.DATATYPES[variable.dimension.data_type],row[column_index]):
                 field.errors.append('Not all data in Column ' +
                                     str(column_index+1) + ' can be cast to ' +
                                     variable.dimension.data_type + '.')
                 return False
 
     return True
-
-def is_type(type,s):
-    try:
-        type(s)
-        return True
-    except ValueError:
-        return False
-
 

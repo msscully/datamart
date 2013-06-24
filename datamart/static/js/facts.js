@@ -44,7 +44,13 @@
               var compiledTemplate = Handlebars.getTemplate('model-table-controls');
               $.each(items, function (index, item) {
                   item.event = item.event.name;
-                  item.controls = compiledTemplate({model: 'facts', id: item.id, item_name: item.id, description: item.description});
+                  itemURL = '/facts/' + item.id + '/edit/';
+                  item.controls = compiledTemplate({model: 'facts', 
+                                                   id: item.id,
+                                                   item_name: item.id,
+                                                   description: item.description,
+                                                   url: itemURL
+                  });
               });
           }
       }),

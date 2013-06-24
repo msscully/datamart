@@ -7,13 +7,13 @@
       {{/each}}
     </select>
   </td>
-  <td class='muted'>Dimension</td>
-  <td class='muted'>Data Type</td>
+  <td class='muted dimension'>Dimension</td>
+  <td class='muted data-type'>Data Type</td>
   <td>
     <div class="control-group">
       <div class="controls">
         <div style="display:none">
-          <input type="text" id='id_values-{{ index }}-variable_id' name='values-{{ index }}-variable_id' value="" hidden>
+          <input type="text" id='id_values-{{ index }}-variable_id' name='values-{{ index }}-variable_id' class="hidden-variable-id" value="">
         </div>
         <input disabled type="text" id='id_values-{{ index }}-value' name='values-{{ index }}-value' value="">
       </div>

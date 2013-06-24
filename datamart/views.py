@@ -194,7 +194,7 @@ def fact_edit(fact_id=None):
             fact_data.event_id = form.event.data.id
             fact_values = {}
             for value in form.values:
-               fact_values[value.variable_id.data] = value.value.data
+               fact_values[str(value.variable_id.data)] = value.value.data
 
             fact_data.values = fact_values
             db.session.add(fact_data)
@@ -204,7 +204,7 @@ def fact_edit(fact_id=None):
                 flash('Fact updated!','alert-success')
             else:
                 flash('New Fact added!', 'alert-success')
-            redirect('fact_edit', fact_id=fact_data.id)
+            redirect(url_for('fact_edit', fact_id=fact_data.id))
         else:
             for key in form.errors:
                 if key == 'values':

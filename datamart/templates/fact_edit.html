@@ -79,16 +79,17 @@
       </thead>
       <tbody>
       {% set value_errors = form.get_value_errors() %}
-      {% for var in fact.values %}
+      {% for variable in form.values %}
+        {% set var = variable.data['variable_id'] %}
         <tr>
-          <td title="{{ var_by_id[var].description }}"><a href="{{ url_for('variables_view',variable_id=var) }}">{{ var_by_id[var].name }}</a></td>
-          <td title="{{ var_by_id[var].dimension.description }}"><a href="{{ url_for('dimensions_view',dimension_id=var_by_id[var].dimension.id) }}">{{ var_by_id[var].dimension.name }}</a></td>
-          <td>{{ var_by_id[var].dimension.data_type }}</td>
+          <td><a title="{{ var_by_id['' ~ var].description }}" href="{{ url_for('variables_view',variable_id=var) }}">{{ var_by_id['' ~ var].name }}</a></td>
+          <td><a title="{{ var_by_id['' ~ var].dimension.description }}" href="{{ url_for('dimensions_view',dimension_id=var_by_id['' ~ var].dimension.id) }}">{{ var_by_id['' ~ var].dimension.name }}</a></td>
+          <td>{{ var_by_id['' ~ var].dimension.data_type }}</td>
           <td>
             <div class="control-group{% if value_errors[var] %} error{% endif %}">
               <div class="controls">
                 <div style="display:none">
-                  <input type="text" id='id_values-{{ loop.index0 }}-variable_id' name='values-{{ loop.index0 }}-variable_id' value="{{ var }}" hidden>
+                  <input type="text" id='id_values-{{ loop.index0 }}-variable_id' name='values-{{ loop.index0 }}-variable_id' class="hidden-variable-id" value="{{ var }}">
                 </div>
                 <input type="text" id='id_values-{{ loop.index0 }}-value' name='values-{{ loop.index0 }}-value' value="{{ form.values[loop.index0]['value'].data }}" {% if not current_user.is_admin %}disabled{% endif %}>
                 {% if value_errors[var] %}
@@ -117,6 +118,19 @@
   </div>
 {% if current_user.is_admin %}</form>{% endif %}
 
+  <div id="NoUnusedVarsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="noUnusedVarsModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="noUnusedVarsModalLabel">All Variables already in use.</h3>
+  </div>
+  <div class="modal-body">
+    <p>All available variables have already been added for this Subject/Event.
+    To add another please first <a href="{{ url_for('variable_edit') }}">create a Variable</a>.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+  </div>
+  </div>
 {% endblock container_content %}
 
 {% block page_specific_js %}

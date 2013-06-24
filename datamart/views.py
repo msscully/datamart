@@ -194,7 +194,8 @@ def fact_edit(fact_id=None):
             fact_data.event_id = form.event.data.id
             fact_values = {}
             for value in form.values:
-               fact_values[str(value.variable_id.data)] = value.value.data
+                if value.variable_id.data != '':
+                    fact_values[str(value.variable_id.data)] = value.value.data
 
             fact_data.values = fact_values
             db.session.add(fact_data)

@@ -100,8 +100,24 @@ var FACTS = {}; // FACTS Namespace
                 $datatype.text('Data Type');
                 $datatype.addClass('muted');
                 $input.attr('disabled', 'disabled');
-
+                $varIDHiddenInput.attr('value','');
             }
+        });
+
+        $(document).on('click', 'input[type=submit]', function() {
+            $.each($('td .controls > div > input'), function(index, value) {
+                if( $(value).attr('value') === '' ){
+                    // Remove id and name so it won't be processed on backend
+                    // Doing it this way rather than removing the <tr> so the
+                    // user doesn't see anything.
+                    $(value).removeAttr('id');
+                    $(value).removeAttr('name');
+                    var $pairedInput = $($(value).closest('td').find('.controls > input'));
+                    $pairedInput.removeAttr('id');
+                    $pairedInput.removeAttr('name');
+                }
+            });
+
         });
     });
 })(jQuery)

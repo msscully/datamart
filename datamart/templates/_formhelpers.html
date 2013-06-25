@@ -15,15 +15,13 @@
 {% endmacro %}
 
 {% macro render_controls(form, destination) %}
-  <div class="control-group">
-    <div class="controls">
-      <input name="action_save" type="submit" class="btn btn-primary" value="Save changes">
-      {% if form.next.data %}
-      {% set next_val = form.next.data %}
-      {% else %}
-      {% set next_val = url_for(destination) %}
-      {% endif %}
-      <a href="{{ next_val }}" name="cancel" class="btn btn-danger">Cancel</a>
-    </div>
+  <div class="form-actions">
+    <input name="action_save" type="submit" class="btn btn-primary" value="Save changes">
+    {% if form.next.data %}
+    {% set next_val = form.next.data %}
+    {% else %}
+    {% set next_val = url_for(destination) %}
+    {% endif %}
+    <a href="{{ next_val }}" name="cancel" class="btn btn-danger">Cancel</a>
   </div>
 {% endmacro %}

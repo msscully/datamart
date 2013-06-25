@@ -49,7 +49,8 @@
                                                    id: item.id,
                                                    item_name: item.id,
                                                    description: item.description,
-                                                   url: itemURL
+                                                   url: itemURL,
+                                                   IS_ADMIN: IS_ADMIN
                   });
               });
           }

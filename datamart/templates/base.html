@@ -22,6 +22,7 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
     <script type="text/javascript">
       var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+      var IS_ADMIN = {% if current_user.is_authenticated() %}{{ current_user.is_admin|tojson|safe }}{% else %}false{% endif %};
     </script>
   </head>
 

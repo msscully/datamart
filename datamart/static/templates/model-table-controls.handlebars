@@ -1,2 +1,4 @@
-<a href="{{ url }}"><i class="icon-pencil"></i></a>
+{{#if IS_ADMIN}}
+<a href="{{url}}"><i class="icon-pencil"></i></a>
+{{/if }}
 <i id='d_{{id}}' item_name="{{item_name}}" model="{{model}}" class="icon-remove remove-item"></i>

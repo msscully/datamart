@@ -66,6 +66,13 @@ FactsDataSource.prototype = {
 
             // Prepare data to return to Datagrid
             var data = response.objects;
+            for(var i in data){
+                for(var j in data[i].values){
+                    data[i][j] = data[i].values[j];
+                }
+                delete data[i].values;
+            }
+
             var count = response.num_results;
             var startIndex = (response.page - 1) * options.pageSize;
             var endIndex = startIndex + options.pageSize;

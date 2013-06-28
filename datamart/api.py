@@ -8,9 +8,9 @@ from sqlalchemy.orm import object_mapper
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import UnmappedInstanceError
 from flask.ext.restless import ProcessingException
-from flask.ext.restless.helpers import COLUMN_BLACKLIST
-from flask.ext.restless.helpers import is_like_list
+from flask.ext.restless import helpers 
 from flask.ext.security import current_user, utils
+from flask.ext.security import login_required
 from flask.ext.principal import Identity, identity_changed 
 from flask.ext.security.decorators import BasicAuth
 from sqlalchemy.orm.query import Query
@@ -83,7 +83,7 @@ def _create_operation(model, fieldname, operator, argument, relation=None):
     # raises AttributeError if `fieldname` or `relation` does not exist
     try:
         field = getattr(model, relation or fieldname)
-    except AttributeError as a:
+    except AttributeError as attr_error:
         # Check if the field is in the values hstore
         valid_vars = current_user.approved_vars_and_datatypes()
         if (fieldname or relation) in valid_vars:
@@ -92,7 +92,7 @@ def _create_operation(model, fieldname, operator, argument, relation=None):
             data_type = models.Variable.query.get(int(fieldname or relation)).dimension.data_type
             field = sqlalchemy.cast(field, DIMENSION_DATATYPES[data_type])
         else:
-            raise a
+            raise attr_error
 
     # each of these will raise a TypeError if the wrong number of argments
     # is supplied to `opfunc`.
@@ -269,7 +269,7 @@ def to_dict(instance, deep=None, exclude=None, include=None,
         columns = (c for c in columns if c in include)
     # create a dictionary mapping column name to value
     result = dict((col, getattr(instance, col)) for col in columns
-                  if not (col.startswith('__') or col in COLUMN_BLACKLIST))
+                  if not (col.startswith('__') or col in helpers.COLUMN_BLACKLIST))
     # add any included methods
     if include_methods is not None:
         result.update(dict((method, getattr(instance, method)())
@@ -309,7 +309,7 @@ def to_dict(instance, deep=None, exclude=None, include=None,
         if include_methods is not None:
             newmethods = [method.split('.', 1)[1] for method in include_methods
                         if method.split('.', 1)[0] == relation]
-        if is_like_list(instance, relation):
+        if helpers.is_like_list(instance, relation):
             result[relation] = [to_dict(inst, rdeep, exclude=newexclude,
                                         include=newinclude,
                                         include_methods=newmethods)
@@ -324,9 +324,10 @@ def to_dict(instance, deep=None, exclude=None, include=None,
                                    include_methods=newmethods)
     if hasattr(instance, 'values'):
         valid_vars = current_user.approved_variables()
+        valid_output_values = {}
         for var in valid_vars:
-            result[str(var)] = result['values'].get(str(var), '')
-        del result['values']
+            valid_output_values[str(var)] = result['values'].get(str(var), '')
+        result['values'] = valid_output_values
 
     return result
 

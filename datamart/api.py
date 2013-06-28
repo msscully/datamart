@@ -15,8 +15,12 @@ from flask.ext.principal import Identity, identity_changed
 from flask.ext.security.decorators import BasicAuth
 from sqlalchemy.orm.query import Query
 from sqlalchemy.orm.util import class_mapper
+from flask.ext import restful
+from flask.ext.restful import reqparse
+from decorator import decorator
 import datetime
 import uuid
+from forms import IndvFactForm
  
 DIMENSION_DATATYPES = {
     'String': sqlalchemy.String,
@@ -352,6 +356,24 @@ def auth_func(**kw):
     if not current_user.is_authenticated():
         raise ProcessingException(message='Not authenticated!')
 
+def _api_auth_required(fn, *args, **kw):
+    auth = request.authorization or BasicAuth(username=None, password=None)
+    user = security.datastore.find_user(email=auth.username)
+
+    if user and utils.verify_and_update_password(auth.password, user):
+        security.datastore.commit()
+        app = current_app._get_current_object()
+        _request_ctx_stack.top.user = user
+        identity_changed.send(app,
+                              identity=Identity(user.id))
+        return fn(*args, **kw)
+    if not current_user.is_authenticated():
+        restful.abort(401)
+
+def api_auth_required(fn, *args, **kw):
+    return decorator(_api_auth_required, fn)
+
+
 def auth_admin(**kw):
     auth_func(**kw)
     if not current_user.is_admin:
@@ -447,3 +469,97 @@ def compute_results_per_page():
         results_per_page = RESULTS_PER_PAGE
     return min(results_per_page, MAX_RESULTS_PER_PAGE)
 
+api = restful.Api(app)
+
+factParser = reqparse.RequestParser()
+factParser.add_argument('subject_id',type=int, location='json',
+                        required=True, help="subject_id can't be blank!")
+factParser.add_argument('event_id',type=int, location='json',
+                        required=True, help="event_id can't be blank!")
+factParser.add_argument('values',type=dict, location='json')
+
+class FactsAPI(restful.Resource):
+    decorators = [api_auth_required]
+    def get(self):
+        facts_response = {'objects': []}
+        for row in models.Facts.query.all():
+            current_row = helpers.to_dict(row)
+            current_row['event'] = helpers.to_dict(row.event)
+            facts_response['objects'].append(current_row)
+        print facts_response
+
+        return  facts_response
+
+    def post(self):
+        args = factParser.parse_args()
+        if args['values']:
+            values = args['values']
+
+        new_fact = models.Facts()
+        new_fact.subject_id = args['subject_id']
+        new_fact.event_id = args['event_id']
+        error_message = {}
+        subject = models.Subject.query.get(args['subject_id'])
+        event = models.Event.query.get(args['event_id'])
+
+        if args['values']:
+            values = [{'variable_id': str(key), 'value': str(value)} for (key, value) in args['values'].items()]
+        else:
+            values = []
+
+        form = IndvFactForm(
+            formdata=None,
+            csrf_enabled=False, #prevents csrf errors
+            subject=subject,
+            event=event,
+            values=values)
+
+        if not form.validate():
+            error_message = form.get_value_errors()
+            for error in form.errors:
+                if error != 'values':
+                    error_message[error] = form.errors[error]
+
+        print form.get_value_errors()
+        if error_message:
+            restful.abort(400, message=error_message)
+
+        #values_dict = {}
+        #for value in form.values:
+        #    if value.variable_id.data != '':
+        #        values_dict[str(value.variable_id.data)] = value.value.data
+
+        #db.session.add(new_fact)
+        #db.session.commit()
+
+        fact_response = {}
+        #fact_response = helpers.to_dict(new_fact)
+        #fact_response['event'] = helpers.to_dict(new_fact.event)
+        return fact_response, 201
+
+
+class FactSingleAPI(restful.Resource):
+    decorators = [api_auth_required]
+    def get(self, fact_id):
+        fact = self._valid_fact_id(fact_id)
+
+        fact_response = helpers.to_dict(fact)
+        fact_response['event'] = helpers.to_dict(fact.event)
+
+        return fact_response
+
+    def delete(self, fact_id):
+        fact = self._valid_fact_id(fact_id)
+        db.session.delete(fact)
+        db.session.commit()
+        return '', 204
+
+
+    def _valid_fact_id(self,fact_id):
+        fact = models.Facts.query.get(fact_id)
+        if not fact:
+            restful.abort(404, message="Fact {} doesn't exist.".format(fact_id))
+        return fact
+
+api.add_resource(FactsAPI, '/api2/facts')
+api.add_resource(FactSingleAPI, '/api2/facts/<int:fact_id>')

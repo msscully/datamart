@@ -32,10 +32,14 @@ class IndvVariableFactForm(WTForm):
     value = TextField('')
 
     def validate_value(form, field):
-        variable = models.Variable.query.get(form.variable_id.data)
-        data_type = variable.dimension.data_type
-        if not is_type(models.DATATYPES[data_type],field.data):
-            raise ValidationError("Value for variable, \"" + variable.name + "\" can't be converted to data type, \"" + data_type + "\"")
+        # Only validate here if the variable_id is good
+        # This prevents leaking data about the existence of variables the user
+        # doesn't have permission to know about.
+        if form.variable_id.validate(form.variable_id.validators):
+            variable = models.Variable.query.get(form.variable_id.data)
+            data_type = variable.dimension.data_type
+            if not is_type(models.DATATYPES[data_type],field.data):
+                raise ValidationError("Value for variable, \"" + variable.name + "\" can't be converted to data type, \"" + data_type + "\"")
 
 
 def current_subjects():

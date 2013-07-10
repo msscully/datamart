@@ -20,6 +20,7 @@ from flask.ext.restful import reqparse
 from decorator import decorator
 import datetime
 import uuid
+import json
 from forms import IndvFactForm
  
 DIMENSION_DATATYPES = {
@@ -471,26 +472,44 @@ def compute_results_per_page():
 
 api = restful.Api(app)
 
-factParser = reqparse.RequestParser()
-factParser.add_argument('subject_id',type=int, location='json',
-                        required=True, help="subject_id can't be blank!")
-factParser.add_argument('event_id',type=int, location='json',
-                        required=True, help="event_id can't be blank!")
-factParser.add_argument('values',type=dict, location='json')
-
 class FactsAPI(restful.Resource):
     decorators = [api_auth_required]
     def get(self):
+        factsSearchParser = reqparse.RequestParser()
+        factsSearchParser.add_argument('q', type=str, location='args', required=False)
+        args = factsSearchParser.parse_args()
+        print "ARGS: %s" % args
+        query = models.Facts.query
+        if args['q']:
+            q = json.loads(args['q'])
+            if 'filters' in q:
+                print q['filters']
+            order_by = q.get('order_by', [])
+        else:
+            order_by = []
+            filters = {}
+
+        for val in order_by:
+            field = getattr(models.Facts, val['field'])
+            direction = getattr(field, val['direction'])
+            query = query.order_by(direction())
+
         facts_response = {'objects': []}
-        for row in models.Facts.query.all():
+        for row in query.all():
             current_row = helpers.to_dict(row)
             current_row['event'] = helpers.to_dict(row.event)
             facts_response['objects'].append(current_row)
-        print facts_response
 
         return  facts_response
 
     def post(self):
+        factParser = reqparse.RequestParser()
+        factParser.add_argument('subject_id', type=int, location='json',
+                                required=True, help="subject_id can't be blank!")
+        factParser.add_argument('event_id', type=int, location='json',
+                                required=True, help="event_id can't be blank!")
+        factParser.add_argument('values', type=dict, location='json')
+
         args = factParser.parse_args()
         if args['values']:
             values = args['values']
@@ -520,7 +539,6 @@ class FactsAPI(restful.Resource):
                 if error != 'values':
                     error_message[error] = form.errors[error]
 
-        print form.get_value_errors()
         if error_message:
             restful.abort(400, message=error_message)
 

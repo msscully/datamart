@@ -1,4 +1,4 @@
-import flask.ext.restless
+import flask.ext.restless as restless
 from flask import request, _request_ctx_stack, current_app
 from datamart import app, db, models, security
 import inspect
@@ -81,7 +81,7 @@ def _create_operation(model, fieldname, operator, argument, relation=None):
 
     """
     # raises KeyError if operator not in OPERATORS
-    opfunc = flask.ext.restless.search.OPERATORS[operator]
+    opfunc = restless.search.OPERATORS[operator]
     argspec = inspect.getargspec(opfunc)
     # in Python 2.6 or later, this should be `argspec.args`
     numargs = len(argspec[0])
@@ -109,7 +109,7 @@ def _create_operation(model, fieldname, operator, argument, relation=None):
         return opfunc(field, argument)
     return opfunc(field, argument, fieldname)
 
-flask.ext.restless.search.QueryBuilder._create_operation = _create_operation
+restless.search.QueryBuilder._create_operation = _create_operation
 
 @staticmethod
 def create_query(session, model, search_params):
@@ -136,9 +136,9 @@ def create_query(session, model, search_params):
 
     """
     # Adding field filters
-    query = flask.ext.restless.helpers.session_query(session, model)
+    query = restless.helpers.session_query(session, model)
     # may raise exception here
-    filters = flask.ext.restless.search.QueryBuilder._create_filters(model, search_params)
+    filters = restless.search.QueryBuilder._create_filters(model, search_params)
     query = query.filter(search_params.junction(*filters))
 
     # Order the search
@@ -166,7 +166,7 @@ def create_query(session, model, search_params):
         query = query.offset(search_params.offset)
     return query
 
-flask.ext.restless.search.QueryBuilder.create_query = create_query
+restless.search.QueryBuilder.create_query = create_query
 
 def search(session, model, search_params):
     """Performs the search specified by the given parameters on the model
@@ -198,7 +198,7 @@ def search(session, model, search_params):
     # corresponding value is anything except those values which evaluate to
     # False (False, 0, the empty string, the empty list, etc.).
     is_single = search_params.get('single')
-    query = flask.ext.restless.search.create_query(session, model, search_params)
+    query = restless.search.create_query(session, model, search_params)
     authorized_result = []
     if is_single:
         # may raise NoResultFound or MultipleResultsFound
@@ -210,8 +210,8 @@ def search(session, model, search_params):
             pass
     return authorized_result
 
-flask.ext.restless.search.search = search
-flask.ext.restless.views.search = search
+restless.search.search = search
+restless.views.search = search
 
 def to_dict(instance, deep=None, exclude=None, include=None,
             exclude_relations=None, include_relations=None,
@@ -336,12 +336,12 @@ def to_dict(instance, deep=None, exclude=None, include=None,
 
     return result
 
-flask.ext.restless.helpers.to_dict = to_dict
-flask.ext.restless.views.to_dict = to_dict
+restless.helpers.to_dict = to_dict
+restless.views.to_dict = to_dict
 
 RESULTS_PER_PAGE = 50
 MAX_RESULTS_PER_PAGE = 10000
-manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
+manager = restless.APIManager(app, flask_sqlalchemy_db=db)
  
 def auth_func(**kw):
     auth = request.authorization or BasicAuth(username=None, password=None)
@@ -379,7 +379,6 @@ def auth_admin(**kw):
     auth_func(**kw)
     if not current_user.is_admin:
         raise ProcessingException(message='Permission denied!')
-
 
 
 preprocessors=dict(GET_SINGLE=[auth_func],
@@ -472,6 +471,32 @@ def compute_results_per_page():
 
 api = restful.Api(app)
 
+def build_filters(model, filters):
+        if "and" in filters:
+            print "AND: %s" % filters['and']
+            return sqlalchemy.and_(*build_filters(model,filters['and'])).self_group()
+        elif "or" in filters:
+            print "OR: %s" % filters['or']
+            return sqlalchemy.or_(*build_filters(model,filters['or'])).self_group()
+        elif type(filters) is list:
+            print "FITLER_LIST: %s" % filters
+            #TODO: Need proper error handling here
+            subfilter_list = []
+            for subfilter in filters:
+                subfilter_list.append(build_filters(model,subfilter))
+            return subfilter_list
+        elif "name" in filters and "op" in filters and "val" in filters:
+            print "SINGLE_FILTER: %s" % filters
+            field = filters['name']
+            argument = str(filters['val'])
+            op = filters['op']
+            opfunc =  restless.search.QueryBuilder._create_operation(model,
+                                                                     field,
+                                                                     op,
+                                                                     argument)
+            print opfunc
+            return opfunc
+
 class FactsAPI(restful.Resource):
     decorators = [api_auth_required]
     def get(self):
@@ -482,12 +507,18 @@ class FactsAPI(restful.Resource):
         query = models.Facts.query
         if args['q']:
             q = json.loads(args['q'])
-            if 'filters' in q:
-                print q['filters']
+            filters = q.get('filters', {})
             order_by = q.get('order_by', [])
         else:
             order_by = []
             filters = {}
+
+        if filters:
+            print "FILTERS: %s" % filters
+            filter_by = build_filters(models.Facts, filters)
+            print filter_by
+            query = query.filter(sqlalchemy.and_(filter_by).self_group())
+            print query
 
         for val in order_by:
             field = getattr(models.Facts, val['field'])

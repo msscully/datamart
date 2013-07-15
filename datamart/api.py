@@ -473,28 +473,23 @@ api = restful.Api(app)
 
 def build_filters(model, filters):
         if "and" in filters:
-            print "AND: %s" % filters['and']
             return sqlalchemy.and_(*build_filters(model,filters['and'])).self_group()
+
         elif "or" in filters:
-            print "OR: %s" % filters['or']
             return sqlalchemy.or_(*build_filters(model,filters['or'])).self_group()
+
         elif type(filters) is list:
-            print "FITLER_LIST: %s" % filters
             #TODO: Need proper error handling here
             subfilter_list = []
-            for subfilter in filters:
-                subfilter_list.append(build_filters(model,subfilter))
+            subfilter_list = [build_filters(model, filt) for filt in filters]
             return subfilter_list
+
         elif "name" in filters and "op" in filters and "val" in filters:
-            print "SINGLE_FILTER: %s" % filters
             field = filters['name']
             argument = str(filters['val'])
             op = filters['op']
-            opfunc =  restless.search.QueryBuilder._create_operation(model,
-                                                                     field,
-                                                                     op,
-                                                                     argument)
-            print opfunc
+            create_op = restless.search.QueryBuilder._create_operation
+            opfunc =  create_op(model, field, op, argument)
             return opfunc
 
 class FactsAPI(restful.Resource):
@@ -503,7 +498,6 @@ class FactsAPI(restful.Resource):
         factsSearchParser = reqparse.RequestParser()
         factsSearchParser.add_argument('q', type=str, location='args', required=False)
         args = factsSearchParser.parse_args()
-        print "ARGS: %s" % args
         query = models.Facts.query
         if args['q']:
             q = json.loads(args['q'])
@@ -514,11 +508,8 @@ class FactsAPI(restful.Resource):
             filters = {}
 
         if filters:
-            print "FILTERS: %s" % filters
             filter_by = build_filters(models.Facts, filters)
-            print filter_by
             query = query.filter(sqlalchemy.and_(filter_by).self_group())
-            print query
 
         for val in order_by:
             field = getattr(models.Facts, val['field'])
@@ -559,7 +550,8 @@ class FactsAPI(restful.Resource):
 
         form = IndvFactForm(
             formdata=None,
-            csrf_enabled=False, #prevents csrf errors
+            #Don't need csrf protection as just using to validate data
+            csrf_enabled=False,
             subject=subject,
             event=event,
             values=values)
@@ -573,17 +565,17 @@ class FactsAPI(restful.Resource):
         if error_message:
             restful.abort(400, message=error_message)
 
-        #values_dict = {}
-        #for value in form.values:
-        #    if value.variable_id.data != '':
-        #        values_dict[str(value.variable_id.data)] = value.value.data
+        values_dict = {}
+        for value in form.values:
+            if value.variable_id.data != '':
+                values_dict[str(value.variable_id.data)] = value.value.data
 
-        #db.session.add(new_fact)
-        #db.session.commit()
+        db.session.add(new_fact)
+        db.session.commit()
 
         fact_response = {}
-        #fact_response = helpers.to_dict(new_fact)
-        #fact_response['event'] = helpers.to_dict(new_fact.event)
+        fact_response = helpers.to_dict(new_fact)
+        fact_response['event'] = helpers.to_dict(new_fact.event)
         return fact_response, 201
 
 

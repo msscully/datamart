@@ -54,12 +54,15 @@ def facts_preproc(search_params=None, **kw):
         variable_ids = [str(i.id) for i in models.Variable.query.all()]
 
         def _fix_field(field):
-            if field in var_datatypes:
-                model_field = models.Facts.values[field]
-                data_type = var_datatypes[field]
-                return sqlalchemy.cast(model_field, DIMENSION_DATATYPES[data_type])
+            if field in variable_ids:
+                if field in var_datatypes:
+                    model_field = models.Facts.values[field]
+                    data_type = var_datatypes[field]
+                    return sqlalchemy.cast(model_field, DIMENSION_DATATYPES[data_type])
+                else:
+                    raise ProcessingException('Access not authorized.')
             else:
-                raise ProcessingException('Access not authorized.')
+                return field
 
         def _build_filters(filters):
            if "and" in filters:
@@ -122,18 +125,14 @@ def get_many_variables_preprocessor(search_params=None, **kw):
     # request that does not have search parameters.
     if search_params is None:
         return
-
+    filt = [dict(name='id', op='in', val=current_user.approved_variables())]
     # Check if there are any filters there already.
     if 'filters' not in search_params:
-        search_params['filters'] = []
-
-    # TODO: fix this when merging complex-restless
-    if len(current_user.approved_variables()) > 0:
-        filt = dict(name='id', op='in', val=current_user.approved_variables())
-        search_params['filters'].append(filt) 
+        search_params['filters'] = {'and': filt}
     else:
-         search_params['filters'].append(dict(name='id', op='<', val='1'))
-         search_params['filters'].append(dict(name='id', op='>', val='1'))
+        filt.extend(search_params['filters'])
+        search_params['filters'] = {'and': filt}
+
 
 facts_preprocessors = dict(preprocessors)
 facts_preprocessors['GET_SINGLE'].append(facts_preproc)

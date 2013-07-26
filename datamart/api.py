@@ -54,12 +54,15 @@ def facts_preproc(search_params=None, **kw):
         variable_ids = [str(i.id) for i in models.Variable.query.all()]
 
         def _fix_field(field):
-            if field in var_datatypes:
-                model_field = models.Facts.values[field]
-                data_type = var_datatypes[field]
-                return sqlalchemy.cast(model_field, DIMENSION_DATATYPES[data_type])
+            if field in variable_ids:
+                if field in var_datatypes:
+                    model_field = models.Facts.values[field]
+                    data_type = var_datatypes[field]
+                    return sqlalchemy.cast(model_field, DIMENSION_DATATYPES[data_type])
+                else:
+                    raise ProcessingException('Access not authorized.')
             else:
-                raise ProcessingException('Access not authorized.')
+                return field
 
         def _build_filters(filters):
            if "and" in filters:
@@ -122,14 +125,13 @@ def get_many_variables_preprocessor(search_params=None, **kw):
     # request that does not have search parameters.
     if search_params is None:
         return
-    # Create the filter you wish to add; in this case, we include only
-    # instances with ``id`` not equal to 1.
-    filt = dict(name='id', op='in', val=current_user.approved_variables())
+    filt = [dict(name='id', op='in', val=current_user.approved_variables())]
     # Check if there are any filters there already.
     if 'filters' not in search_params:
-        search_params['filters'] = []
-    # *Append* your filter to the list of filters.
-    search_params['filters'].append(filt)
+        search_params['filters'] = {'and': filt}
+    else:
+        filt.extend(search_params['filters'])
+        search_params['filters'] = {'and': filt}
 
 manager.create_api(models.Dimension, 
                    methods=['GET', 'POST', 'DELETE', 'PUT'], 

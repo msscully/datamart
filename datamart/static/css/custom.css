@@ -1,0 +1,44 @@
+.fact-filter {
+  /* border: 1px solid gray; */
+  background-color: gray;
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+.fact-filter:first-child {
+  padding-top: 0.5em;
+}
+
+#fact-filter-form {
+  display: none;
+}
+
+.nested-filter-and-level select,
+fieldset.nested-filter select {
+  width: auto;
+}
+
+div.nested-filters {
+  display: inline;
+  float: left;
+  margin-left: 1em;
+}
+
+button.add-filter-button {
+  margin-left: 1em;
+  float: left;
+}
+
+.and-or-select {
+  float: left;
+}
+
+#dg-add-filter {
+  margin-bottom: 1em;
+  width: auto;
+}
+
+#filter-submit {
+  margin-top: 1em;
+}

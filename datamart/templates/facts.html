@@ -5,8 +5,12 @@
 {% block container_content %}
   <!-- DATAGRID MARKUP -->
   <div id="FactsGrid">
-  <div id="facts-grid-filter" class='.filter'>
-    <button id="dg-add-filter" class='btn'>Add Filter</button>
+  <div id="facts-grid-filter" class='filter well'>
+    <input id="dg-add-filter" class="btn" value="Show filters"/>
+    <form class="form-inline" id="fact-filter-form"> 
+      <input id="filter-submit" type="submit" value="Filter Results" class="btn"/>
+      <input id="filter-submit" type="button" value="Reset filters" class="btn"/>
+    </form>
   </div>
   <table class="table table-bordered datagrid">
     <thead>

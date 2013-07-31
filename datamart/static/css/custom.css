@@ -6,6 +6,22 @@
   padding-bottom: 0.5em;
 }
 
+.filter0 {
+  background-color: gray;
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+  padding-bottom: 0.5em;
+  padding-top: 0.5em;
+}
+
+.filter1 {
+  background-color: white;
+  padding-right: 0.5em;
+  padding-left: 0.5em;
+  padding-bottom: 0.5em;
+  padding-top: 0.5em;
+}
+
 .fact-filter:first-child {
   padding-top: 0.5em;
 }
@@ -19,19 +35,35 @@ fieldset.nested-filter select {
   width: auto;
 }
 
+fieldset.nested-filter {
+  #display:inline;
+}
+
 div.nested-filters {
-  display: inline;
-  float: left;
+  #display: inline;
+  #float: left;
+  margin-left: 1em;
+  overflow: hidden;
+  border-style: solid;
+  border-color: #bbb;
+  border-width: 10px 0 10px 10px;
+  border-radius: 20px 0 0 20px;
+  z-index: -1;
+  #margin-left: 3.8em;
+}
+
+button.btn.add-filter-btn {
+  display: block;
   margin-left: 1em;
 }
 
-button.add-filter-button {
-  margin-left: 1em;
-  float: left;
+select .and-or-select {
 }
 
-.and-or-select {
+div.and-or {
   float: left;
+  width: auto;
+
 }
 
 #dg-add-filter {
@@ -39,6 +71,18 @@ button.add-filter-button {
   width: auto;
 }
 
+#filter-reset,
 #filter-submit {
   margin-top: 1em;
+}
+
+fieldset.nested-filter-and-level {
+  #border-style: solid;
+  #border-color: #bbb;
+  #border-width: 10px 0 10px 10px;
+  #border-radius: 20px 0 0 20px;
+  #z-index: -1;
+  #margin-left: 3.8em;
+  display: inline-block;
+  clear: right;
 }

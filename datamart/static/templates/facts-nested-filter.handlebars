@@ -1,0 +1,12 @@
+<fieldset class="nested-filter-and-level">
+  <div class='and-or'>
+  <select class='and-or-select'>
+    <option value=''>--</option>
+    <option value='and'>AND</option>
+    <option value='or'>OR</option>
+  </select>
+  </div>
+  <div class='nested-filters {{this.level}}'>
+  {{> filter}}
+  </div>
+</fieldset> 

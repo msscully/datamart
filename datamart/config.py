@@ -72,5 +72,5 @@ class TestConfig(BaseConfig):
     #MAIL_PASSWORD = 'password'
 
     SQLALCHEMY_ECHO = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://datamart:datamart@localhost/test_datamart'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://datamart:datamart@localhost/datamart_test'
     SECURITY_PASSWORD_HASH = 'plaintext'

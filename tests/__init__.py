@@ -5,15 +5,18 @@
 
     Define TestCase as base class for unit tests.
     Ref: http://packages.python.org/Flask-Testing/
+
+    Requires datamart_test db to exist with the hstore extension.
+    createdb --owner=datamart datamart_test
+    psql -d datamart_test -c "CREATE EXTENSION HSTORE"
 """
 
 from flask.ext.testing import TestCase as Base, Twill
 
 from datamart import create_app
-from datamart.user import User, UserDetail, ADMIN, USER, ACTIVE
+from datamart.models import User
 from datamart.config import TestConfig
 from datamart.extensions import db
-from datamart.utils import MALE
 
 
 class TestCase(Base):
@@ -27,33 +30,20 @@ class TestCase(Base):
         return app
 
     def init_data(self):
-
         demo = User(
-                name=u'demo',
-                email=u'demo@example.com',
-                password=u'123456',
-                role_code=USER,
-                status_code=ACTIVE,
-                user_detail=UserDetail(
-                    sex_code=MALE,
-                    age=10,
-                    url=u'http://demo.example.com',
-                    deposit=100.00,
-                    location=u'Hangzhou',
-                    bio=u'admin Guy is ... hmm ... just a demo guy.'))
+            username=u'demo',
+            email=u'demo@example.com',
+            password=u'123456',
+            active=True,
+            is_admin=False,
+        )
         admin = User(
-                name=u'admin',
-                email=u'admin@example.com',
-                password=u'123456',
-                role_code=ADMIN,
-                status_code=ACTIVE,
-                user_detail=UserDetail(
-                    sex_code=MALE,
-                    age=10,
-                    url=u'http://admin.example.com',
-                    deposit=100.00,
-                    location=u'Hangzhou',
-                    bio=u'admin Guy is ... hmm ... just a admin guy.'))
+            username=u'admin',
+            email=u'admin@example.com',
+            password=u'123456',
+            active=True,
+            is_admin=True,
+        )
         db.session.add(demo)
         db.session.add(admin)
         db.session.commit()
@@ -61,12 +51,14 @@ class TestCase(Base):
     def setUp(self):
         """Reset all tables before testing."""
 
+        db.drop_all()
         db.create_all()
         self.init_data()
 
     def tearDown(self):
         """Clean db session and drop all tables."""
 
+        db.session.commit()
         db.drop_all()
 
     def login(self, username, password):

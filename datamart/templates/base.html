@@ -37,15 +37,15 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="{{url_for('index')}}">Datamart</a>
+          <a class="brand" href="{{url_for('datamart.index')}}">Datamart</a>
           <div class="nav-collapse">
             <ul class="nav">
               {%- for endpoint, caption in [
-                ('dimensions_view', 'Dimensions'),
-                ('variables_view', 'Variables'),
-                ('events_view', 'Events'),
-                ('facts_view', 'Facts'),
-                ('sources_view', 'Sources'),
+                ('datamart.dimensions_view', 'Dimensions'),
+                ('datamart.variables_view', 'Variables'),
+                ('datamart.events_view', 'Events'),
+                ('datamart.facts_view', 'Facts'),
+                ('datamart.sources_view', 'Sources'),
                 ] %}
                 <li{% if endpoint == request.endpoint %} class=active{% endif %}><a href={{ url_for(endpoint) }}>{{ caption }}</a></li>
               {%- endfor %}
@@ -53,8 +53,8 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Subjects<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   {%- for endpoint, caption in [
-                    ('subjects_view', 'Subjects'),
-                    ('externalIDs_view', 'External IDs'),
+                    ('datamart.subjects_view', 'Subjects'),
+                    ('datamart.externalIDs_view', 'External IDs'),
                     ] %}
                     <li{% if endpoint == request.endpoint %} class='active'{% endif %}><a href={{ url_for(endpoint) }}>{{ caption }}</a></li>
                   {%- endfor %}
@@ -66,9 +66,9 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                   {%- for endpoint, caption in [
-                    ('roles_view', 'Roles'),
-                    ('users_view', 'Users'),
-                    ('upload', 'Upload Facts'),
+                    ('datamart.roles_view', 'Roles'),
+                    ('datamart.users_view', 'Users'),
+                    ('datamart.upload', 'Upload Facts'),
                     ] %}
                     <li{% if endpoint == request.endpoint %} class='active'{% endif %}><a href={{ url_for(endpoint) }}>{{ caption }}</a></li>
                   {%- endfor %}

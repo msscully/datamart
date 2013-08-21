@@ -6,8 +6,8 @@ from flask.ext.wtf import IntegerField
 from flask.ext.wtf import TextField
 from flask.ext.wtf import FieldList
 from flask.ext.wtf import FormField
-from datamart import models
-from datamart import db
+from . import models
+from .extensions import db
 from wtforms.ext.sqlalchemy.orm import model_form
 from wtforms.ext.sqlalchemy.orm import QuerySelectField
 from wtforms import Form as WTForm

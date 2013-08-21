@@ -1,4 +1,4 @@
-from datamart import db
+from .extensions import db
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.dialects.postgresql import HSTORE, INET, ENUM
 from flask.ext.security import RoleMixin, UserMixin, current_user

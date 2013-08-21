@@ -5,7 +5,7 @@
 
 {% block container_content %}
 <h3>{% if model_data.username %} Edit User {{model_data.username}} {% else %} Add new User {% endif %}</h3>
-<form class='form-horizontal' action="{{ url_for('user_edit',user_id=model_data.id) }}" method=post>
+<form class='form-horizontal' action="{{ url_for('datamart.user_edit',user_id=model_data.id) }}" method=post>
   <fieldset>
     {{ form.hidden_tag() }}
 
@@ -16,7 +16,7 @@
     {{ render_field(form.roles) }}
     {{ render_field(form.is_admin) }}
 
-    {{ render_controls(form, 'user_view') }}
+    {{ render_controls(form, 'datamart.user_view') }}
   </fieldset>
 </form>
 {% endblock container_content %}

@@ -5,7 +5,7 @@
 
 {% block container_content %}
 <h3>{% if model_data.name %} Edit Event {{model_data.name}} {% else %} Add new Event {% endif %}</h3>
-<form class='form-horizontal' action="{{ url_for('event_edit',event_id=model_data.id) }}" method=post>
+<form class='form-horizontal' action="{{ url_for('datamart.event_edit',event_id=model_data.id) }}" method=post>
   <fieldset>
     {{ form.hidden_tag() }}
 
@@ -13,7 +13,7 @@
     {{ render_field(form.description) }}
     {{ render_field(form.sources) }}
 
-    {{ render_controls(form, 'events_view') }}
+    {{ render_controls(form, 'datamart.events_view') }}
   </fieldset>
 </form>
 {% endblock container_content %}

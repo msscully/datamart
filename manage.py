@@ -1,10 +1,10 @@
 from flask.ext.script import Manager, Server, Shell, prompt_pass
 from flask.ext.alembic import ManageMigrations
-import datamart
+from datamart import create_app
+from datamart.extensions import db
 import os
 
-app = datamart.app
-db = datamart.db
+app = create_app()
 manager = Manager(app)
 
 class DevServer(Server):
@@ -19,6 +19,12 @@ class DevServer(Server):
 
 def _shell_context():
     return dict(app=app, db=db)        
+
+@manager.command
+def run():
+    """Run in local machine."""
+
+    app.run()
 
 @manager.option('--user', '-u', dest='user')
 @manager.option('--email', '-e', dest='email')

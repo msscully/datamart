@@ -18,6 +18,49 @@ from datamart.models import User
 from datamart.config import TestConfig
 from datamart.extensions import db
 
+def init_package_data():
+    demo = User(
+        username=u'demo',
+        email=u'demo@example.com',
+        password=u'123456',
+        active=True,
+        is_admin=False,
+    )
+    admin = User(
+        username=u'admin',
+        email=u'admin@example.com',
+        password=u'123456',
+        active=True,
+        is_admin=True,
+    )
+    db.session.add(demo)
+    db.session.add(admin)
+    db.session.commit()
+
+def populate_db(app):
+    # db setup seems odd, taken from:
+    # http://flask.pocoo.org/mailinglist/archive/2010/8/30/sqlalchemy-init-app-problem/#0b707d43d8713f2b6131b5b9210f0c79
+    db.app = app
+    db.init_app(app)
+    db.drop_all()
+    db.create_all()
+    init_package_data()
+
+def setup_package():
+    """
+       Code that is run once before all tests in this package.
+    """
+    app = create_app(TestConfig)
+    populate_db(app)
+
+def teardown_package():
+    """
+       Code that is run once after all tests in this package.
+    """
+    #Clean db session and drop all tables.
+    db.session.remove()
+    db.drop_all()
+
 
 class TestCase(Base):
     """Base TestClass for your application."""
@@ -25,41 +68,34 @@ class TestCase(Base):
     def create_app(self):
         """Create and return a testing flask app."""
 
-        app = create_app(TestConfig)
+        app = create_app()
         self.twill = Twill(app, port=3000)
         return app
 
-    def init_data(self):
-        demo = User(
-            username=u'demo',
-            email=u'demo@example.com',
-            password=u'123456',
-            active=True,
-            is_admin=False,
-        )
-        admin = User(
-            username=u'admin',
-            email=u'admin@example.com',
-            password=u'123456',
-            active=True,
-            is_admin=True,
-        )
-        db.session.add(demo)
-        db.session.add(admin)
-        db.session.commit()
+    #def init_data(self):
+    #    demo = User(
+    #        username=u'demo',
+    #        email=u'demo@example.com',
+    #        password=u'123456',
+    #        active=True,
+    #        is_admin=False,
+    #    )
+    #    admin = User(
+    #        username=u'admin',
+    #        email=u'admin@example.com',
+    #        password=u'123456',
+    #        active=True,
+    #        is_admin=True,
+    #    )
+    #    db.session.add(demo)
+    #    db.session.add(admin)
+    #    db.session.commit()
 
     def setUp(self):
-        """Reset all tables before testing."""
-
-        db.drop_all()
-        db.create_all()
-        self.init_data()
+        pass
 
     def tearDown(self):
-        """Clean db session and drop all tables."""
-
-        db.session.commit()
-        db.drop_all()
+        pass
 
     def login(self, username, password):
         data = {

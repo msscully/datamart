@@ -18,6 +18,7 @@ from flask import Flask
 from flask import render_template
 from flask.ext.security import SQLAlchemyUserDatastore
 from .views import datamart
+from .views import render_template_with_login
 
 DEFAULT_BLUEPRINTS = (
     datamart,
@@ -126,15 +127,15 @@ def configure_error_handlers(app):
 
     @app.errorhandler(403)
     def forbidden_page(error):
-        return render_template("errors/forbidden_page.html"), 403
+        return render_template_with_login("errors/forbidden_page.html"), 403
 
     @app.errorhandler(404)
     def page_not_found(error):
-        return render_template("errors/page_not_found.html"), 404
+        return render_template_with_login("errors/page_not_found.html"), 404
 
     @app.errorhandler(500)
     def server_error_page(error):
-        return render_template("errors/server_error.html"), 500
+        return render_template_with_login("errors/server_error.html"), 500
 
 def configure_jinja_filters(app):
     app.jinja_env.filters['remove_invalid_vars'] = remove_invalid_vars

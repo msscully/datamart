@@ -30,6 +30,14 @@ from flask import Blueprint
 
 datamart = Blueprint('datamart', __name__, template_folder='templates')
 
+def render_template_with_login(template, **kwargs):
+    """Render template with LoginForm if current_user is not authenticated."""
+    if not current_user.is_authenticated():
+        return render_template(template, login_user_form=LoginForm(), **kwargs)
+    else:
+        return render_template(template, **kwargs)
+
+
 def model_view(model, template, model_id=None, filter=None):
     if model_id:
         models_data = [model.query.get_or_404(model_id)]
@@ -38,7 +46,7 @@ def model_view(model, template, model_id=None, filter=None):
             models_data = model.query.filter(filter).all()
         else:
             models_data = model.query.all()
-    return render_template(template, models_data=models_data)
+    return render_template_with_login(template, models_data=models_data)
 
 def model_edit(model, template, FormType, redirect_default, model_id=None):
     if model_id:

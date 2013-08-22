@@ -17,9 +17,8 @@ from .forms import ExternalIDForm
 from .forms import IndvFactForm
 from flask.ext.security import login_required, LoginForm, current_user
 from flask.ext.restless.views import jsonify_status_code
-from flask.ext.wtf import QuerySelectField
-from flask.ext.wtf import SelectField
-from flask.ext.wtf import validators
+from wtforms import SelectField
+from wtforms import validators
 from flask import Response
 from admin import admin_required
 import csv

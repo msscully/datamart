@@ -43,7 +43,7 @@ class DefaultConfig(BaseConfig):
 
     DEBUG = True
 
-    CSRF_ENABLED = True
+    WTF_CSRF_ENABLED = True
     DEBUG_TB_INTERCEPT_REDIRECTS = False
 
     # Flask-Sqlalchemy: http://packages.python.org/Flask-SQLAlchemy/config.html
@@ -60,11 +60,14 @@ class DefaultConfig(BaseConfig):
     MAIL_USERNAME = 'gmail_username'
     MAIL_PASSWORD = 'gmail_password'
     DEFAULT_MAIL_SENDER = '%s@gmail.com' % MAIL_USERNAME
-    SECURITY_PASSWORD_HASH='bcrypt'
+    SECURITY_PASSWORD_HASH = 'bcrypt'
+    SECURITY_FLASH_MESSAGES = True
 
 class TestConfig(BaseConfig):
+    DEBUG = True
     TESTING = True
-    CSRF_ENABLED = False
+    WTF_CSRF_ENABLED = False
+    DEBUG_TB_INTERCEPT_REDIRECTS = False
 
     MAIL_SERVER = 'localhost'
     MAIL_PORT = 25
@@ -74,3 +77,4 @@ class TestConfig(BaseConfig):
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://datamart:datamart@localhost/datamart_test'
     SECURITY_PASSWORD_HASH = 'plaintext'
+    SECURITY_FLASH_MESSAGES = True

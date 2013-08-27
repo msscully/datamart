@@ -72,25 +72,6 @@ class TestCase(Base):
         self.twill = Twill(app, port=3000)
         return app
 
-    #def init_data(self):
-    #    demo = User(
-    #        username=u'demo',
-    #        email=u'demo@example.com',
-    #        password=u'123456',
-    #        active=True,
-    #        is_admin=False,
-    #    )
-    #    admin = User(
-    #        username=u'admin',
-    #        email=u'admin@example.com',
-    #        password=u'123456',
-    #        active=True,
-    #        is_admin=True,
-    #    )
-    #    db.session.add(demo)
-    #    db.session.add(admin)
-    #    db.session.commit()
-
     def setUp(self):
         self.db = db
         pass
@@ -110,8 +91,8 @@ class TestCase(Base):
         response = self.client.get('/logout', follow_redirects=follow_redirects)
         return response
 
-    def _test_get_request(self, endpoint, template=None):
-        response = self.client.get(endpoint)
+    def _test_get_request(self, endpoint, template=None, follow_redirects=False):
+        response = self.client.get(endpoint, follow_redirects=follow_redirects)
         self.assert_200(response)
         if template:
             self.assertTemplateUsed(name=template)

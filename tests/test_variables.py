@@ -16,7 +16,15 @@ class TestVariables(TestCase):
         assert 'Please log in to access this page.' in response.data
         self.assertTemplateUsed(name='login.html')
 
+    def test_show_variables_non_admin(self):
+        """Make sure logged in users can see the variables page."""
+        self.login('demo@example.com','123456')
+        response = self._test_get_request('/variables/', 'variables.html')
+        assert 'Please log in to access this page.' not in response.data
+        self.logout()
+
     def test_show_variables_admin(self):
+        """Make sure logged in admins can see the variables page."""
         self.login('admin@example.com','123456')
         response = self._test_get_request('/variables/', 'variables.html')
         assert 'Please log in to access this page.' not in response.data

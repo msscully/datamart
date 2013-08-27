@@ -54,7 +54,8 @@ class DefaultConfig(BaseConfig):
     # Flask-mail: http://pythonhosted.org/flask-mail/
     # https://bitbucket.org/danjac/flask-mail/issue/3/problem-with-gmails-smtp-server
     MAIL_DEBUG = DEBUG
-    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_SERVER = 'localhost' #'smtp.gmail.com'
+    MAIL_PORT = 1025
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     # Should put MAIL_USERNAME and MAIL_PASSWORD in production under instance folder.
@@ -71,8 +72,9 @@ class TestConfig(BaseConfig):
     WTF_CSRF_ENABLED = False
     DEBUG_TB_INTERCEPT_REDIRECTS = False
 
+    MAIL_DEBUG = DEBUG
     MAIL_SERVER = 'localhost'
-    MAIL_PORT = 25
+    MAIL_PORT = 1025
     #MAIL_USERNAME = 'username'
     #MAIL_PASSWORD = 'password'
 

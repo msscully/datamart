@@ -17,6 +17,7 @@ from datamart import create_app
 from datamart.models import User
 from datamart.config import TestConfig
 from datamart.extensions import db
+import base64
 
 def init_package_data():
     demo = User(
@@ -72,9 +73,11 @@ class TestCase(Base):
         self.twill = Twill(app, port=3000)
         return app
 
-    def setUp(self):
+    @classmethod
+    def setup_class(self):
         self.db = db
-        pass
+        self.admin_auth = 'Basic ' + base64.b64encode('admin@example.com:123456')
+        self.demo_auth = 'Basic ' + base64.b64encode('demo@example.com:123456')
 
     def tearDown(self):
         pass

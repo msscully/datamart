@@ -59,13 +59,36 @@ class TestVariableAPI(TestCase):
         assert rd['num_results'] >= 2
 
     def test_non_admin_get_variables(self):
-        """Get /api/variable as non-admin."""
+        """Get /api/variable as non-admin.
+        
+           Since demo has the required roles the response should include 
+           some variables.
+        """
         auth = self.demo_auth
         response = self.client.get('/api/variable',
                                    headers={'Authorization': auth }
                                   )
         assert response.status_code == 200
-        assert 'total_pages' in response.data
+        resp = json.loads(response.data)
+        assert resp['num_results'] > 0
+
+    def test_get_variables_wrong_role(self):
+        """Get /api/variable as demo without correct role.
+
+           Variables and users have roles associated with them and if a user
+           doesn't have any roles overlapping with a variables roles that
+           variable should not be displayed to them.
+        """
+        var = Variable(name='nope', description='not a chance', 
+                       dimension=self.dim1, roles=[])
+        self.db.session.add(var)
+        self.db.session.commit()
+        auth = self.demo_auth
+        response = self.client.get('/api/variable',
+                                   headers={'Authorization': auth }
+                                  )
+        assert response.status_code == 200
+        assert var.description not in response.data
 
     def test_add_variable(self):
         """Adding a variable using /api/variable."""
@@ -95,6 +118,7 @@ class TestVariableAPI(TestCase):
         assert data['description'] in response.data
 
     def test_admin_get_var_id(self):
+        """Get a variable at /api/variable/<ID> as admin."""
         auth = self.admin_auth
         response = self.client.get('/api/variable',
                                    headers={'Authorization': auth }
@@ -109,6 +133,7 @@ class TestVariableAPI(TestCase):
 
  
     def test_put_variable(self):
+        """Update Variable at /api/variable/<ID> using PUT"""
         auth = self.admin_auth
         response = self.client.get('/api/variable',
                                    headers={'Authorization': auth }
@@ -125,6 +150,7 @@ class TestVariableAPI(TestCase):
         assert response.status_code == 200
 
     def test_delete_variable(self):
+        """Delete variable using /api/variable/<ID>"""
         auth = self.admin_auth
         response = self.client.get('/api/variable',
                                    headers={'Authorization': auth }

@@ -2,6 +2,7 @@ from flask.ext.script import Manager, Server, Shell, prompt_pass
 from flask.ext.alembic import ManageMigrations
 from datamart import create_app
 from datamart.extensions import db
+from datamart.extensions import security
 import os
 
 app = create_app()
@@ -26,9 +27,20 @@ def run():
 
     app.run()
 
+@manager.option('--with-coverage', '-c', dest='coverage', default=False,
+                action='store_true', required=False)
+def test(coverage):
+    """Run test suite."""
+    if coverage:
+        os.system('nosetests --with-coverage --cover-package=datamart -s')
+        pass
+    else:
+        os.system('nosetests -s')
+
 @manager.option('--user', '-u', dest='user')
 @manager.option('--email', '-e', dest='email')
-@manager.option('--admin', '-a', dest='admin', default=False, type=bool,
+@manager.option('--admin', '-a', dest='admin', default=False,
+                action='store_true',
                 required=False, )
 def create_user(user, admin, email):
     '''Create a new user in the application.'''
@@ -37,8 +49,8 @@ def create_user(user, admin, email):
     if not email:
         email = raw_input('email: ')
     password = prompt_pass('New user password')
-    datamart.user_datastore.create_user(email=email, password=password, username=user,
-                               active=True)
+    security.datastore.create_user(email=email, password=password, username=user,
+                                   active=True, is_admin=admin)
     db.session.commit()
 
 @manager.command

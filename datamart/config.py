@@ -10,6 +10,7 @@ class BaseConfig(object):
     # ../../config.py
     PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
+    SSLIFY_ENABLED = True
     DEBUG = False
     TESTING = False
 
@@ -64,8 +65,9 @@ class DefaultConfig(BaseConfig):
     SECURITY_FLASH_MESSAGES = True
 
 class TestConfig(BaseConfig):
-    DEBUG = True
-    TESTING = True
+    SSLIFY_ENABLED = False
+    DEBUG = False
+    TESTING = False
     WTF_CSRF_ENABLED = False
     DEBUG_TB_INTERCEPT_REDIRECTS = False
 

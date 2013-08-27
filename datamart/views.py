@@ -92,7 +92,11 @@ def dimension_edit(dimension_id=None):
 @datamart.route('/variables/<int:variable_id>/', methods=['GET'])
 @login_required
 def variables_view(variable_id=None):
-    filter_clause = (models.Variable.id.in_(current_user.approved_variables()))
+    if len(current_user.approved_variables()) > 0:
+        filter_clause = (models.Variable.id.in_(current_user.approved_variables()))
+    else:
+        filter_clause = (True == False)
+
     return model_view(models.Variable,
                       'variables.html',
                       model_id=variable_id,

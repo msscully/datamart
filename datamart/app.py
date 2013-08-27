@@ -19,6 +19,7 @@ from flask import render_template
 from flask.ext.security import SQLAlchemyUserDatastore
 from .views import datamart
 from .views import render_template_with_login
+import os
 
 DEFAULT_BLUEPRINTS = (
     datamart,
@@ -70,7 +71,8 @@ def configure_extensions(app):
 
     # SSLify can't be defined without an app
     from flask_sslify import SSLify
-    sslify = SSLify(app)
+    if app.config["SSLIFY_ENABLED"]:
+        sslify = SSLify(app)
 
     # Setup Flask-Security
     # Flask-Security has some weirdness when using factory style.

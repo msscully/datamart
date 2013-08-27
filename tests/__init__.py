@@ -68,7 +68,7 @@ class TestCase(Base):
     def create_app(self):
         """Create and return a testing flask app."""
 
-        app = create_app()
+        app = create_app(TestConfig)
         self.twill = Twill(app, port=3000)
         return app
 
@@ -92,22 +92,23 @@ class TestCase(Base):
     #    db.session.commit()
 
     def setUp(self):
+        self.db = db
         pass
 
     def tearDown(self):
         pass
 
-    def login(self, username, password):
+    def login(self, username, password, follow_redirects=True):
         data = {
-            'login': username,
+            'email': username,
             'password': password,
         }
-        response = self.client.post('/login', data=data, follow_redirects=True)
+        response = self.client.post('/login', data=data, follow_redirects=follow_redirects)
         return response
 
-    def _logout(self):
-        response = self.client.get('/logout')
-        self.assertRedirects(response, location='/')
+    def logout(self, follow_redirects=True):
+        response = self.client.get('/logout', follow_redirects=follow_redirects)
+        return response
 
     def _test_get_request(self, endpoint, template=None):
         response = self.client.get(endpoint)

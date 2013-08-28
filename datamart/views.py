@@ -1,22 +1,24 @@
 from flask import render_template, request, flash, redirect, url_for,\
         jsonify, session, abort, current_app
-from datamart import app, models, db, data_files, forms
-from forms import RoleForm
-from forms import DimensionForm
-from forms import VariableForm
-from forms import UserForm
-from forms import FileUploadForm
-from forms import Form
-from forms import EventForm
-from forms import SourceForm
-from forms import SubjectForm
-from forms import ExternalIDForm
-from forms import IndvFactForm
+from . import models
+from .extensions import db
+from . import forms
+from .extensions import data_files
+from .forms import RoleForm
+from .forms import DimensionForm
+from .forms import VariableForm
+from .forms import UserForm
+from .forms import FileUploadForm
+from .forms import Form
+from .forms import EventForm
+from .forms import SourceForm
+from .forms import SubjectForm
+from .forms import ExternalIDForm
+from .forms import IndvFactForm
 from flask.ext.security import login_required, LoginForm, current_user
 from flask.ext.restless.views import jsonify_status_code
-from flask.ext.wtf import QuerySelectField
-from flask.ext.wtf import SelectField
-from flask.ext.wtf import validators
+from wtforms import SelectField
+from wtforms import validators
 from flask import Response
 from admin import admin_required
 import csv
@@ -24,6 +26,17 @@ import re
 import os
 import json
 import StringIO
+from flask import Blueprint
+
+datamart = Blueprint('datamart', __name__, template_folder='templates')
+
+def render_template_with_login(template, **kwargs):
+    """Render template with LoginForm if current_user is not authenticated."""
+    if not current_user.is_authenticated():
+        return render_template(template, login_user_form=LoginForm(), **kwargs)
+    else:
+        return render_template(template, **kwargs)
+
 
 def model_view(model, template, model_id=None, filter=None):
     if model_id:
@@ -33,7 +46,7 @@ def model_view(model, template, model_id=None, filter=None):
             models_data = model.query.filter(filter).all()
         else:
             models_data = model.query.all()
-    return render_template(template, models_data=models_data)
+    return render_template_with_login(template, models_data=models_data)
 
 def model_edit(model, template, FormType, redirect_default, model_id=None):
     if model_id:
@@ -57,94 +70,98 @@ def model_edit(model, template, FormType, redirect_default, model_id=None):
         return render_template(template, model_data=model_data,
                                form=form, next=next)
 
-@app.route('/', methods=['GET', 'POST',])
+@datamart.route('/', methods=['GET', 'POST',])
 def index():
     return render_template('index.html', login_user_form=LoginForm())
 
-@app.route('/dimensions/', methods=['GET'])
-@app.route('/dimensions/<int:dimension_id>/', methods=['GET'])
+@datamart.route('/dimensions/', methods=['GET'])
+@datamart.route('/dimensions/<int:dimension_id>/', methods=['GET'])
 @login_required
 def dimensions_view(dimension_id=None):
     return model_view(models.Dimension,'dimensions.html',dimension_id)
 
-@app.route('/dimensions/add/', methods=['GET', 'POST'])
-@app.route('/dimensions/<int:dimension_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/dimensions/add/', methods=['GET', 'POST'])
+@datamart.route('/dimensions/<int:dimension_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def dimension_edit(dimension_id=None):
     return model_edit(models.Dimension, 'dimension_edit.html', DimensionForm,
                       'dimensions_view', dimension_id)
 
-@app.route('/variables/', methods=['GET'])
-@app.route('/variables/<int:variable_id>/', methods=['GET'])
+@datamart.route('/variables/', methods=['GET'])
+@datamart.route('/variables/<int:variable_id>/', methods=['GET'])
 @login_required
 def variables_view(variable_id=None):
-    filter_clause = (models.Variable.id.in_(current_user.approved_variables()))
+    if len(current_user.approved_variables()) > 0:
+        filter_clause = (models.Variable.id.in_(current_user.approved_variables()))
+    else:
+        filter_clause = (True == False)
+
     return model_view(models.Variable,
                       'variables.html',
                       model_id=variable_id,
                       filter=filter_clause)
 
-@app.route('/variables/add/', methods=['GET', 'POST'])
-@app.route('/variables/<int:variable_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/variables/add/', methods=['GET', 'POST'])
+@datamart.route('/variables/<int:variable_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def variable_edit(variable_id=None):
     return model_edit(models.Variable, 'variable_edit.html', VariableForm,
                       'variables_view', variable_id)
 
-@app.route('/roles/', methods=['GET'])
-@app.route('/roles/<int:role_id>/', methods=['GET'])
+@datamart.route('/roles/', methods=['GET'])
+@datamart.route('/roles/<int:role_id>/', methods=['GET'])
 @login_required
 @admin_required
 def roles_view(role_id=None):
     return model_view(models.Role,'roles.html',role_id)
 
-@app.route('/roles/add/', methods=['GET', 'POST'])
-@app.route('/roles/<int:role_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/roles/add/', methods=['GET', 'POST'])
+@datamart.route('/roles/<int:role_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def role_edit(role_id=None):
     return model_edit(models.Role, 'role_edit.html', RoleForm,
                       'roles_view', role_id)
 
-@app.route('/users/', methods=['GET'])
-@app.route('/users/<int:user_id>/', methods=['GET'])
+@datamart.route('/users/', methods=['GET'])
+@datamart.route('/users/<int:user_id>/', methods=['GET'])
 @login_required
 @admin_required
 def users_view(user_id=None):
     return model_view(models.User,'users.html',user_id)
 
-@app.route('/users/add/', methods=['GET', 'POST'])
-@app.route('/users/<int:user_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/users/add/', methods=['GET', 'POST'])
+@datamart.route('/users/<int:user_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def user_edit(user_id=None):
     return model_edit(models.User, 'user_edit.html', UserForm,
                       'users_view', user_id)
 
-@app.route('/events/', methods=['GET'])
-@app.route('/events/<int:event_id>/', methods=['GET'])
+@datamart.route('/events/', methods=['GET'])
+@datamart.route('/events/<int:event_id>/', methods=['GET'])
 @login_required
 def events_view(event_id=None):
     return model_view(models.Event,'events.html',event_id)
 
-@app.route('/events/add/', methods=['GET', 'POST'])
-@app.route('/events/<int:event_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/events/add/', methods=['GET', 'POST'])
+@datamart.route('/events/<int:event_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def event_edit(event_id=None):
     return model_edit(models.Event, 'event_edit.html', EventForm,
                       'events_view', event_id)
 
-@app.route('/sources/', methods=['GET'])
-@app.route('/sources/<int:source_id>/', methods=['GET'])
+@datamart.route('/sources/', methods=['GET'])
+@datamart.route('/sources/<int:source_id>/', methods=['GET'])
 @login_required
 def sources_view(source_id=None):
     return model_view(models.Source,'sources.html',source_id)
 
-@app.route('/sources/add/', methods=['GET', 'POST'])
-@app.route('/sources/<int:source_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/sources/add/', methods=['GET', 'POST'])
+@datamart.route('/sources/<int:source_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def source_edit(source_id=None):
@@ -152,7 +169,7 @@ def source_edit(source_id=None):
                       'sources_view', source_id)
 
 
-@app.errorhandler(404)
+@datamart.errorhandler(404)
 def not_found(error=None):
     message = {
             'status': 404,
@@ -164,8 +181,8 @@ def not_found(error=None):
     return resp
 
 
-@app.route('/facts/add/', methods=['GET', 'POST'])
-@app.route('/facts/<int:fact_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/facts/add/', methods=['GET', 'POST'])
+@datamart.route('/facts/<int:fact_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def fact_edit(fact_id=None):
@@ -234,7 +251,7 @@ def fact_edit(fact_id=None):
                            form=form
                           )
 
-@app.route('/facts/', methods=['GET'])
+@datamart.route('/facts/', methods=['GET'])
 @login_required
 def facts_view():
     facts = models.Facts.query.all()
@@ -246,7 +263,7 @@ def facts_view():
 
     return render_template('facts.html', variables=variables, facts=facts)
 
-@app.route('/facts/upload/label/<filename>/', methods=['GET', 'POST'])
+@datamart.route('/facts/upload/label/<filename>/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def label_upload_data(filename=None):
@@ -377,7 +394,7 @@ def label_upload_data(filename=None):
     return render_template('label_upload.html', data=top_ten, ind=1, form=form,
                           headers=headers)
 
-@app.route('/facts/upload/', methods=['GET', 'POST'])
+@datamart.route('/facts/upload/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def upload():
@@ -393,28 +410,28 @@ def upload():
         return redirect(url_for("label_upload_data", filename=filename))
     return render_template('upload.html', form=form)
 
-@app.route('/subjects/', methods=['GET'])
-@app.route('/subjects/<int:subject_id>/', methods=['GET'])
+@datamart.route('/subjects/', methods=['GET'])
+@datamart.route('/subjects/<int:subject_id>/', methods=['GET'])
 @login_required
 def subjects_view(subject_id=None):
     return model_view(models.Subject,'subjects.html',subject_id)
 
-@app.route('/subjects/add/', methods=['GET', 'POST'])
-@app.route('/subjects/<int:subject_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/subjects/add/', methods=['GET', 'POST'])
+@datamart.route('/subjects/<int:subject_id>/edit/', methods=['GET', 'POST'])
 @login_required
 @admin_required
 def subject_edit(subject_id=None):
     return model_edit(models.Subject, 'subject_edit.html', SubjectForm,
                       'subjects_view', subject_id)
 
-@app.route('/externalids/', methods=['GET'])
-@app.route('/externalids/<int:externalid_id>/', methods=['GET'])
+@datamart.route('/externalids/', methods=['GET'])
+@datamart.route('/externalids/<int:externalid_id>/', methods=['GET'])
 @login_required
 def externalIDs_view(externalid_id=None):
     return model_view(models.ExternalID,'externalids.html',externalid_id)
 
-@app.route('/externalids/add/', methods=['GET', 'POST'])
-@app.route('/externalids/<int:externalid_id>/edit/', methods=['GET', 'POST'])
+@datamart.route('/externalids/add/', methods=['GET', 'POST'])
+@datamart.route('/externalids/<int:externalid_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def externalID_edit(externalid_id=None):
     return model_edit(models.ExternalID, 'externalid_edit.html', ExternalIDForm,
@@ -427,7 +444,7 @@ def get_facts_api_response(*args, **kwargs):
     res = view(None,None)
     return res
 
-@app.route('/facts/download/', methods=['GET'])
+@datamart.route('/facts/download/', methods=['GET'])
 @login_required
 def download_facts():
     if request.args.get('filters'):
@@ -530,4 +547,3 @@ def column_datatype_check(form, field,data):
                 return False
 
     return True
-

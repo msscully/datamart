@@ -3,7 +3,8 @@
 """
 from urlparse import urlparse, urljoin
 from flask import request, url_for, redirect
-from flask.ext.wtf import Form, HiddenField
+from flask.ext.wtf import Form
+from wtforms import HiddenField
 
 def is_safe_url(target):
     ref_url = urlparse(request.host_url)

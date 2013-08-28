@@ -4,7 +4,7 @@
 {% block title %}File Upload{% endblock %}
 {% block container_content %}
 <h3>Upload a csv file containing new facts.</h3>
-<form class='form-horizontal' method='POST' enctype='multipart/form-data' action="{{ url_for('upload') }}">
+<form class='form-horizontal' method='POST' enctype='multipart/form-data' action="{{ url_for('datamart.upload') }}">
   <fieldset>
     {{ form.hidden_tag() }}
 

@@ -18,7 +18,7 @@
         </div>
         {% if current_user.is_admin %}
           <div class="datagrid-header-right">
-              <a class="btn" href="{{url_for('upload')}}">Upload New Facts</a>
+              <a class="btn" href="{{url_for('datamart.upload')}}">Upload New Facts</a>
           </div>
         {% endif %}
       </th>
@@ -66,8 +66,8 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/ext/underscore.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/ext/handlebars.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/templates.js') }}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/ext/jquery.fileDownload.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/fact_edit.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/facts_datasource.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/facts.js')}}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/ext/jquery.fileDownload.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/fact_edit.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/facts_datasource.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/facts.js') }}"></script>
 {% endblock page_specific_js %}

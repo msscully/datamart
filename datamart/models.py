@@ -1,4 +1,4 @@
-from datamart import db
+from .extensions import db
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.dialects.postgresql import HSTORE, INET, ENUM
 from flask.ext.security import RoleMixin, UserMixin, current_user
@@ -42,8 +42,8 @@ class User(db.Model, UserMixin):
     confirmed_at = db.Column(db.DateTime())
     last_login_at = db.Column(db.DateTime())
     current_login_at = db.Column(db.DateTime())
-    last_login_ip = db.Column(INET)
-    current_login_ip = db.Column(INET)
+    last_login_ip = db.Column(db.String(50))
+    current_login_ip = db.Column(db.String(50))
     login_count = db.Column(db.Integer())
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))

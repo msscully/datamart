@@ -1,6 +1,7 @@
 import flask.ext.restless
 from flask import request, _request_ctx_stack, current_app
-from datamart import app, db, models, security
+from . import models
+from .extensions import security
 import inspect
 import sqlalchemy
 from sqlalchemy.orm import ColumnProperty
@@ -10,7 +11,6 @@ from sqlalchemy.orm.exc import UnmappedInstanceError
 from flask.ext.restless import ProcessingException
 from flask.ext.restless import helpers 
 from flask.ext.security import current_user, utils
-from flask.ext.security import login_required
 from flask.ext.principal import Identity, identity_changed 
 from flask.ext.security.decorators import BasicAuth
 from sqlalchemy.orm.query import Query
@@ -334,9 +334,7 @@ def to_dict(instance, deep=None, exclude=None, include=None,
 flask.ext.restless.helpers.to_dict = to_dict
 flask.ext.restless.views.to_dict = to_dict
 
-RESULTS_PER_PAGE = 50
-MAX_RESULTS_PER_PAGE = 10000
-manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
+manager = flask.ext.restless.APIManager()
  
 def auth_func(**kw):
     auth = request.authorization or BasicAuth(username=None, password=None)
@@ -350,14 +348,12 @@ def auth_func(**kw):
                               identity=Identity(user.id))
         return
     if not current_user.is_authenticated():
-        raise ProcessingException(message='Not authenticated!')
+        raise ProcessingException(status_code=403, message='Not authenticated!')
 
 def auth_admin(**kw):
     auth_func(**kw)
     if not current_user.is_admin:
-        raise ProcessingException(message='Permission denied!')
-
-
+        raise ProcessingException(status_code='403', message='Permission denied!')
 
 preprocessors=dict(GET_SINGLE=[auth_func],
                    GET_MANY=[auth_func],
@@ -388,49 +384,18 @@ def get_many_variables_preprocessor(search_params=None, **kw):
     # request that does not have search parameters.
     if search_params is None:
         return
-    # Create the filter you wish to add; in this case, we include only
-    # instances with ``id`` not equal to 1.
-    filt = dict(name='id', op='in', val=current_user.approved_variables())
+
     # Check if there are any filters there already.
     if 'filters' not in search_params:
         search_params['filters'] = []
-    # *Append* your filter to the list of filters.
-    search_params['filters'].append(filt)
 
-manager.create_api(models.Dimension, 
-                   methods=['GET', 'POST', 'DELETE', 'PUT'], 
-                   results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=preprocessors)
-manager.create_api(models.Variable, 
-                   methods=['GET', 'POST', 'DELETE', 'PUT'], 
-                   results_per_page=RESULTS_PER_PAGE,
-                   preprocessors={'GET_SINGLE':[auth_func, get_single_variable_preprocessor],
-                                  'GET_MANY':[auth_func, get_many_variables_preprocessor]
-                                 })
-manager.create_api(models.Facts, 
-                   methods=['GET', 'DELETE'],
-                   results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=preprocessors)
-manager.create_api(models.Role, 
-                   methods=['GET', 'POST', 'DELETE', 'PUT'],
-                   results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=admin_only_proprocessors)
-manager.create_api(models.Event, 
-                   methods=['GET', 'POST', 'DELETE', 'PUT'],
-                   results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=preprocessors)
-manager.create_api(models.Source, 
-                   methods=['GET', 'POST', 'DELETE', 'PUT'],
-                   results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=preprocessors)
-manager.create_api(models.Subject, 
-                   methods=['GET', 'POST', 'DELETE', 'PUT'],
-                   results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=admin_only_proprocessors)
-manager.create_api(models.ExternalID, 
-                   methods=['GET', 'POST', 'DELETE', 'PUT'],
-                   results_per_page=RESULTS_PER_PAGE,
-                   preprocessors=preprocessors)
+    # TODO: fix this when merging complex-restless
+    if len(current_user.approved_variables()) > 0:
+        filt = dict(name='id', op='in', val=current_user.approved_variables())
+        search_params['filters'].append(filt) 
+    else:
+         search_params['filters'].append(dict(name='id', op='<', val='1'))
+         search_params['filters'].append(dict(name='id', op='>', val='1'))
 
 def compute_results_per_page():
     """Helper function which returns the number of results per page based

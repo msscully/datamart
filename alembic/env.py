@@ -15,7 +15,11 @@ fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from datamart import db
+from datamart.extensions import db
+from datamart import create_app
+app = create_app()
+db.app = app
+db.init_app(app)
 target_metadata = db.metadata
 #target_metadata = None
 
@@ -51,7 +55,7 @@ def run_migrations_online():
     """
     import datamart
     alembic_config = config.get_section(config.config_ini_section)
-    alembic_config['sqlalchemy.url'] = datamart.app.config['SQLALCHEMY_DATABASE_URI']
+    alembic_config['sqlalchemy.url'] = app.config['SQLALCHEMY_DATABASE_URI']
  
     engine = engine_from_config(
                 config.get_section(config.config_ini_section),
@@ -60,8 +64,9 @@ def run_migrations_online():
 
     connection = engine.connect()
     context.configure(
-                connection=connection,
-                target_metadata=target_metadata
+        connection=connection,
+        target_metadata=target_metadata,
+        compare_type=True
                 )
 
     try:

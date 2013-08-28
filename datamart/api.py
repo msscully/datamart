@@ -102,6 +102,7 @@ preprocessors=dict(GET_SINGLE=[auth_func],
                    PATCH_SINGLE=[auth_admin],
                    PATCH_MANY=[auth_admin],
                    POST=[auth_admin],
+                   PUT=[auth_func],
                   )
 
 admin_only_proprocessors = dict(preprocessors)
@@ -132,7 +133,6 @@ def get_many_variables_preprocessor(search_params=None, **kw):
     else:
         filt.extend(search_params['filters'])
         search_params['filters'] = {'and': filt}
-
 
 facts_preprocessors = dict(preprocessors)
 facts_preprocessors['GET_SINGLE'].append(facts_preproc)

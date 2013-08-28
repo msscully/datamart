@@ -78,6 +78,7 @@ class TestDimensionAPI(TestCase):
         response = self.client.get('/api/dimension',
                                    headers={'Authorization': auth }
                                   )
+        assert response.status_code == 200
         dim = json.loads(response.data)['objects'][0]
         response = self.client.get('/api/dimension/%s' % dim['id'],
                                    headers={'Authorization': auth }
@@ -92,6 +93,7 @@ class TestDimensionAPI(TestCase):
         response = self.client.get('/api/dimension',
                                    headers={'Authorization': auth }
                                   )
+        assert response.status_code == 200
         dim = json.loads(response.data)['objects'][0]
         data = dict(dim)
         data.pop('id', None)
@@ -108,6 +110,7 @@ class TestDimensionAPI(TestCase):
         response = self.client.get('/api/dimension',
                                    headers={'Authorization': auth }
                                   )
+        assert response.status_code == 200
         dim = json.loads(response.data)['objects'][0]
         response = self.client.delete('/api/dimension/%s' % dim['id'],
                                    headers={'Authorization': auth },

@@ -123,6 +123,7 @@ class TestVariableAPI(TestCase):
         response = self.client.get('/api/variable',
                                    headers={'Authorization': auth }
                                   )
+        assert response.status_code == 200
         var = json.loads(response.data)['objects'][0]
         response = self.client.get('/api/variable/%s' % var['id'],
                                    headers={'Authorization': auth }

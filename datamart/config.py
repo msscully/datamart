@@ -68,7 +68,8 @@ class DefaultConfig(BaseConfig):
 class TestConfig(BaseConfig):
     SSLIFY_ENABLED = False
     DEBUG = False
-    TESTING = False
+    TESTING = False #If true turns off authentication
+    DISABLE_LOGGING = True
     WTF_CSRF_ENABLED = False
     DEBUG_TB_INTERCEPT_REDIRECTS = False
 

@@ -2,10 +2,11 @@ import flask.ext.restless
 from flask import request, _request_ctx_stack, current_app
 from . import models
 from .extensions import security
-import inspect
 import sqlalchemy
+import utils as my_utils
 from flask.ext.restless import ProcessingException
-from flask.ext.security import current_user, utils
+from flask.ext.security import current_user
+from flask.ext.security import utils
 from flask.ext.principal import Identity, identity_changed 
 from flask.ext.security.decorators import BasicAuth
 from sqlalchemy.orm.util import class_mapper
@@ -65,10 +66,10 @@ def facts_preproc(search_params=None, **kw):
                 return field
 
         def _build_filters(filters):
-           if "and" in filters:
+           if "and" in filters or "AND" in filters:
                return {'and': _build_filters(filters['and'])}
            
-           elif "or" in filters:
+           elif "or" in filters or "OR" in filters:
                return {'or': _build_filters(filters['or'])}
            
            elif isinstance(filters, list):
@@ -82,7 +83,7 @@ def facts_preproc(search_params=None, **kw):
 
                return filters
 
-        filters = _build_filters(search_params.get('filters',dict()))
+        filters = _build_filters(my_utils.lower_keys(search_params.get('filters',dict())))
         search_params['filters'] = filters
         for order in order_by:
             order['field'] = _fix_field(order['field'])

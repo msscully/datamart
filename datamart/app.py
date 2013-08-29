@@ -88,7 +88,7 @@ def configure_extensions(app):
 def configure_logging(app):
     """Configure file(info) and email(error) logging."""
 
-    if app.debug or app.testing:
+    if app.debug or app.testing or app.config["DISABLE_LOGGING"]:
         # Skip debug and test mode. Just check standard output.
         return
 

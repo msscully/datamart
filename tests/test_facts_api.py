@@ -16,10 +16,12 @@ class TestFactsAPI(TestCase):
     def setup_class(self):
         super(TestFactsAPI, self).setup_class()
         self.subject1 = Subject(internal_id='Facts_Subject1')
+        subject2 = Subject(internal_id='Facts_Subject2')
         self.dim1 = Dimension(name='facts_dim1', description='facts_dim1', data_type='String')
         self.dim2 = Dimension(name='facts_dim2', description='facts_dim2', data_type='Float')
         self.role1 = Role(name='Facts_Admin', description='Facts_Admin')
         self.db.session.add(self.subject1)
+        self.db.session.add(subject2)
         self.db.session.add(self.dim1)
         self.db.session.add(self.dim2)
         self.db.session.add(self.role1)
@@ -45,22 +47,41 @@ class TestFactsAPI(TestCase):
         self.db.session.flush()
 
         self.var1_id = var1.id
+        self.var2_id = var2.id
         self.var3_id = var3.id
-        self.event1 = Event(name="Facts_event1", description="Facts_event1")
-        self.event2 = Event(name="Facts_event2", description="Facts_event2")
+        event1 = Event(name="Facts_event1", description="Facts_event1")
+        event2 = Event(name="Facts_event2", description="Facts_event2")
+        event3 = Event(name="Facts_event3", description="Facts_event3")
                            
-        self.db.session.add(self.event1)
-        self.db.session.add(self.event2)
+        self.db.session.add(event1)
+        self.db.session.add(event2)
+        self.db.session.add(event3)
         self.db.session.flush()
 
-        fact1 = Facts(subject_id=self.subject1.id, event_id=self.event1.id,
+        self.event1_id = event1.id
+        self.event2_id = event2.id
+        self.event3_id = event3.id
+
+        fact1 = Facts(subject_id=self.subject1.id, event_id=self.event1_id,
                       values={str(self.var1_id): 'thing', str(var2.id): '2.0'})
-        fact2 = Facts(subject_id=self.subject1.id, event_id=self.event2.id,
+        fact2 = Facts(subject_id=self.subject1.id, event_id=self.event2_id,
                       values={str(self.var1_id): 'stuff', str(var2.id): '1.0'})
+        fact3 = Facts(subject_id=self.subject1.id, event_id=self.event3_id,
+                      values={str(self.var1_id): 'blah', str(var2.id): '3.0'})
+        self.delete_me_value = "delete me"
+        fact4 = Facts(subject_id=subject2.id, event_id=self.event3_id,
+                      values={str(self.var1_id): self.delete_me_value, str(var2.id): '10.0'})
 
         self.db.session.add(fact1)
         self.db.session.add(fact2)
+        self.db.session.add(fact3)
+        self.db.session.add(fact4)
         self.db.session.commit()
+
+        self.fact1_id = fact1.id
+        self.fact2_id = fact2.id
+        self.fact3_id = fact3.id
+        self.fact4_id = fact4.id
 
     def test_anon_get_facts(self):
         """Get /api/facts with wrong username & password."""
@@ -85,7 +106,7 @@ class TestFactsAPI(TestCase):
                                   )
         assert response.status_code == 200
         assert 'total_pages' in response.data
-        rd = json.loads(response.data)
+        rd = response.json
         # Put 2 subjects facts in setup so there should be at least 2 rows in
         # the facts table which corresponds to 2 objects in the api response. 
         assert rd['num_results'] >= 2
@@ -101,7 +122,7 @@ class TestFactsAPI(TestCase):
                                    headers={'Authorization': auth }
                                   )
         assert response.status_code == 200
-        resp = json.loads(response.data)
+        resp = response.json
         assert resp['num_results'] > 0
 
     def test_get_facts_wrong_role(self):
@@ -160,7 +181,7 @@ class TestFactsAPI(TestCase):
                                    headers={'Authorization': auth }
                                   )
         assert response.status_code == 200
-        fact = json.loads(response.data)['objects'][0]
+        fact = response.json['objects'][0]
         response = self.client.get('/api/facts/%s' % fact['id'],
                                    headers={'Authorization': auth }
                                   )
@@ -177,7 +198,7 @@ class TestFactsAPI(TestCase):
     #    response = self.client.get('/api/facts',
     #                               headers={'Authorization': auth }
     #                              )
-    #    fact = json.loads(response.data)['objects'][0]
+    #    fact = response.json['objects'][0]
     #    data = dict(fact)
     #    data.pop('id', None)
     #    data['values'][self.var1_id] = 'barrels of monkeys'
@@ -200,11 +221,61 @@ class TestFactsAPI(TestCase):
         response = self.client.get('/api/facts',
                                    headers={'Authorization': auth }
                                   )
-        fact = json.loads(response.data)['objects'][0]
-        response = self.client.delete('/api/facts/%s' % fact['id'],
+        assert response.status_code == 200
+        assert self.delete_me_value in response.data
+        response = self.client.delete('/api/facts/%s' % self.fact4_id,
                                    headers={'Authorization': auth },
                                   )
         assert response.status_code == 204
         response = self.client.get('/api/facts',
                                    headers={'Authorization': auth }
                                   )
+        assert response.status_code == 200
+        assert self.delete_me_value not in response.data
+
+    def test_fact_filter_and(self):
+        """Filter facts using 'AND'"""
+        auth = self.admin_auth
+        filters = {
+            "and": [
+                {'name': str(self.var2_id), 'op': '>', 'val': '1.0'},
+                {'name': str(self.var2_id), 'op': '<', 'val': '3.0'},
+            ]
+        }
+        query_string = "q=%s" % json.dumps({"filters":filters})
+        headers = {
+            'Authorization': auth,
+        }
+        response = self.client.get('/api/facts',
+                                   headers=headers,
+                                   query_string=query_string)
+        assert response.status_code == 200
+        facts = response.json['objects']
+        for fact in facts:
+            assert float(fact['values'][str(self.var2_id)]) > 1.0
+            assert float(fact['values'][str(self.var2_id)]) < 3.0
+            if fact['id'] == self.fact2_id:
+                return True
+        return False
+
+    def test_fact_filter_or(self):
+        """Filter facts using 'OR'"""
+        auth = self.admin_auth
+        filters = {
+            "OR": [
+                {'name': str(self.var2_id), 'op': '==', 'val': '1.0'},
+                {'name': str(self.var2_id), 'op': '==', 'val': '3.0'},
+            ]
+        }
+        query_string = "q=%s" % json.dumps({"filters":filters})
+        headers = {
+            'Authorization': auth,
+        }
+        response = self.client.get('/api/facts',
+                                   headers=headers,
+                                   query_string=query_string)
+        assert response.status_code == 200
+        facts = response.json['objects']
+        for fact in facts:
+            var2_value = float(fact['values'][str(self.var2_id)]) 
+            assert var2_value == 1.0 or var2_value == 3.0

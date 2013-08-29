@@ -15,11 +15,11 @@ class TestFactsAPI(TestCase):
     @classmethod
     def setup_class(self):
         super(TestFactsAPI, self).setup_class()
-        self.subject1 = Subject(internal_id='Facts_Subject1')
-        subject2 = Subject(internal_id='Facts_Subject2')
-        self.dim1 = Dimension(name='facts_dim1', description='facts_dim1', data_type='String')
-        self.dim2 = Dimension(name='facts_dim2', description='facts_dim2', data_type='Float')
-        self.role1 = Role(name='Facts_Admin', description='Facts_Admin')
+        self.subject1 = Subject(internal_id='Facts_api_Subject1')
+        subject2 = Subject(internal_id='Facts_api_Subject2')
+        self.dim1 = Dimension(name='facts_api_dim1', description='facts_api_dim1', data_type='String')
+        self.dim2 = Dimension(name='facts_api_dim2', description='facts_api_dim2', data_type='Float')
+        self.role1 = Role(name='Facts_api_Admin', description='Facts_api_Admin')
         self.db.session.add(self.subject1)
         self.db.session.add(subject2)
         self.db.session.add(self.dim1)
@@ -32,13 +32,13 @@ class TestFactsAPI(TestCase):
             roles.append(self.role1)
             user.roles = roles
             self.db.session.add(user)
-        var1 = Variable(name='facts_var1', description='facts_var1',
+        var1 = Variable(name='facts_api_var1', description='facts_api_var1',
                         dimension_id=self.dim1.id, roles=[self.role1],
                         in_use=True)
-        var2 = Variable(name='facts_var2', description='facts_var2', 
+        var2 = Variable(name='facts_api_var2', description='facts_api_var2', 
                         dimension_id=self.dim2.id, roles=[self.role1],
                         in_use=True)
-        var3 = Variable(name='facts_var3', description='facts_var3', 
+        var3 = Variable(name='facts_api_var3', description='facts_api_var3', 
                         dimension_id=self.dim1.id, roles=[self.role1],
                         in_use=True)
         self.db.session.add(var1)
@@ -49,9 +49,9 @@ class TestFactsAPI(TestCase):
         self.var1_id = var1.id
         self.var2_id = var2.id
         self.var3_id = var3.id
-        event1 = Event(name="Facts_event1", description="Facts_event1")
-        event2 = Event(name="Facts_event2", description="Facts_event2")
-        event3 = Event(name="Facts_event3", description="Facts_event3")
+        event1 = Event(name="Facts_api_event1", description="Facts_api_event1")
+        event2 = Event(name="Facts_api_event2", description="Facts_api_event2")
+        event3 = Event(name="Facts_api_event3", description="Facts_api_event3")
                            
         self.db.session.add(event1)
         self.db.session.add(event2)
@@ -132,7 +132,7 @@ class TestFactsAPI(TestCase):
            doesn't have any roles overlapping with a variable's roles that
            variable should not be displayed in the fact table for them.
         """
-        variable = Variable(name='facts_nope', description='not a chance', 
+        variable = Variable(name='facts_api_nope', description='not a chance', 
                        dimension=self.dim1, roles=[])
         self.db.session.add(variable)
         self.db.session.flush()

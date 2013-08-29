@@ -18,13 +18,6 @@ DIMENSION_DATATYPES = {
     'Boolean': sqlalchemy.Boolean
 }
 
-def is_mapped_class(cls):
-    try:
-        class_mapper(cls)
-        return True
-    except:
-        return False
-
 manager = flask.ext.restless.APIManager()
  
 def auth_func(**kw):
@@ -141,19 +134,3 @@ facts_preprocessors['GET_MANY'].append(facts_preproc)
 facts_postprocessors = {}
 facts_postprocessors['GET_MANY'] = [facts_postproc]
 facts_postprocessors['GET_SINGLE'] = [facts_postproc]
-
-def compute_results_per_page():
-    """Helper function which returns the number of results per page based
-    on the request argument ``results_per_page`` and the server
-    configuration parameters :attr:`results_per_page` and
-    :attr:`max_results_per_page`.
- 
-    """
-    try:
-        results_per_page = int(request.args.get('results_per_page'))
-    except:
-        results_per_page = RESULTS_PER_PAGE
-    if results_per_page <= 0:
-        results_per_page = RESULTS_PER_PAGE
-    return min(results_per_page, MAX_RESULTS_PER_PAGE)
-

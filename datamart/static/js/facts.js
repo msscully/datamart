@@ -5,7 +5,6 @@
               {'property':'id', 'label': 'Table ID', 'sortable': true},
               {'property':'subject_id', 'label': 'Subject ID', 'sortable': false},
               {'property':'event', 'label': 'Event', 'sortable': false},
-              {'property':'reviewed', 'label': 'Reviewed', 'sortable': true},
           ]
 
           var variables = FACTS.getVariables();

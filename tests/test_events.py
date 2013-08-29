@@ -8,6 +8,7 @@ from datamart.models import Role
 class TestEvents(TestCase):
 
     def test_show_events_anon(self):
+        """Does accessing /events/ when not logged in redirect to /login?"""
         response = self.client.get('/events/', follow_redirects=False)
         new_location='/login?next=%s' % url_quote('/events/', safe='')
         self.assertRedirects(response, location=new_location)
@@ -16,12 +17,14 @@ class TestEvents(TestCase):
         self.assertTemplateUsed(name='login.html')
 
     def test_show_events_admin(self):
+        """Does /events/ display correctly when logged in as admin?"""
         self.login('admin@example.com','123456')
         response = self._test_get_request('/events/', 'events.html')
         assert 'Please log in to access this page.' not in response.data
         self.logout()
 
     def test_event_add(self):
+        """Add event at /events/add/ as admin."""
         self.login('admin@example.com', '123456')
         self._test_get_request('/events/add/', 'event_edit.html')
         data = {
@@ -48,6 +51,7 @@ class TestEvents(TestCase):
         return new_event, event_data
 
     def test_event_edit(self):
+        """Edit event using /events/<ID>/edit as admin."""
         self.login('admin@example.com', '123456')
         new_event, event_data = self.add_event()
         assert new_event.count() == 1;

@@ -9,6 +9,7 @@ from flask import url_for
 class TestVariables(TestCase):
 
     def test_show_variables_anon(self):
+        """Does accessing /variables/ when not logged in redirect to /login?"""
         response = self.client.get('/variables/', follow_redirects=False)
         new_location='/login?next=%s' % url_quote('/variables/', safe='')
         self.assertRedirects(response, location=new_location)
@@ -31,6 +32,7 @@ class TestVariables(TestCase):
         self.logout()
 
     def test_variable_add(self):
+        """Add a variable using /variables/add as admin."""
         self.login('admin@example.com', '123456')
         self._test_get_request('/variables/add/', 'variable_edit.html')
         new_var, variable_data = self.add_variable()
@@ -92,6 +94,7 @@ class TestVariables(TestCase):
         self.db.session.commit()
 
     def test_variable_edit(self):
+        """Edit a variable at /variables/<ID>/edit/ as admin."""
         self.login('admin@example.com', '123456')
         new_var, variable_data = self.add_variable()
         assert new_var.count() == 1;
@@ -107,6 +110,7 @@ class TestVariables(TestCase):
         self.logout()
 
     def test_variable_by_role(self):
+        """Are variables only displayed if a user has the correct role?"""
         self.login('admin@example.com', '123456')
         new_var, variable_data = self.add_variable()
         assert new_var.count() == 1

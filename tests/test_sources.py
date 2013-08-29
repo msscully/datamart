@@ -7,6 +7,7 @@ from datamart.models import Variable
 class TestSources(TestCase):
 
     def test_show_sources_anon(self):
+        """Are anonymous users redirected to login from /sources/?"""
         response = self.client.get('/sources/', follow_redirects=False)
         new_location='/login?next=%s' % url_quote('/sources/', safe='')
         self.assertRedirects(response, location=new_location)
@@ -15,12 +16,14 @@ class TestSources(TestCase):
         self.assertTemplateUsed(name='login.html')
 
     def test_show_sources_admin(self):
+        """Can admins view /sources/ and does it use the right template?"""
         self.login('admin@example.com','123456')
         response = self._test_get_request('/sources/', 'sources.html')
         assert 'Please log in to access this page.' not in response.data
         self.logout()
 
     def test_source_add(self):
+        """Add a source using /sources/add/ as admin."""
         self.login('admin@example.com', '123456')
         self._test_get_request('/sources/add/', 'source_edit.html')
         data = {
@@ -86,6 +89,7 @@ class TestSources(TestCase):
         return new_source, source_data
 
     def add_variable_to_source(self, source_id, var_id):
+        """Associate a variable with a source."""
         source = Source.query.get(source_id)
         variables = [str(r.id) for r in source.variables]
         variables.append(str(var_id))
@@ -101,6 +105,7 @@ class TestSources(TestCase):
         return response
 
     def test_source_edit(self):
+        """Edit a source at /sources/<ID>/edit/ as admin."""
         self.login('admin@example.com', '123456')
         new_source, source_data = self.add_source()
         assert new_source.count() == 1;

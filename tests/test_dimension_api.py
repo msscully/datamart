@@ -74,6 +74,7 @@ class TestDimensionAPI(TestCase):
         assert data['description'] in response.data
 
     def test_admin_get_dim_id(self):
+        """Get a dimension from /api/dimension/<ID> as admin."""
         auth = self.admin_auth
         response = self.client.get('/api/dimension',
                                    headers={'Authorization': auth }
@@ -89,6 +90,7 @@ class TestDimensionAPI(TestCase):
 
  
     def test_put_dimension(self):
+        """Update a dimension via PUT /api/dimensio/<ID> as admin."""
         auth = self.admin_auth
         response = self.client.get('/api/dimension',
                                    headers={'Authorization': auth }
@@ -106,6 +108,7 @@ class TestDimensionAPI(TestCase):
         assert response.status_code == 200
 
     def test_delete_dimension(self):
+        """Delete a dimension at /api/dimension/<ID> as admin."""
         auth = self.admin_auth
         response = self.client.get('/api/dimension',
                                    headers={'Authorization': auth }

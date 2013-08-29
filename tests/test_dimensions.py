@@ -5,6 +5,7 @@ from datamart.models import Dimension
 class TestDimensions(TestCase):
 
     def test_show_dimensions_anon(self):
+        """Does accession /dimensions when anon redirect to login?"""
         response = self.client.get('/dimensions/', follow_redirects=False)
         new_location='/login?next=%s' % url_quote('/dimensions/', safe='')
         self.assertRedirects(response, location=new_location)
@@ -13,12 +14,14 @@ class TestDimensions(TestCase):
         self.assertTemplateUsed(name='login.html')
 
     def test_show_dimensions_admin(self):
+        """/dimensions uses dimension.html template when logged in as admin."""
         self.login('admin@example.com','123456')
         response = self._test_get_request('/dimensions/', 'dimensions.html')
         assert 'Please log in to access this page.' not in response.data
         self.logout()
 
     def test_dimension_add(self):
+        """Add a dimension using /dimensions/add/ as admin."""
         self.login('admin@example.com', '123456')
         self._test_get_request('/dimensions/add/', 'dimension_edit.html')
         data = {
@@ -33,6 +36,7 @@ class TestDimensions(TestCase):
         self.logout()
 
     def test_dimension_edit(self):
+        """Edit a dimension using /dimensions/<ID>/edit as admin."""
         self.login('admin@example.com', '123456')
         data = {
             'name': 'surprise',

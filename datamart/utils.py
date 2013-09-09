@@ -1,7 +1,5 @@
 import os
 
-INSTANCE_FOLDER_PATH = os.path.join('/tmp', 'instance')
-
 def make_dir(dir_path):
     try:
         if not os.path.exists(dir_path):

@@ -13,7 +13,6 @@ from .api import get_many_variables_preprocessor
 from .api import admin_only_proprocessors
 from .jinja_filters import remove_invalid_vars
 from .config import DefaultConfig
-from .utils import INSTANCE_FOLDER_PATH
 from flask.ext.uploads import configure_uploads
 from flask_debugtoolbar import DebugToolbarExtension
 from flask import Flask
@@ -34,7 +33,7 @@ def create_app(config=None, app_name=None, blueprints=None):
     if blueprints is None:
         blueprints = DEFAULT_BLUEPRINTS
 
-    app = Flask(app_name, instance_path=INSTANCE_FOLDER_PATH, instance_relative_config=True)
+    app = Flask(app_name, instance_path=DefaultConfig.INSTANCE_FOLDER_PATH, instance_relative_config=True)
     configure_app(app, config)
     configure_blueprints(app, blueprints)
     configure_extensions(app)

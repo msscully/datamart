@@ -1,0 +1,13 @@
+/var/log/uwsgi/*.log {
+    rotate 10
+    daily
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 640 uwsgi adm
+    sharedscripts
+    postrotate
+        initctl restart uwsgi >/dev/null 2>&1
+    endscript
+}

@@ -117,3 +117,202 @@ downloaded in a number of formats.
 
 Facts can be added a Variable at a time, but can also be uploaded in csv
 format.
+
+To Run
+------
+
+If there isn't an accessible postgres instance, install a local postgres
+instance and create user/db. Update instace/production.cfg so
+SQLALCHEMY_DATABASE_URI reflects the DB, username, and password.
+
+###Install Requirements
+
+Create a virtualenv
+    
+    virtualenv datamart_env
+
+Install production requirements
+
+    pip install -r prod-requirements.txt
+
+Install development requirements (to run testing or the dev server)
+
+    pip install -r dev-requirements.txt
+    
+###Development
+
+Use the manager to launch a dev server after creating a virtualenv and
+installing the dev requirements:
+
+    python manage.py runserver
+
+###Testing
+
+After creating a virtualenv and installing the dev requirements use the manager
+to run the tests:
+
+    python manage.py test
+    
+Javascript and selenium based testing is coming.
+
+###Production
+
+Clone the repository, create a virtualenv, and install the python production
+requirements. Install uWSGI, Nginx, and Postgres >=9.1 (Preferably on a
+separate machine)
+
+See docs/<YOUR_OS>/ for detailed documentation. (Currently only RHEL/CENTOS.)
+
+Developers
+----------
+
+###Code Layout
+.
+├── README.md
+├── dev-requirements.txt
+├── dev_config.py
+├── manage.py
+├── prod-requirements.txt
+├── requirements.txt
+├── alembic.ini
+├── license.txt
+├── docs
+│   └── RHEL_Centos_production_setup.md
+├── datamart
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── api.py
+│   ├── app.py
+│   ├── config.py
+│   ├── datamart.db
+│   ├── extensions.py
+│   ├── forms.py
+│   ├── jinja_filters.py
+│   ├── models.py
+│   ├── production.cfg
+│   ├── secure_redirect.py
+│   ├── utils.py
+│   ├── views.py
+│   ├── static
+│   │   ├── css
+│   │   │   ├── bootstrap-responsive.css
+│   │   │   ├── bootstrap-responsive.min.css
+│   │   │   ├── bootstrap.css
+│   │   │   ├── bootstrap.min.css
+│   │   │   ├── chosen-sprite.png
+│   │   │   ├── chosen.css
+│   │   │   └── custom.css
+│   │   ├── font
+│   │   ├── img
+│   │   │   ├── glyphicons-halflings-white.png
+│   │   │   └── glyphicons-halflings.png
+│   │   ├── js
+│   │   │   ├── dimension.js
+│   │   │   ├── fact_edit.js
+│   │   │   ├── facts.js
+│   │   │   ├── facts_datasource.js
+│   │   │   ├── label-upload.js
+│   │   │   ├── templates.js
+│   │   │   ├── upload.js
+│   │   │   └── ext
+│   │   │       ├── bootstrap.js
+│   │   │       ├── bootstrap.min.js
+│   │   │       ├── chosen.jquery.js
+│   │   │       ├── handlebars.js
+│   │   │       ├── jquery-1.9.1.js
+│   │   │       ├── jquery.fileDownload.js
+│   │   │       ├── jquery.min.js
+│   │   │       ├── json2.js
+│   │   │       ├── underscore-min.js
+│   │   │       └── underscore.js
+│   │   └── templates
+│   │       ├── edit-fact-new-variable.handlebars
+│   │       ├── facts-nested-filter.handlebars
+│   │       ├── facts-new-filter.handlebars
+│   │       └── model-table-controls.handlebars
+│   └── templates
+│       ├── _formhelpers.html
+│       ├── _gridhelpers.html
+│       ├── base.html
+│       ├── dimension_edit.html
+│       ├── dimensions.html
+│       ├── errors
+│       │   ├── forbidden_page.html
+│       │   ├── page_not_found.html
+│       │   └── server_error.html
+│       ├── event_edit.html
+│       ├── events.html
+│       ├── externalid_edit.html
+│       ├── externalids.html
+│       ├── fact_edit.html
+│       ├── facts.html
+│       ├── index.html
+│       ├── label_upload.html
+│       ├── login.html
+│       ├── role_edit.html
+│       ├── roles.html
+│       ├── source_edit.html
+│       ├── sources.html
+│       ├── subject_edit.html
+│       ├── subjects.html
+│       ├── upload.html
+│       ├── user_edit.html
+│       ├── users.html
+│       ├── variable_edit.html
+│       └── variables.html
+├── tests
+│   ├── __init__.py
+│   ├── test_dimension_api.py
+│   ├── test_dimensions.py
+│   ├── test_events.py
+│   ├── test_facts.py
+│   ├── test_facts_api.py
+│   ├── test_home.py
+│   ├── test_roles.py
+│   ├── test_sources.py
+│   ├── test_subjects.py
+│   ├── test_users.py
+│   ├── test_variable_api.py
+│   └── test_variables.py
+└── alembic
+    ├── README
+    ├── env.py
+    ├── script.py.mako
+    └── versions
+        ├── 23dcdff2dad2_added_backref_so_rol.py
+        ├── 27895d4324c8_variables_and_roles_.py
+        ├── 3048e84eead4_added_delete_cascade.py
+        ├── 33dee8e1b22c_added_subject_table_.py
+        ├── 340608d055f3_added_roles_to_varia.py
+        ├── 362ecdf08386_added_source_table_a.py
+        ├── 36f1f1bd8a5a_removed_not_null_con.py
+        ├── 3bbac6e7d8ee_standardized_on_name.py
+        ├── 403c42ff4a79_added_is_admin_to_us.py
+        ├── 420c1fe55812_added_data_type_enum.py
+        ├── 499accc505c3_dropped_unique_const.py
+        ├── 5267f92565cb_switched_user_ips_to.py
+        ├── 57f90b4e233f_added_is_admin_to_us.py
+        ├── 5abd00729c5c_.py
+        ├── 6da215bb5f1_added_in_use_column_.py
+        ├── 96489d0aa37_added_event_table_wi.py
+        └── efda3e6ba54_drop_reviewed_from_f.py
+
+
+###Found a bug?
+
+Please use the integrated issues in bitbucket to submit your bug.
+
+###Contribute Your Changes
+
+Please submit a pull request with your changes. 
+Author
+------
+
+Mark Scully
+DataPraxis, LLC
+
+License
+-------
+
+Released under OSI version of MIT license. See license.txt
+

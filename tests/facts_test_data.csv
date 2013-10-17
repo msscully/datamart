@@ -1,0 +1,4 @@
+Subject, Event, facts_var1, facts_var2
+FactsSubject1, "Facts_event1", stuff, 50
+FactsSubject2, "Facts_event1", things, 64
+Some1, "Facts_New_Event", other stuff, 59

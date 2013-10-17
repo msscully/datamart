@@ -8,6 +8,10 @@ from datamart.models import Dimension
 from datamart.models import User
 from datamart.models import Role
 from flask import url_for
+from StringIO import StringIO
+from datamart.extensions import data_files
+import glob
+import os
 
 class TestFacts(TestCase):
 
@@ -79,6 +83,13 @@ class TestFacts(TestCase):
         self.fact1_id = fact1.id
         self.fact2_id = fact2.id
         self.fact3_id = fact3.id
+
+    def tearDown(self):
+        """Delete the uploaded facts files."""
+        data_dir = data_files.config.destination
+        file_list = glob.glob(os.path.join(data_dir,"*facts_test_data*.csv"))
+        for f in file_list:
+            os.remove(f)
 
     def test_show_facts_anon(self):
         """Does accessing /facts/ when not logged in redirect to /login?"""
@@ -188,3 +199,140 @@ class TestFacts(TestCase):
         assert new_role.name in response.data
         assert var_name in response.data
         self.logout()
+
+    def test_fact_upload(self):
+        """Test uploading a csv of facts."""
+        self.login('admin@example.com', '123456')
+        response = self._test_get_request('/facts/upload/', 'upload.html')
+        assert 'Please log in to access this page.' not in response.data
+        with open('tests/facts_test_data.csv') as test_file_content:
+
+            upload_settings = {
+                'header_row': '',
+                'create_subjects': '',
+                'create_events': '',
+                'data_file': (StringIO(test_file_content.read()),
+                              'facts_test_data.csv'),
+                'action_save': True
+            }
+    
+            response = self.client.post('/facts/upload/',
+                                        data = upload_settings,
+                                        follow_redirects=True
+                                       )
+            self.assert_200(response)
+            self.assertTemplateUsed('label_upload.html')
+
+        self.logout()
+        return True
+
+    def test_fact_label_upload(self):
+        """Test labeling an uploading csv of facts."""
+        self.login('admin@example.com', '123456')
+        response = self._test_get_request('/facts/upload/', 'upload.html')
+        assert 'Please log in to access this page.' not in response.data
+        with open('tests/facts_test_data.csv') as test_file:
+            test_file_content = test_file.read()
+
+        upload_settings = {
+            'header_row': 'y',
+            #'create_subjects': '',
+            #'create_events': '',
+            'data_file': (StringIO(test_file_content),
+                          'facts_test_data.csv'),
+            'action_save': True
+        }
+    
+        response = self.client.post('/facts/upload/',
+                                    data = upload_settings,
+                                    #follow_redirects=True
+                                   )
+        assert 302 == response.status_code
+        new_data_url = response.location.split('/')[6]
+        assert "facts_test_data.csv" in new_data_url
+        #self.assertTemplateUsed('label_upload.html')
+        #assert 'Facts_New_Event' in response.data
+        #assert 'other stuff' in response.data
+        #assert "Error" not in response.data
+
+        label_settings = {
+            'column_0': 'subjects',
+            'column_1': 'events',
+            'column_2': str(self.var1_id),
+            'column_3': str(self.var2_id)
+        }
+        response = self.client.post('/facts/upload/label/'+new_data_url+'/',
+                                    data = label_settings,
+                                    follow_redirects=True
+                                   )
+
+        self.assert_200(response)
+        self.assertTemplateUsed('label_upload.html')
+        # Shouldn't succed as we didn't enable the creation of new subjects /
+        # events.
+        assert "alert-success" not in response.data
+        assert "Error: Not all data in Column 2 is a valid Event ID or name." in response.data
+        assert "Error: Not all data in Column 1 is a valid Subject ID or internal ID" in response.data
+
+        upload_settings['create_subjects'] = 'y'
+        upload_settings['data_file'] =  (StringIO(test_file_content), 'facts_test_data.csv')
+        response = self.client.post('/facts/upload/',
+                                    data = upload_settings,
+                                    follow_redirects=True
+                                   )
+        self.assert_200(response)
+        self.assertTemplateUsed('label_upload.html')
+        assert 'Facts_New_Event' in response.data
+        assert 'other stuff' in response.data
+        assert "Error" not in response.data
+
+        response = self.client.post('/facts/upload/label/'+new_data_url+'/',
+                                    data = label_settings,
+                                    follow_redirects=True
+                                   )
+
+        self.assert_200(response)
+        self.assertTemplateUsed('label_upload.html')
+        # Shouldn't succed as we didn't enable the creation of new subjects /
+        # events.
+        assert "alert-success" not in response.data
+        assert "Error: Not all data in Column 2 is a valid Event ID or name." in response.data
+        # Subject creation is on, so this error should go away.
+        assert "Error: Not all data in Column 1 is a valid Subject ID or internal ID" not in response.data
+
+        upload_settings['create_events'] = 'y'
+        upload_settings['data_file'] =  (StringIO(test_file_content), 'facts_test_data.csv')
+        response = self.client.post('/facts/upload/',
+                                    data = upload_settings,
+                                    follow_redirects=True
+                                   )
+        self.assert_200(response)
+        self.assertTemplateUsed('label_upload.html')
+        assert 'Facts_New_Event' in response.data
+        assert 'other stuff' in response.data
+        assert "Error" not in response.data
+
+        response = self.client.post('/facts/upload/label/'+new_data_url+'/',
+                                    data = label_settings,
+                                    follow_redirects=True
+                                   )
+
+        self.assert_200(response)
+        self.assertTemplateUsed('label_upload.html')
+        # Everything should work, so there should be a success message.
+        assert "alert-success" in response.data
+        # Subject & Event creation is on, so these errors shouldn't be there.
+        assert "Error: Not all data in Column 2 is a valid Event ID or name." not in response.data
+        assert "Error: Not all data in Column 1 is a valid Subject ID or internal ID" not in response.data
+        # Make sure the new Subject & Event were added to the database.
+        new_subjects = Subject.query.filter(Subject.internal_id == "Some1").all()
+        new_events = Event.query.filter(Event.name == "Facts_New_Event").all()
+        assert len(new_subjects) > 0
+        assert len(new_events) > 0
+        new_subject_id = new_subjects[0].id
+        new_event_id = new_events[0].id
+        new_facts = Facts.query.filter(Facts.subject_id == new_subject_id).filter(Facts.event_id == new_event_id).all()
+        assert "other stuff" == new_facts[0].values[str(self.var1_id)]
+
+        self.logout()
+        return True

@@ -140,7 +140,6 @@ class Source(db.Model):
 class Facts(db.Model):
     __tablename__ = 'facts'
     id = db.Column(db.Integer, primary_key=True)
-    reviewed = db.Column(db.Boolean, nullable=False, default=False)
     subject_id = db.Column(db.Integer, 
                            db.ForeignKey('subject.id', ondelete='CASCADE'), 
                            nullable=False)

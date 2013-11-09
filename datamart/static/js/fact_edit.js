@@ -63,10 +63,14 @@ var FACTS = {}; // FACTS Namespace
             var compiledTemplate = Handlebars.getTemplate('edit-fact-new-variable');
             var variables = FACTS.getUnusedVariables();
             var inputs = $('table .controls > input')
-            var varNums = $.map(inputs, function(n) {
-                var varIDString = $(n).attr('id');
-                return Math.floor(/-(\d+)-/.exec(varIDString)[1]);
-            });
+            if (inputs.length > 0){
+                var varNums = $.map(inputs, function(n) {
+                    var varIDString = $(n).attr('id');
+                    return Math.floor(/-(\d+)-/.exec(varIDString)[1]);
+                });
+            } else {
+                varNums = [1];
+            }
             var blankCount = FACTS.countBlankVarSelects();
             maxID = Math.max.apply(Math, varNums);
             var index = maxID + 1;

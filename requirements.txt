@@ -6,7 +6,7 @@ Flask-DebugToolbar==0.8.0
 Flask-Login==0.2.6
 Flask-Mail==0.9.0
 Flask-Principal==0.4.0
-Flask-Restless==0.11.0
+-e git+https://github.com/msscully/flask-restless.git@allow_casted_filters#egg=flask-restless
 Flask-Security==1.6.9
 Flask-SQLAlchemy==1.0
 Flask-SSLify==0.1.4
@@ -29,3 +29,4 @@ verlib==0.1
 Werkzeug==0.8.3
 WTForms-Components==0.6.3
 WTForms==1.0.4
+Flask-Testing==0.4

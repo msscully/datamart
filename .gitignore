@@ -37,3 +37,6 @@ nosetests.xml
 
 # The local uploaded files
 uploads/
+
+# The INSTANCE directory
+instance/

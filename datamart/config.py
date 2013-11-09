@@ -1,6 +1,5 @@
 import os
 from .utils import make_dir
-from .utils import INSTANCE_FOLDER_PATH
 
 class BaseConfig(object):
 
@@ -9,6 +8,7 @@ class BaseConfig(object):
     # Get app root path, also can use flask.root_path.
     # ../../config.py
     PROJECT_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    INSTANCE_FOLDER_PATH = os.path.join(PROJECT_ROOT, 'instance')
 
     SSLIFY_ENABLED = True
     DEBUG = False
@@ -68,7 +68,8 @@ class DefaultConfig(BaseConfig):
 class TestConfig(BaseConfig):
     SSLIFY_ENABLED = False
     DEBUG = False
-    TESTING = False
+    TESTING = False #If true turns off authentication
+    DISABLE_LOGGING = True
     WTF_CSRF_ENABLED = False
     DEBUG_TB_INTERCEPT_REDIRECTS = False
 

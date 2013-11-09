@@ -6,6 +6,7 @@ from datamart.models import ExternalID
 class TestSubjects(TestCase):
 
     def test_show_subjects_anon(self):
+        """Are anonymous users redirected from /subjects/ to /login/?"""
         response = self.client.get('/subjects/', follow_redirects=False)
         new_location='/login?next=%s' % url_quote('/subjects/', safe='')
         self.assertRedirects(response, location=new_location)
@@ -14,12 +15,14 @@ class TestSubjects(TestCase):
         self.assertTemplateUsed(name='login.html')
 
     def test_show_subjects_admin(self):
+        """Does /subjects/ display correctly for admins?"""
         self.login('admin@example.com','123456')
         response = self._test_get_request('/subjects/', 'subjects.html')
         assert 'Please log in to access this page.' not in response.data
         self.logout()
 
     def test_subject_add(self):
+        """Add a subject at /subjects/add/ as admin."""
         self.login('admin@example.com', '123456')
         self._test_get_request('/subjects/add/', 'subject_edit.html')
         data = {
@@ -46,6 +49,7 @@ class TestSubjects(TestCase):
         return new_subject, subject_data
 
     def test_subject_edit(self):
+        """Edit a subject using /subjects/<ID>/edit as admin."""
         self.login('admin@example.com', '123456')
         new_subject, subject_data = self.add_subject()
         assert new_subject.count() == 1;
@@ -64,6 +68,7 @@ class TestSubjects(TestCase):
 class TestExternalIDs(TestCase):
 
     def test_show_externalids_anon(self):
+        """Are anonymous users redirected from /externalids/ to /login?"""
         response = self.client.get('/externalids/', follow_redirects=False)
         new_location='/login?next=%s' % url_quote('/externalids/', safe='')
         self.assertRedirects(response, location=new_location)
@@ -72,12 +77,14 @@ class TestExternalIDs(TestCase):
         self.assertTemplateUsed(name='login.html')
 
     def test_show_externalids_admin(self):
+        """Does /externalids/ display correctly for admin?"""
         self.login('admin@example.com','123456')
         response = self._test_get_request('/externalids/', 'externalids.html')
         assert 'Please log in to access this page.' not in response.data
         self.logout()
 
     def test_externalid_add(self):
+        """Add an externalID via /externalids/add as admin."""
         self.login('admin@example.com', '123456')
         self._test_get_request('/externalids/add/', 'externalid_edit.html')
         new_subject = self.add_subject() 
@@ -94,6 +101,7 @@ class TestExternalIDs(TestCase):
         self.logout()
 
     def add_subject(self):
+        """Add a subject to the testdb. Must be logged in."""
         subjects = Subject.query.filter_by(internal_id='test_subject')
         if subjects.count() != 1:
             new_subject = Subject(internal_id='test_subject')
@@ -118,6 +126,7 @@ class TestExternalIDs(TestCase):
         return new_externalid, externalid_data
 
     def test_externalid_edit(self):
+        """Edit externalID via /externalids/<ID>/edit/ as admin"""
         self.login('admin@example.com', '123456')
         new_externalid, externalid_data = self.add_externalid()
         assert new_externalid.count() == 1;

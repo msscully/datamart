@@ -222,7 +222,7 @@ def fact_edit(fact_id=None):
                 flash('Fact updated!','alert-success')
             else:
                 flash('New Fact added!', 'alert-success')
-            redirect(url_for('fact_edit', fact_id=fact_data.id))
+            redirect(url_for('datamart.fact_edit', fact_id=fact_data.id))
         else:
             for key in form.errors:
                 if key == 'values':
@@ -282,10 +282,7 @@ def label_upload_data(filename=None):
         header_corrected_data = new_data
         headers = None
 
-    top_ten = []
-    for i, row in enumerate(header_corrected_data):
-        if i >= 10: break
-        top_ten.append(row)
+    top_ten = header_corrected_data[0:9]
 
     class FactsUploadForm(Form):
         def __init__(self, data):
@@ -301,17 +298,50 @@ def label_upload_data(filename=None):
             columns_valid = True
             subjects_present = False
             events_present = False
+            subject_column_index = 0
+            event_column_index = 0
             for field in fields:
+                # Ensure there's a column for subjects and events.
                 if form[field].data == 'subjects':
                     subjects_present = True
+                    subject_column_index = get_column_index(form[field])
                 elif form[field].data == 'events':
                     events_present = True
+                    event_column_index = get_column_index(form[field])
                 if(not column_datatype_check(self,form[field],self._data)):
                     columns_valid = False
+
             if not (subjects_present and events_present):
                 flash('A Subjects and Events column must be present.','alert-error')
                 return False
-            if not columns_valid:
+
+            # Check if each subject / event already has a row in Facts.
+            # If it does, ensure that the variables being added are not already
+            # associated with that subject / event. If they are, return an
+            # error.
+            passes_variable_constraints = True
+            for row in self._data:
+                subject = row[subject_column_index]
+                event = row[event_column_index]
+                for i, field_data in enumerate(row):
+                    if i not in [subject_column_index, event_column_index]:
+                        # Check if var already in Facts table for this subject /
+                        # event.
+                        fact_row = models.Facts.query.join(models.Subject).join(models.Event).filter(models.Subject.internal_id == subject,
+                                                                                                     models.Event.name == event).all()
+                        if len(fact_row) == 1:
+                            variables = fact_row[0].values.keys()
+                            field = form['column_%s' % i]
+                            if field.data in variables:
+                                variable_name = models.Variable.query.filter(models.Variable.id==field.data).one().name
+                                field.errors.append('Variable %s already exists for subject: %s, event: %s!' % (variable_name, subject, event))
+                                passes_variable_constraints = False
+                        elif len(fact_row) > 1:
+                            flash("Something is VERY WRONG! Multiple entries in database for same subject & event. Contact administrator!", 'alert-error')
+                            return False
+
+
+            if not (columns_valid and passes_variable_constraints) :
                 return False
             return True
 
@@ -386,7 +416,7 @@ def label_upload_data(filename=None):
         del session['useheader']
         del session['createsubjects']
         del session['createevents']
-        return redirect(url_for('facts_view'))
+        return redirect(url_for('datamart.facts_view'))
     else:
         for key in form.errors:
             for error in form.errors[key]:
@@ -407,7 +437,7 @@ def upload():
         session['useheader'] = form.header_row.data
         session['createsubjects'] = form.create_subjects.data
         session['createevents'] = form.create_events.data
-        return redirect(url_for("label_upload_data", filename=filename))
+        return redirect(url_for("datamart.label_upload_data", filename=filename))
     return render_template('upload.html', form=form)
 
 @datamart.route('/subjects/', methods=['GET'])
@@ -491,12 +521,16 @@ def get_label_select_options():
     select_options_sorted.extend(sorted(select_options, key=lambda var: var[1]))
     return select_options_sorted
 
-def column_datatype_check(form, field,data):
+def get_column_index(field):
     m = re.search('_(\d+)',field.name)
     if m:
-        column_index = int(m.group(1))
+        return int(m.group(1))
     else:
         raise Exception("Column doesn't have a numerical index?!")
+
+
+def column_datatype_check(form, field, data):
+    column_index = get_column_index(field)
 
     for row in data:
         if field.data == 'subjects':

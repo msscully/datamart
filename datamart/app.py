@@ -6,16 +6,16 @@ from . import models
 from .api import manager
 from .api import preprocessors
 from .api import auth_func
+from .api import facts_preprocessors
+from .api import facts_postprocessors
 from .api import get_single_variable_preprocessor
 from .api import get_many_variables_preprocessor
 from .api import admin_only_proprocessors
 from .jinja_filters import remove_invalid_vars
 from .config import DefaultConfig
-from .utils import INSTANCE_FOLDER_PATH
 from flask.ext.uploads import configure_uploads
 from flask_debugtoolbar import DebugToolbarExtension
 from flask import Flask
-from flask import render_template
 from flask.ext.security import SQLAlchemyUserDatastore
 from .views import datamart
 from .views import render_template_with_login
@@ -33,7 +33,7 @@ def create_app(config=None, app_name=None, blueprints=None):
     if blueprints is None:
         blueprints = DEFAULT_BLUEPRINTS
 
-    app = Flask(app_name, instance_path=INSTANCE_FOLDER_PATH, instance_relative_config=True)
+    app = Flask(app_name, instance_path=DefaultConfig.INSTANCE_FOLDER_PATH, instance_relative_config=True)
     configure_app(app, config)
     configure_blueprints(app, blueprints)
     configure_extensions(app)
@@ -87,7 +87,7 @@ def configure_extensions(app):
 def configure_logging(app):
     """Configure file(info) and email(error) logging."""
 
-    if app.debug or app.testing:
+    if app.debug or app.testing or app.config["DISABLE_LOGGING"]:
         # Skip debug and test mode. Just check standard output.
         return
 
@@ -159,9 +159,10 @@ def configure_api(app):
                                       'GET_MANY':[auth_func, get_many_variables_preprocessor]
                                      })
     manager.create_api(models.Facts, 
-                       methods=['GET', 'DELETE'],
-                       results_per_page=RESULTS_PER_PAGE,
-                       preprocessors=preprocessors)
+                   methods=['GET', 'DELETE'],
+                   results_per_page=RESULTS_PER_PAGE,
+                   preprocessors=facts_preprocessors,
+                   postprocessors=facts_postprocessors)
     manager.create_api(models.Role, 
                        methods=['GET', 'POST', 'DELETE', 'PUT'],
                        results_per_page=RESULTS_PER_PAGE,

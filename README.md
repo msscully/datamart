@@ -167,6 +167,7 @@ Developers
 ----------
 
 ###Code Layout
+<pre>
 .
 ├── README.md
 ├── dev-requirements.txt
@@ -296,6 +297,7 @@ Developers
         ├── 6da215bb5f1_added_in_use_column_.py
         ├── 96489d0aa37_added_event_table_wi.py
         └── efda3e6ba54_drop_reviewed_from_f.py
+</pre>
 
 
 ###Found a bug?

@@ -4,7 +4,7 @@
           var new_columns = [
               {'property':'id', 'label': 'Table ID', 'sortable': true},
               {'property':'subject_id', 'label': 'Subject ID', 'sortable': false},
-              {'property':'event', 'label': 'Event', 'sortable': false},
+              {'property':'event__name', 'label': 'Event', 'sortable': true},
           ]
 
           var variables = FACTS.getVariables();
@@ -45,7 +45,7 @@
           formatter: function (items) {
               var compiledTemplate = Handlebars.getTemplate('model-table-controls');
               $.each(items, function (index, item) {
-                  item.event = item.event.name;
+                  item.event__name = item.event.name;
                   itemURL = '/facts/' + item.id + '/edit/';
                   item.controls = compiledTemplate({model: 'facts', 
                                                    id: item.id,

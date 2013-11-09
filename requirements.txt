@@ -6,7 +6,7 @@ Flask-DebugToolbar==0.8.0
 Flask-Login==0.2.6
 Flask-Mail==0.9.0
 Flask-Principal==0.4.0
--e git+https://github.com/msscully/flask-restless.git@allow_casted_filters#egg=flask-restless
+-e git+https://github.com/msscully/flask-restless.git@datamart_integration#egg=flask-restless
 Flask-Security==1.6.9
 Flask-SQLAlchemy==1.0
 Flask-SSLify==0.1.4

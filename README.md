@@ -1,6 +1,6 @@
 DataMart for Biomedical Research
 ================================
-Version 0.0.1
+Version 0.1.0
 
 Meant to act as a single data store at the end of the QA pipeline that will
 allow querying across all data sources. Organized around the idea of Variables,

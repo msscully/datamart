@@ -235,7 +235,7 @@ class TestFacts(TestCase):
             test_file_content = test_file.read()
 
         upload_settings = {
-            'header_row': 'y',
+            #'header_row': 'y',
             #'create_subjects': '',
             #'create_events': '',
             'data_file': (StringIO(test_file_content),
@@ -250,10 +250,28 @@ class TestFacts(TestCase):
         assert 302 == response.status_code
         new_data_url = response.location.split('/')[6]
         assert "facts_test_data.csv" in new_data_url
-        #self.assertTemplateUsed('label_upload.html')
-        #assert 'Facts_New_Event' in response.data
-        #assert 'other stuff' in response.data
-        #assert "Error" not in response.data
+        # Follow the redirect
+        response = self.client.get('/facts/upload/label/'+new_data_url+'/')
+
+        self.assertTemplateUsed('label_upload.html')
+        assert 'Facts_New_Event' in response.data
+        assert 'other stuff' in response.data
+        assert "Error" not in response.data
+        # The above get doesn't include a query string, so we're not using headers
+        assert "Please select Variable type for <em>Subject</em> column" not in response.data
+
+        upload_settings['header_row'] = 'y'
+        upload_settings['data_file'] = (StringIO(test_file_content), 'facts_test_data.csv')
+        response = self.client.post('/facts/upload/',
+                                    data = upload_settings,
+                                    follow_redirects=True
+                                   )
+        self.assertTemplateUsed('label_upload.html')
+        assert 'Facts_New_Event' in response.data
+        assert 'other stuff' in response.data
+        assert "Error" not in response.data
+        # The above get says there's a header row so make sure it is used.
+        assert "Please select Variable type for <em>Subject</em> column" in response.data
 
         label_settings = {
             'column_0': 'subjects',

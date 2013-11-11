@@ -160,16 +160,25 @@ class TestFacts(TestCase):
         assert "something_else" == fact.first().values[str(self.var1_id)]
         self.logout()
 
+    def add_admin_role_if_missing(self):
+        """Add an 'AdminRole' if it doesn't already exist"""
+        admin_roles = Role.query.filter('name'=='AdminRole').all()
+        if len(admin_roles) != 0:
+            new_role = Role(name='Facts_AdminRole', description='Facts_AdminRole')
+            self.db.session.add(new_role)
+            self.db.session.commit()
+            return new_role.id
+
+        return admin_roles[0].id
+
+
     def test_fact_by_role(self):
         """Are facts only displayed if a user has the correct role?"""
         return False
         self.login('admin@example.com', '123456')
         new_var, fact_data = self.add_fact()
         assert new_var.count() == 1
-        new_role = Role(name='AdminRole', description='AdminRole')
-        self.db.session.add(new_role)
-        self.db.session.commit()
-        role_id = new_role.id
+        role_id = self.add_admin_role_if_missing()
         response = self.add_role_to_fact(new_var.first().id, role_id)
         assert 'Fact updated' in response.data
         assert 'Please fix errors and resubmit' not in response.data

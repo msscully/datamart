@@ -43,15 +43,16 @@ class TestDimensions(TestCase):
             'description': "it's a monkey",
             'data_type': 'String'
         }
-        new_dim = Dimension.query.filter_by(name=data['name'])
-        if new_dim.count() != 1:
+        new_dim = Dimension.query.filter(Dimension.name==data['name']).all()
+        if len(new_dim) != 1:
             response = self.client.post('/dimensions/add/', data=data)
             assert 'Please fix errors and resubmit.' not in response.data
-            new_dim = Dimension.query.filter_by(name=data['name'])
+            new_dim = Dimension.query.filter(Dimension.name==data['name']).all()
 
-        assert new_dim.count() == 1
+        assert len(new_dim) == 1
         data['name'] = 'surprise2'
-        response = self.client.post('/dimensions/%s/edit/' % new_dim.first().id, data=data)
+        data['description'] = "it's not a monkey"
+        response = self.client.post('/dimensions/%s/edit/' % new_dim[0].id, data=data)
         assert 'Please fix errors and resubmit.' not in response.data
         new_dim = Dimension.query.filter_by(name=data['name'])
         assert new_dim.count() == 1

@@ -36,7 +36,7 @@ class TestVariables(TestCase):
         self.login('admin@example.com', '123456')
         self._test_get_request('/variables/add/', 'variable_edit.html')
         new_var, variable_data = self.add_variable()
-        assert new_var.count() == 1
+        assert len(new_var) == 1
         self.logout()
 
     def add_dimension(self):
@@ -64,11 +64,11 @@ class TestVariables(TestCase):
             'description': "Subject height",
             'dimension': new_dim.id
         }
-        new_var = Variable.query.filter_by(name=variable_data['name'])
-        if new_var.count() != 1:
+        new_var = Variable.query.filter(Variable.name==variable_data['name']).all()
+        if len(new_var) != 1:
             response = self.client.post('/variables/add/', data=variable_data)
             assert 'Please fix errors and resubmit.' not in response.data
-            new_var = Variable.query.filter_by(name=variable_data['name'])
+            new_var = Variable.query.filter(Variable.name==variable_data['name']).all()
         return new_var, variable_data
 
     def add_role_to_variable(self, var_id, role_id):
@@ -97,28 +97,28 @@ class TestVariables(TestCase):
         """Edit a variable at /variables/<ID>/edit/ as admin."""
         self.login('admin@example.com', '123456')
         new_var, variable_data = self.add_variable()
-        assert new_var.count() == 1;
+        assert len(new_var) == 1;
         variable_data['name'] = 'Standing Length'
-        response = self.client.post('/variables/%s/edit/' % new_var.first().id, 
+        response = self.client.post('/variables/%s/edit/' % new_var[0].id, 
                                     data=variable_data,
                                     headers={'Referer': url_for('datamart.variables_view')},
                                    follow_redirects=True)
         assert 'Variable updated' in response.data
         assert 'Please fix errors and resubmit.' not in response.data
-        new_var = Variable.query.filter_by(name=variable_data['name'])
-        assert new_var.count() == 1;
+        new_var = Variable.query.filter(Variable.name==variable_data['name']).all()
+        assert len(new_var) == 1;
         self.logout()
 
     def test_variable_by_role(self):
         """Are variables only displayed if a user has the correct role?"""
         self.login('admin@example.com', '123456')
         new_var, variable_data = self.add_variable()
-        assert new_var.count() == 1
+        assert len(new_var) == 1
         new_role = Role(name='AdminRole', description='AdminRole')
         self.db.session.add(new_role)
         self.db.session.commit()
         role_id = new_role.id
-        response = self.add_role_to_variable(new_var.first().id, role_id)
+        response = self.add_role_to_variable(new_var[0].id, role_id)
         assert 'Variable updated' in response.data
         assert 'Please fix errors and resubmit' not in response.data
         new_var = Variable.query.join(Role, Variable.roles).filter(Role.id == role_id)

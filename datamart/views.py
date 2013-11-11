@@ -54,7 +54,12 @@ def model_edit(model, template, FormType, redirect_default, model_id=None):
     else:
         model_data = model()
 
-    form = FormType(obj=model_data)
+    # WTForms broke the obj= in version 1.0.5 and won't fix. 
+    # See https://github.com/wtforms/wtforms/pull/29
+    # Workaround is to set form._obj
+    form = FormType()
+    form._obj = model_data
+
     if request.method == 'POST':
         if form.validate_on_submit():
             form.populate_obj(model_data)

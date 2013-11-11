@@ -1,9 +1,7 @@
+-e git+https://github.com/tobiasandtobias/flask-alembic.git@d0f4d3523e115d6376aeba3b0b0cbba3af888add#egg=Flask_Alembic-dev
 -r requirements.txt
-Flask-Script==0.5.3
+Flask-Script==0.6.3
+ipdb==0.8
+nose==1.3.0
 pip-tools==0.3.4
 readline==6.2.4.1
--e git+https://github.com/tobiasandtobias/flask-alembic.git@d0f4d3523e115d6376aeba3b0b0cbba3af888add#egg=Flask_Alembic-dev
-alembic==0.5.0
-ipdb==0.7
-nose==1.3.0
-coverage==3.6

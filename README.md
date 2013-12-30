@@ -153,6 +153,8 @@ to run the tests:
 
     python manage.py test
     
+Python coverage is currently 94%.
+
 Javascript and selenium based testing is coming.
 
 ###Production

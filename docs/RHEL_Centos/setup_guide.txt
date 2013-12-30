@@ -6,7 +6,7 @@ Setup ngninx repo and install: http://wiki.nginx.org/Install
   $ setenv PATH $PATH":/usr/pgsql-9.1/bin"
 
 # Clone the datamart repo and move it to /var/www
-  $ git clone git@bitbucket.org:mscully/datamart.git
+  $ git clone git@github.com:msscully/datamart.git
   $ mv datamart /var/www/
 # Create a virtualenv
   $ cd /var/www/datamart

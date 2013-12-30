@@ -300,7 +300,7 @@ Developers
 
 ###Found a bug?
 
-Please use the integrated issues in bitbucket to submit your bug.
+Please use the integrated issues in github to submit your bug.
 
 ###Contribute Your Changes
 

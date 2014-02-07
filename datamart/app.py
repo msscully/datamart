@@ -179,6 +179,10 @@ def configure_api(app):
                        methods=['GET', 'POST', 'DELETE', 'PUT'],
                        results_per_page=RESULTS_PER_PAGE,
                        preprocessors=admin_only_proprocessors)
+    manager.create_api(models.User, 
+                       methods=['GET', 'POST', 'DELETE', 'PUT'],
+                       results_per_page=RESULTS_PER_PAGE,
+                       preprocessors=admin_only_proprocessors)
     manager.create_api(models.ExternalID, 
                        methods=['GET', 'POST', 'DELETE', 'PUT'],
                        results_per_page=RESULTS_PER_PAGE,

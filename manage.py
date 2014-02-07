@@ -48,7 +48,7 @@ def create_user(user, admin, email):
         user = raw_input('Username: ')
     if not email:
         email = raw_input('email: ')
-    password = prompt_pass('New user password')
+    password = flask_security.utils.encrypt_password(prompt_pass('New user password'))
     security.datastore.create_user(email=email, password=password, username=user,
                                    active=True, is_admin=admin)
     db.session.commit()

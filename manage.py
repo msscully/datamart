@@ -3,6 +3,7 @@ from flask.ext.alembic import ManageMigrations
 from datamart import create_app
 from datamart.extensions import db
 from datamart.extensions import security
+import flask_security
 import os
 
 app = create_app()

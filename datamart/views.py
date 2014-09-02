@@ -16,7 +16,6 @@ from .forms import SubjectForm
 from .forms import ExternalIDForm
 from .forms import IndvFactForm
 from flask.ext.security import login_required, LoginForm, current_user
-from flask.ext.restless.views import jsonify_status_code
 from wtforms import SelectField
 from wtforms import validators
 from flask import Response
@@ -57,7 +56,7 @@ def model_edit(model, template, FormType, redirect_default, model_id=None):
     # WTForms broke the obj= in version 1.0.5 and won't fix. 
     # See https://github.com/wtforms/wtforms/pull/29
     # Workaround is to set form._obj
-    form = FormType()
+    form = FormType(obj=model_data)
     form._obj = model_data
 
     if request.method == 'POST':

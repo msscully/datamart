@@ -32,12 +32,12 @@ def auth_func(**kw):
                               identity=Identity(user.id))
         return
     if not current_user.is_authenticated():
-        raise ProcessingException(status_code=403, message='Not authenticated!')
+        raise ProcessingException(code=403, description='Not authenticated!')
 
 def auth_admin(**kw):
     auth_func(**kw)
     if not current_user.is_admin:
-        raise ProcessingException(status_code='403', message='Permission denied!')
+        raise ProcessingException(code='403', description='Permission denied!')
 
 
 def facts_preproc(search_params=None, **kw):
@@ -54,7 +54,7 @@ def facts_preproc(search_params=None, **kw):
                     data_type = var_datatypes[field]
                     return sqlalchemy.cast(model_field, DIMENSION_DATATYPES[data_type])
                 else:
-                    raise ProcessingException(status_code='403', message='Access not authorized.')
+                    raise ProcessingException(code='403', description='Access not authorized.')
             else:
                 return field
 
@@ -109,7 +109,7 @@ def get_single_variable_preprocessor(instance_id=None, **kw):
 
     """
     if instance_id not in current_user.approved_variables():
-        raise ProcessingException(status_code='403', message='Access to ' + instance_id + ' not authorized.')
+        raise ProcessingException(code='403', description='Access to ' + instance_id + ' not authorized.')
 
 def get_many_variables_preprocessor(search_params=None, **kw):
     """Accepts a single argument, `search_params`, which is a dictionary

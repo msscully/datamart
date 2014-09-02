@@ -69,5 +69,5 @@ def drop_db():
 
 if __name__ == "__main__":
     manager.add_command('shell', Shell(make_context=_shell_context, use_ipython=True))
-    manager.add_command("migrate", ManageMigrations())
+    #manager.add_command("migrate", ManageMigrations())
     manager.run()

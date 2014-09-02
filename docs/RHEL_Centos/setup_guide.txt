@@ -6,21 +6,27 @@ Setup ngninx repo and install: http://wiki.nginx.org/Install
   $ setenv PATH $PATH":/usr/pgsql-9.1/bin"
 
 # Clone the datamart repo and move it to /var/www
-  $ git clone git@bitbucket.org:mscully/datamart.git
+  $ git clone git@github.com:msscully/datamart.git
   $ mv datamart /var/www/
+
 # Create a virtualenv
   $ cd /var/www/datamart
   $ virtualenv venv
   $ source venv/bin/activate.csh
+
 # Install the python required libs into the virtualenv
   $ pip install -r prod-requirements.txt
   $ pip install uwsgi
+
 # Create a uwsgi user with nginx group
   $ sudo useradd -c 'uwsgi user,,,' -g nginx -d /nonexistent -s /bin/false uwsgi
-#Copy the included uwsgi.conf to /etc/init/uwsgi.conf
+
+# Copy the included uwsgi.conf to /etc/init/uwsgi.conf
   $ sudo cp ~/uwsgi.conf /etc/init/
-#Copy the included uwsgi init file to /etc/init.d/uwsgi
+
+# Copy the included uwsgi init file to /etc/init.d/uwsgi
   $ cp ~/uwsgi_init /etc/init.d/uwsgi
+
 # Setup uwsgi dirs and fix permissions
   $ sudo chmod a+x /etc/init.d/uwsgi
   $ sudo mkdir /var/log/uwsgi
@@ -29,17 +35,22 @@ Setup ngninx repo and install: http://wiki.nginx.org/Install
   $ sudo chmod -R g+w /var/run/uwsgi
   $ sudo chown -R uwsgi:nginx /var/log/uwsgi
   $ sudo chmod -R g+w /var/log/uwsgi
+
 # Setup uwsgi as a service
   $ sudo chkconfig --add uwsgi
   $ sudo chkconfig uwsgi on
   # Ensure uwsgi is listed and on
     $ sudo chkconfig --list uwsgi
+
 #To setup log-rotation for uwsgi copy uwsgi_logrotate to /etc/logrotate.d/uwsgi
   $ sudo cp ~/uwsgi_logrotate /etc/logrotate.d/uwsgi
+
 # setup uwsgi vassals dir
   $ sudo mkdir -p /etc/uwsgi/vassals
+
 # copy included datamart_uwsi.ini to /etc/uwsgi/vassals/datamart.ini
   $ sudo cp ~/datamart_uwsgi.ini /etc/uwsgi/vassals/datamart.ini
+
 # Switch to postgres user
   $ sudo su - postgres
   # Create a new db user and assign them a password (need this later)
@@ -54,26 +65,42 @@ Setup ngninx repo and install: http://wiki.nginx.org/Install
   # Add the HSTORE extension to prod db
     $ psql -d datamart -c "CREATE EXTENSION HSTORE"
   $ exit
-$sudo vim /var/lib/pgsql/9.1/data/pg_hba.conf
+
+$ sudo vim /var/lib/pgsql/9.1/data/pg_hba.conf
 # under local add a line with user datamart and auth md5
 $ sudo service postgresql-9.1 restart
 $ cd /var/www/datamart
+
+# Create an instance directory
+$ mkdir /var/www/datamart/instance
+# Create log and uploads directory
+$ mkdir /var/www/datamart/logs
+$ mkdir /var/www/datamart/uploads
+
 # Generate a salt and add it to the config vars
   $ python
   >>> import bcrypt
   >>> bcrypt.gensalt()
   'YOUR NEW SALT HERE'
+# Generate a new secret key and add it to the config vars
+  $ python
+  >>> import os
+  >>> os.urandom(24)
+  'YOUR NEW SECRET KEY HERE'
 $ vim /var/www/datamart/instance/production.cfg
 # Add the following:
     SECURITY_PASSWORD_HASH = 'bcrypt'
     SECURITY_PASSWORD_SALT = 'YOUR NEW SALT HERE'
     SECURITY_FLASH_MESSAGES = True
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://datamart:<DATAMART_DB_USER_PASSOWRD>@localhost/datamart_test'
+    SECRET_KEY = 'YOUR NEW SECRET KEY HERE'
 
 # Run python tests to make sure things are working so far.
   $ python manage.py test
+
 # Create the production db tables.
   $ python manage.py create_tables
+
 # Add the datamart.conf file to /etc/nginx/conf.d/datamart.conf
 # remove the default nginx conf file
 $ sudo rm /etc/nginx/conf.d/default.conf

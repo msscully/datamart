@@ -139,6 +139,34 @@ Install development requirements (to run testing or the dev server)
 
     pip install -r dev-requirements.txt
     
+###Instance Directory and config file
+
+To handle logs and uploaded files you'll need to create an instance directory.
+By default the config assumes the instance directory is datamart/instance but
+that can be overidden in the config files. To use the default:
+
+    $ cd repo_dir
+    $ mkdir instance
+    $ mkdir logs
+    $ mkdir uploads
+
+This is also where the production.cfg file will go, which allows you to
+set any configuration variables specific to this instance. An example
+production.cfg can be found as datamart/example_production.cfg. Copy it to your
+instance directory and rename it production.cfg then edit the appropriate
+variables, such as the SQLALCHEMY_DATABASE_URI, the SECRET_KEY, the mail server
+settings, etc.
+
+###Secret Keys
+
+For sessions to be secure you need to generate a secret key and copy it into
+your production.cfg file. A secret key can be generated at the command line by
+running a python interpreter and:
+
+    >>> import os
+    >>> os.urandom('24')
+    '\xd2G\x85\x92\x8f\x12B\xc9\x03\xf1\x89\xde\xd0\x9b\xa1\xdc\x1aU!\xb2\xc3xq\xed'
+
 ###Development
 
 Use the manager to launch a dev server after creating a virtualenv and
@@ -304,7 +332,7 @@ Developers
 
 ###Found a bug?
 
-Please use the integrated issues in bitbucket to submit your bug.
+Please use the integrated issues in github to submit your bug.
 
 ###Contribute Your Changes
 

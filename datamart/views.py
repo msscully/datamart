@@ -384,7 +384,7 @@ def label_upload_data(filename=None):
                         else:
                             event_id = models.Event.query.filter(models.Event.name == column.lstrip()).one().id
                     new_fact.event_id = event_id
-                if var == 'subjects':
+                elif var == 'subjects':
                     subject_id = ''
                     if 'createsubjects' in session and session['createsubjects'] == True:
                         if models.Subject.query.filter(models.Subject.internal_id==column.lstrip()).count() > 0:
